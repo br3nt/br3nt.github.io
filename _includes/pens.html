@@ -1,0 +1,4 @@
+{% for pen in site.code_pens %}
+  <a href="{{ pen.url }}">{{ pen.title }}</a>
+  {{ pen.excerpt }}
+{% endfor %}
