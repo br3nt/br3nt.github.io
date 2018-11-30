@@ -1,6 +1,8 @@
 ---
 link: https://codepen.io/br3nt/full/QBBNrZ/
 title: Hexagonal Grids
+updated_at: 2018-11-30
+created_at: 2018-11-30
 ---
 
 This pen is my attempt at learning how to build hex grids from the [Hexagonal Grids](https://www.redblobgames.com/grids/hexagons/) tutorial by [Red Blob Games](https://www.redblobgames.com).

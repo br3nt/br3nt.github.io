@@ -14,7 +14,6 @@ description: >-
 
 author_alias: &alias br3nt
 author: &author Brent Jacobs
-last_updated: &last_updated 2018-11-30
 
 collections:
   code_pens:
@@ -41,7 +40,6 @@ defaults:
       layout: default
       author: *author
       author_alias: *alias
-      date: *last_updated
 
 plugins:
   - github-pages
