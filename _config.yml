@@ -14,6 +14,7 @@ description: >-
 
 author_alias: &alias br3nt
 author: &author Brent Jacobs
+last_updated: &last_updated
 
 collections:
   code_pens:
@@ -40,10 +41,10 @@ defaults:
       layout: default
       author: *author
       author_alias: *alias
+      date: *last_updated
 
 plugins:
   - github-pages
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
-  - jekyll-last-modified-at
