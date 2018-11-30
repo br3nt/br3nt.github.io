@@ -1,5 +1,5 @@
 ---
-link: https://codepen.io/br3nt/full/QBBNrZ/
+pen_slug: QBBNrZ
 title: Hexagonal Grids
 updated_at: 2018-11-30
 created_at: 2018-11-30
