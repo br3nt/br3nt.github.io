@@ -40,3 +40,9 @@ defaults:
       layout: default
       author: *author
       author_alias: *alias
+
+plugins:
+  - github-pages
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-seo-tag
