@@ -18,6 +18,10 @@ author: &author Brent Jacobs
 collections:
   code_pens:
     output: true
+  games:
+    output: true
+  reviews:
+    output: true
 
 defaults:
   - scope:
@@ -25,21 +29,27 @@ defaults:
       type: posts
     values:
       layout: post
-      # author: *author
-      # author_alias: *alias
   - scope:
       path: ""
       type: code_pens
     values:
       layout: code_pen
-      # author: *author
-      # author_alias: *alias
   - scope:
       path: ""
     values:
       layout: default
       author: *author
       author_alias: *alias
+  - scope:
+      path: ""
+      type: games
+    values:
+      layout: game
+  - scope:
+      path: ""
+      type: reviews
+    values:
+      layout: default
 
 plugins:
   - github-pages

@@ -3,6 +3,8 @@ pen_slug: RyRjNZ
 title: The Snake Game
 updated_at: 2018-11-30
 created_at: 2018-11-30
+
+# This is a cool concept!! https://codepen.io/jackrugile/pen/IHbvh
 ---
 
 This is my attempt to follow along with [Coding Challenge #3: The Snake Game](https://www.youtube.com/watch?v=AaGK-fj-BAM) by [The Coding Train](https://www.youtube.com/channel/UCvjgXvBlbQiydffZU7m1_aw).
