@@ -1,0 +1,4 @@
+{% for game in site.games %}
+  <a href="{{ game.url }}">{{ game.title }}</a>
+  {{ game.excerpt }}
+{% endfor %}
