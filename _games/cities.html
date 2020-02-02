@@ -1,0 +1,275 @@
+---
+p5: true
+---
+<script>
+
+  const cellSize = 20;
+  const map_size = 15;
+  let debugging = false;
+
+  const map = {};
+
+  class Orientation {
+    constructor(f0, f1, f2, f3, b0, b1, b2, b3, start_angle) {
+      this.f0 = f0;
+      this.f1 = f1;
+      this.f2 = f2;
+      this.f3 = f3;
+      this.b1 = b1;
+      this.b0 = b0;
+      this.b2 = b2;
+      this.b3 = b3;
+      this.start_angle = start_angle; // in multiples of 60°
+    }
+  }
+
+  let origin, hex_size, orientation_pointy, orientation_flat, layout_pointy, layout_flat;
+  let hovered, hovered_round, hover_colour;
+  let selected_pixel, selected, selected_colour;
+
+  let city_selector, cities, city_selector_enabled;
+
+
+  function setup() {
+    createCanvas(windowWidth, windowHeight);
+
+    cities = [];
+
+    orientation_pointy = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0,
+      Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0,
+      radians(30));
+    orientation_flat = new Orientation(3.0 / 2.0, 0.0, Math.sqrt(3.0) / 2.0, Math.sqrt(3.0),
+      2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0,
+      radians(0));
+
+    origin = createVector(0, 0);
+    hex_size = createVector(20, 20);
+    offset = createVector(20, 23);
+
+    layout_pointy = new Layout(orientation_pointy, hex_size, origin, offset);
+    layout_flat = new Layout(orientation_flat, hex_size, origin, offset);
+
+    layout = layout_pointy;
+    // layout = layout_flat;
+
+    translate(30, 80);
+
+    for (var r = 0; r < map_size; r++) {
+      var r_offset = floor(r / 2); // or r>>1
+      for (var q = -r_offset; q < map_size - r_offset; q++) {
+        let hex = new Hex(q, r, -q - r, layout);
+        let cell = new Cell(hex);
+        map[`${q},${r}`] = cell;
+      }
+    }
+
+    console.log(map);
+
+    hover_colour = color(200, 100, 7);
+    selected_colour = color(7, 100, 200);
+
+    // create and position the city selector hex
+    let cq = map_size + 3;
+    let cr = 0;
+    city_selector = new Cell(new Hex(cq, cr, -cq - cr, layout), color(200, 100, 7));
+
+    hovered = new Cell(new Hex(0, 0, 0, layout), hover_colour);
+    selected = new Cell(new Hex(0, 0, 0, layout), selected_colour);
+  }
+
+  function draw() {
+    background(30);
+
+    Object.keys(map).forEach(function (coord) {
+      map[coord].render();
+    });
+
+    hovered_pixel = pixel_to_hex(layout, createVector(mouseX, mouseY));
+    hovered.hex = cube_round(hovered_pixel, layout);
+    hovered.render();
+
+    if (selected) selected.render();
+
+    city_selector.render();
+
+    if (debugging) {
+      // draw hex axis
+      let qh = new Hex(10, 0, -10);
+      let qp = hex_to_pixel(layout, qh);
+      let rh = new Hex(0, 10, -10);
+      let rp = hex_to_pixel(layout, rh);
+      push();
+      stroke(255);
+      line(layout.offset.x, layout.offset.y, qp.x, qp.y);
+      line(layout.offset.x, layout.offset.y, rp.x, rp.y);
+      pop();
+    }
+
+
+    for (var i = 0; i < cities.length; i++) {
+      cities[i].render();
+    }
+  }
+
+  function mousePressed() {
+    selected_point = pixel_to_hex(layout, createVector(mouseX, mouseY));
+    selected.hex = cube_round(selected_point, layout);
+
+    if (city_selector.hex.at(selected.hex)) {
+      console.log('city_selector_enabled');
+      city_selector_enabled = true;
+    }
+
+    let map_cell = map[`${selected.hex.q},${selected.hex.r}`];
+    if (map_cell) {
+      if (city_selector_enabled) {
+        // Place city
+        console.log('placing city');
+        cities.push(new City(map_cell.hex.dup()));
+      }
+    }
+  }
+
+  class Hex {
+    constructor(q, r, s, layout) {
+      this.pos = createVector(q, r, s)
+      this.q = q;
+      this.r = r;
+      this.s = s;
+      this.layout = layout;
+      if (q + r + s != 0) throw "Args must add up to 0";
+    }
+
+    at(hex) {
+      return this.q == hex.q && this.r == hex.r && this.s == hex.s;
+    }
+
+    distance(hex) {
+      return Math.max(Math.abs(this.q - hex.q), Math.abs(this.r - hex.y), Math.abs(this.s - hex.z));
+    }
+
+    in_range(hex, distance) {
+      return this.distance(hex) <= distance;
+    }
+
+    dup() {
+      return new Hex(this.q, this.r, this.s, this.layout);
+    }
+  }
+
+  class City {
+    constructor(hex) {
+      this.hex = hex;
+    }
+
+    render() {
+      let point = hex_to_pixel(this.hex.layout, this.hex);
+      push();
+      fill(color(0, 102, 153));
+      textSize(10);
+      textAlign(CENTER, CENTER);
+      text(`C`, point.x, point.y)
+      pop();
+    }
+  }
+
+  class Cell {
+    constructor(hex, border_color, fill_color) {
+      this.hex = hex;
+      this.border_color = border_color;
+      this.fill_color = fill_color;
+    }
+
+    render() {
+      let point = hex_to_pixel(this.hex.layout, this.hex);
+      push();
+      if (this.fill_color) {
+        fill(this.fill_color);
+      } else {
+        noFill();
+      }
+      stroke(this.border_color || 256);
+      if (debugging) {
+        textSize(10);
+        textAlign(CENTER, CENTER);
+        text(`${this.hex.q} ${this.hex.r}\n${this.hex.s}`, point.x, point.y);
+      }
+      translate(point.x, point.y);
+      rotate(this.hex.layout.orientation.start_angle);
+      this.polygon(0, 0, cellSize, 6);
+      pop();
+    }
+
+    polygon(x, y, radius, points) {
+      var angle = TWO_PI / points;
+      beginShape();
+      for (var a = 0; a < TWO_PI; a += angle) {
+        var sx = x + cos(a) * radius;
+        var sy = y + sin(a) * radius;
+        vertex(sx, sy);
+      }
+      endShape(CLOSE);
+    }
+
+  }
+
+  class Layout {
+    constructor(orientation, size, origin, offset) {
+      this.orientation = orientation;
+      this.size = size;
+      this.origin = origin;
+      this.offset = offset;
+    }
+  }
+
+  function hex_to_pixel(layout, hex) {
+    const m = layout.orientation;
+    let x = (m.f0 * hex.q + m.f1 * hex.r) * layout.size.x + layout.offset.x;
+    let y = (m.f2 * hex.q + m.f3 * hex.r) * layout.size.y + layout.offset.y;
+    return createVector(x + layout.origin.x, y + layout.origin.y);
+  }
+
+  function pixel_to_hex(layout, point) {
+    const m = layout.orientation;
+    let pt = createVector((point.x - layout.origin.x - layout.offset.x) / layout.size.x,
+      (point.y - layout.origin.y - layout.offset.y) / layout.size.y);
+    let q = m.b0 * pt.x + m.b1 * pt.y;
+    let r = m.b2 * pt.x + m.b3 * pt.y;
+    return new Hex(q, r, -q - r, layout);
+  }
+
+  function cube_round(hex, layout) {
+    var rx = round(hex.pos.x)
+    var ry = round(hex.pos.y)
+    var rz = round(hex.pos.z)
+
+    var x_diff = abs(rx - hex.pos.x)
+    var y_diff = abs(ry - hex.pos.y)
+    var z_diff = abs(rz - hex.pos.z)
+
+    if (x_diff > y_diff && x_diff > z_diff) {
+      rx = -ry - rz;
+    } else if (y_diff > z_diff) {
+      ry = -rx - rz;
+    } else {
+      rz = -rx - ry;
+    }
+
+    return new Hex(rx, ry, rz, layout);
+  }
+
+
+// This should go in a map object
+// function hex_in_range(center_hex, distance) {
+//   let results = [];
+//   for each -distance ≤ hex.q ≤ distance:
+//     for each max(-distance, -hex.q-distance) ≤ hex.r ≤ min(+distance, -hex.q+distance):
+//       var s = -hex.q-hex.r
+//       results.append(cube_add(center_hex, Cube(hex.q, hex.r, s)));
+
+//   return results;
+// }
+
+
+
+</script>
