@@ -1,8 +1,10 @@
 ---
-title: "Genetic Automata and Higher-Order Computation"
+title: Genetic Automata and Higher-Order Computation
+last_updated: 2020-04-08
+status: draft
 ---
 
-**Draft**
+**DRAFT**
 
 In theory, DNA and RNA have some equivalence to certain concepts in computational theory.
 The genetic letters represent an alphabet, the proteins represent the strings of the genetic language.
