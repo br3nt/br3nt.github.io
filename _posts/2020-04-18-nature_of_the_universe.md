@@ -1,6 +1,7 @@
 ---
 title: The Nature of the Universe
-last-updated: 2020-04-18
+last_updated: 2020-04-18
+status: draft
 ---
 
 **DRAFT**
@@ -23,7 +24,7 @@ Following on from this concept, we can think of the growth of the graph in two w
 
 
 
-
+# Additional ideas to discuss
 
 The rules don't require energy to be applied, they just require specific condition to be met.  So no energy is required to expand the graph... it just does because that's the rules.  Following on from this, in theory, there is no such thing entropy.
 It is perfectly reasonable for a process to continue of forever, just because that's what the rules dictate.  We see thing in Conway's Game of Life, where certain configurations of squares persist in an endlessly repeating pattern, or other configurations which over time produce and expel other configurations that once formed exist independently and forever.

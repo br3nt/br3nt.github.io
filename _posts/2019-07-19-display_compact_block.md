@@ -1,5 +1,6 @@
 ---
 title: "display: compact-block"
+status: published
 ---
 
 I wish there was the concept of a `compact-block` in css.
