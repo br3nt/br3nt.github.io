@@ -1,10 +1,8 @@
 ---
 title: The Nature of the Universe
 last_updated: 2020-04-18
-status: draft
+draft: true
 ---
-
-**DRAFT**
 
 Starting from the premise laid out by Stephen Wolfram: space and everything in it is made from abstract points which have some relationship with other points, and over time, these relationships change according to a finite set of rules.
 
