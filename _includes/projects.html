@@ -1,0 +1,4 @@
+{% for project in site.projects %}
+  <a href="{{ project.url }}">{{ project.title }}</a><br>
+  {{ project.description }}<br><br>
+{% endfor %}

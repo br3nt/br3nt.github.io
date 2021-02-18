@@ -20,6 +20,8 @@ collections:
     output: true
   games:
     output: true
+  projects:
+    output: true
   reviews:
     output: true
 
@@ -45,6 +47,11 @@ defaults:
       type: games
     values:
       layout: game
+  - scope:
+      path: ""
+      type: projects
+    values:
+      layout: default
   - scope:
       path: ""
       type: reviews
