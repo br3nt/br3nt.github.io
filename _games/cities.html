@@ -72,7 +72,7 @@ description: A civ game
       for (var q = -r_offset; q < map_size - r_offset; q++) {
         let hex = new Hex(q, r, -q - r, layout);
         let cell = new Cell(hex);
-        map[`${q},${r}`] = cell;
+        map[hex.locationId] = cell;
       }
     }
 
@@ -86,7 +86,7 @@ description: A civ game
     let cr = 0;
     city_selector = new Cell(new Hex(cq, cr, -cq - cr, layout), color(200, 100, 7));
 
-    click_actions[`${city_selector.hex.q},${city_selector.hex.r}`] = new BuildCityClickAction();
+    click_actions[city_selector.locationId] = new BuildCityClickAction();
 
     hovered = new Cell(new Hex(0, 0, 0, layout), hover_colour);
     selected = new Cell(new Hex(0, 0, 0, layout), selected_colour);
@@ -95,9 +95,7 @@ description: A civ game
   function draw() {
     background(30);
 
-    Object.keys(map).forEach(function (coord) {
-      map[coord].render();
-    });
+    Object.keys(map).forEach(locationId => map[locationId].render());
 
     hovered_pixel = pixel_to_hex(layout, createVector(mouseX, mouseY));
     hovered.hex = cube_round(hovered_pixel, layout);
@@ -132,9 +130,8 @@ description: A civ game
     clickedHex = cube_round(clickedPoint, layout)
 
     // the current hex may have click actions attached to it
-    let locationId = `${clickedHex.q},${clickedHex.r}`
-    console.log(locationId)
-    let action = click_actions[locationId] || new SelectHexClickAction()
+    console.log(clickedHex.locationId)
+    let action = click_actions[clickedHex.locationId] || new SelectHexClickAction()
     console.log(action)
     if (action) action.perform(clickedHex, selected)
   }
@@ -159,7 +156,7 @@ description: A civ game
       // place city
       console.log("place city click action")
 
-      let map_cell = map[`${selectedCell.hex.q},${selectedCell.hex.r}`]
+      let map_cell = map[selectedCell.locationId]
 
       if (map_cell) {
         // Place city
@@ -193,6 +190,10 @@ description: A civ game
 
     dup() {
       return new Hex(this.q, this.r, this.s, this.layout);
+    }
+
+    get locationId() {
+      return `${this.q},${this.r}`
     }
   }
 
@@ -250,6 +251,9 @@ description: A civ game
       endShape(CLOSE);
     }
 
+    get locationId() {
+      return this.hex.locationId
+    }
   }
 
   class Layout {
