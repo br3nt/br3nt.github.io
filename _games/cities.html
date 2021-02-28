@@ -24,6 +24,22 @@ description: A civ game
     }
   }
 
+  class OrientationPointy extends Orientation {
+    constructor() {
+      super(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0,
+        Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0,
+        radians(30));
+    }
+  }
+
+  class OrientationFlat extends Orientation {
+    constructor() {
+      super(3.0 / 2.0, 0.0, Math.sqrt(3.0) / 2.0, Math.sqrt(3.0),
+        2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0,
+        radians(0));
+    }
+  }
+
   let origin, hex_size, orientation_pointy, orientation_flat, layout_pointy, layout_flat;
   let hovered, hovered_round, hover_colour;
   let selected_pixel, selected, selected_colour;
@@ -36,12 +52,8 @@ description: A civ game
 
     cities = [];
 
-    orientation_pointy = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0,
-      Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0,
-      radians(30));
-    orientation_flat = new Orientation(3.0 / 2.0, 0.0, Math.sqrt(3.0) / 2.0, Math.sqrt(3.0),
-      2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0,
-      radians(0));
+    orientation_pointy = new OrientationPointy();
+    orientation_flat = new OrientationFlat();
 
     origin = createVector(0, 0);
     hex_size = createVector(20, 20);
