@@ -9,6 +9,7 @@ description: A civ game
   let debugging = false;
 
   const map = {};
+  const click_actions = {}
 
   class Orientation {
     constructor(f0, f1, f2, f3, b0, b1, b2, b3, start_angle) {
@@ -45,7 +46,6 @@ description: A civ game
   let selected_pixel, selected, selected_colour;
 
   let city_selector, cities, city_selector_enabled;
-
 
   function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -86,6 +86,8 @@ description: A civ game
     let cr = 0;
     city_selector = new Cell(new Hex(cq, cr, -cq - cr, layout), color(200, 100, 7));
 
+    click_actions[`${city_selector.hex.q},${city_selector.hex.r}`] = new BuildCityClickAction();
+
     hovered = new Cell(new Hex(0, 0, 0, layout), hover_colour);
     selected = new Cell(new Hex(0, 0, 0, layout), selected_colour);
   }
@@ -125,21 +127,44 @@ description: A civ game
   }
 
   function mousePressed() {
-    selected_point = pixel_to_hex(layout, createVector(mouseX, mouseY));
-    selected.hex = cube_round(selected_point, layout);
+    // select the hex
+    clickedPoint = pixel_to_hex(layout, createVector(mouseX, mouseY))
+    clickedHex = cube_round(clickedPoint, layout)
 
-    // toggle city selector
-    if (city_selector.hex.at(selected.hex)) {
-      console.log('city_selector_enabled');
-      city_selector_enabled = !city_selector_enabled;
+    // the current hex may have click actions attached to it
+    let locationId = `${clickedHex.q},${clickedHex.r}`
+    console.log(locationId)
+    let action = click_actions[locationId] || new SelectHexClickAction()
+    console.log(action)
+    if (action) action.perform(clickedHex, selected)
+  }
+
+  //
+  // A ClickAction is performed when the user clicks on the map.
+  //
+  class ClickAction {
+    perform(clickedHex, selectedCell) { /* Not implemented */ }
+  }
+
+  class SelectHexClickAction extends ClickAction {
+    perform(clickedHex, selectedCell) {
+      // select hex
+      console.log("select cell click action")
+      selectedCell.hex = clickedHex
     }
+  }
 
-    let map_cell = map[`${selected.hex.q},${selected.hex.r}`];
-    if (map_cell) {
-      if (city_selector_enabled) {
+  class BuildCityClickAction extends ClickAction {
+    perform(clickedHex, selectedCell) {
+      // place city
+      console.log("place city click action")
+
+      let map_cell = map[`${selectedCell.hex.q},${selectedCell.hex.r}`]
+
+      if (map_cell) {
         // Place city
-        console.log('placing city');
-        cities.push(new City(map_cell.hex.dup()));
+        console.log('placing city')
+        cities.push(new City(map_cell.hex.dup()))
       }
     }
   }
