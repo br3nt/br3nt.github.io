@@ -128,9 +128,10 @@ description: A civ game
     selected_point = pixel_to_hex(layout, createVector(mouseX, mouseY));
     selected.hex = cube_round(selected_point, layout);
 
+    // toggle city selector
     if (city_selector.hex.at(selected.hex)) {
       console.log('city_selector_enabled');
-      city_selector_enabled = true;
+      city_selector_enabled = !city_selector_enabled;
     }
 
     let map_cell = map[`${selected.hex.q},${selected.hex.r}`];
