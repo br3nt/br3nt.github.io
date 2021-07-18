@@ -59,9 +59,11 @@ defaults:
       layout: default
 
 plugins:
-  - github-pages
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
+
+exclude:
+  - README.md
 
 theme: jekyll-theme-cayman

@@ -1,1 +1,7 @@
-_site/
+# jekyll
+_site
+.jekyll-metadata
+.jekyll-cache/
+
+# npm
+/node_modules/
