@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.4.1",
+    "autoprefixer": "^10.3.1",
+    "cssnano": "^5.0.6",
+    "postcss": "^8.3.5",
+    "postcss-import": "^14.0.2",
+    "tailwindcss": "^2.2.4"
+  },
+  "dependencies": {
+    "postcss-comment": "^2.0.0",
+    "postcss-scss": "^4.0.0"
+  }
+}

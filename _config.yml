@@ -28,6 +28,11 @@ collections:
 defaults:
   - scope:
       path: ""
+    values:
+      author: *author
+      author_alias: *alias
+  - scope:
+      path: ""
       type: posts
     values:
       layout: post
@@ -36,12 +41,7 @@ defaults:
       type: code_pens
     values:
       layout: code_pen
-  - scope:
-      path: ""
-    values:
-      layout: default
-      author: *author
-      author_alias: *alias
+
   - scope:
       path: ""
       type: games
@@ -62,8 +62,15 @@ plugins:
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
+  - jekyll-postcss
+
+include:
+  - node_modules/tailwindcss
 
 exclude:
   - README.md
+  - node_modules
+  - '*.config.js'
+  - package*.json
+  - bin
 
-theme: jekyll-theme-cayman
