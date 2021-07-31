@@ -8,6 +8,29 @@ layout: default
     <div class="text-center">
       <h1 id="project-name">{{ site.title | default: site.github.repository_name }}</h1>
     </div>
+
+    <div class="container mx-auto">
+      <div class="flex space-x-4">
+        {% assign last_three_posts = site.posts | limit: 3 %}
+        {% for post in last_three_posts %}
+          <div class="relative flex-1 p-5 rounded-md bg-gray-800 text-gray-100 shadow-blerg overflow-hidden">
+            {% if post.draft %}
+              <div class="absolute top-4 -right-10 transform rotate-45 w-32 text-center bg-red-500 shadow-lg">
+                <span class="uppercase text-white">Draft</span>
+              </div>
+            {% endif %}
+            <div>
+              <h2 class="font-thin"><a href="{{ post.url }}">{{ post.title }}</a></h2>
+
+            </div>
+            <div>
+              {{ post.excerpt }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
   </div>
 
 {% endcontentfor %}
