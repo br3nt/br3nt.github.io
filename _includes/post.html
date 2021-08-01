@@ -1,0 +1,6 @@
+<article class="mb-10">
+  <h2 class="font-thin"><a href="{{ include.post.url }}">{{ include.post.title }}</a></h2>
+  {% if include.post.draft %}[Draft]{% endif %}
+
+  {{ include.post.excerpt }}
+</article>

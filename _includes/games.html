@@ -1,4 +1,3 @@
 {% for game in site.games %}
-  <a href="{{ game.url }}">{{ game.title }}</a><br>
-  {{ game.description }}<br><br>
+  {% include project.html page=game %}
 {% endfor %}

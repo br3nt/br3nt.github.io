@@ -1,4 +1,3 @@
 {% for review in site.reviews %}
-  <a href="{{ review.url }}">{{ review.title }}</a>
-  {{ review.excerpt }}
+  {% include post.html post=review %}
 {% endfor %}
