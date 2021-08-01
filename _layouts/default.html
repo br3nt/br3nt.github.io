@@ -1,38 +1,21 @@
-<!DOCTYPE html>
-<html lang="{{ site.lang | default: "en-US" }}">
+---
+layout: base
+---
 
-<head>
-  <meta charset="UTF-8">
-
-  {% seo %}
-  {% feed_meta %}
-
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#157878">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-</head>
-
-<body>
+{% ifhascontent header %}
   <header id="page-header" role="banner">
-    {% ifhascontent header %}
-      {% contentblock header %}
-    {% endifhascontent %}
+    {% contentblock header %}
   </header>
+{% endifhascontent %}
 
-  <h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
+<h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
 
-  <main id="content" class="main-content" role="main">
-    {{ content }}
-  </main>
+<main id="content" class="main-content" role="main">
+  {{ content }}
+</main>
 
+{% ifhascontent footer %}
   <footer class="site-footer">
-
-    {% ifhascontent footer %}
-      {% contentblock footer %}
-    {% endifhascontent %}
-
+    {% contentblock footer %}
   </footer>
-</body>
-
-</html>
+{% endifhascontent %}
