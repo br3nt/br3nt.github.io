@@ -4,9 +4,10 @@ layout: default
 
 {% contentfor header %}
 
-  <div class="absolute top-0 left-0 h-screen w-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"></div>
+  <!-- <div class="absolute top-0 left-0 h-screen w-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"></div> -->
+  <div class="absolute top-0 left-0 h-screen w-screen animated-gradient"></div>
 
-  <div id="page-header-content" class="relative bg-opacity-80 h-screen bg-gray-900 flex flex-col justify-evenly">
+  <div id="page-header-content" class="relative h-screen --bg-gray-900 --bg-opacity-90 flex flex-col justify-evenly">
     <div class="text-center">
       <h1 id="project-name">{{ site.title | default: site.github.repository_name }}</h1>
     </div>
