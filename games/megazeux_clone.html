@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang=" en-US">
+
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>MZX Clone | Random br3ntness</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="MZX Clone" />
+<meta name="author" content="Brent Jacobs" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A megazeux clone" />
+<meta property="og:description" content="A megazeux clone" />
+<meta property="og:site_name" content="Random br3ntness" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-08-02T07:01:05-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MZX Clone" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Brent Jacobs"},"@type":"BlogPosting","description":"A megazeux clone","url":"/games/megazeux_clone.html","headline":"MZX Clone","dateModified":"2021-08-02T07:01:05-05:00","datePublished":"2021-08-02T07:01:05-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"/games/megazeux_clone.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Random br3ntness" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="/assets/css/style.css?v=">
+
+  
+    
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.sound.min.js"></script>
+
+  
+</head>
+
+<body>
+  
+
+<script type="module">
+  function hello() {
+    console.log('hello')
+  }
+
+  import * as myModule from './megazeux_clone/module.js'
+  import * as sprites from './megazeux_clone/sprites.js'
+
+  // game objects should subscribe to player events.
+  //   eg: player aligned, only relevent in certain situations
+  //     - add_new_player()
+  //     - add_new_npc()
+  //     - add_game_object()
+  // how is force transmitted through movable objects? eg player pushes three blocks, all should move including player
+
+  // [x] Slow down the status text colour
+  // [x] Remove message after 5 seconds
+  // [ ] Message history
+
+  // attach observables to objects
+  // objects with observables of specific types get iterated over
+  // eg objects with alignment iterators get added to the iterated collection
+  // the player is automatically added to all collections
+  // player.touch(thing, () => { // do something })
+
+  // TODO: pixel perfect collision
+  // - check if bounding boxes are overlapping
+  // - do bitwise & for each "pixel" in the intersecting bounding boxes to find any intersecting "pixels"
+
+  const pixel_width = 2;
+
+  let player, block, game_board, game_objects = [];
+  let status_message;
+
+  const Palette = {
+    get magenta() { return [255, 85, 255] },
+    get yellow() { return [255, 255, 85] },
+    get white() { return [255, 255, 255] },
+    get light_grey() { return [170, 170, 170] },
+    get dark_grey() { return [85, 85, 85] },
+    get blue() { return [85, 85, 255] },
+    get green() { return [85, 255, 85] },
+    get cyan() { return [85, 255, 255] },
+    get red() { return [255, 85, 85] },
+  }
+
+  const Dir = {
+    get up() { return 1; },
+    get down() { return 2; },
+    get left() { return 4; },
+    get right() { return 8; },
+
+    get north() { return 1 },
+    get south() { return 2 },
+    get east() { return 4 },
+    get west() { return 8 },
+
+    get ne() { return this.north | this.east },
+    get nw() { return this.north | this.west },
+    get se() { return this.south | this.east },
+    get sw() { return this.south | this.west },
+
+    opposite(dir) {
+      switch (dir) {
+        case this.up, this.north: return this.down; break;
+        case this.down, this.south: return this.up; break;
+        case this.left, this.east: return this.right; break;
+        case this.right, this.west: return this.left; break;
+        case this.ne: return this.sw; break;
+        case this.nw: return this.se; break;
+        case this.se: return this.nw; break;
+        case this.sw: return this.ne; break;
+      }
+    },
+
+    contains(value, dir) {
+      return !!(value & dir)
+    },
+  }
+
+  // TODO: split this into RelativePosition, and RelativeDirection
+  class Alignment {
+    constructor(object1, object2) {
+      this.top_left = { x: object1.x, y: object1.y }
+      // TODO: this should be part of the GameObject class - shouldn't have to recalculate this
+      this.bottom_right = { x: object1.x + object1.width, y: object1.y + object1.height }
+
+      // relative vectors to other object from origin
+      this.to_top_left = { x: object2.x - object1.x, y: object2.y - object1.y }
+      this.to_bottom_right = { x: object2.x + object2.width - object1.x, y: object2.y + object2.height - object1.y }
+
+      // TODO: alignment boxes
+      if (this.to_top_left.y < this.bottom_right.y && this.to_top_left.y > 0) this.top_y = this.to_top_left.y
+
+      // relative direction
+      this.dir = 0
+      if (object2.y - object1.y < 0) this.dir = this.dir | Dir.north
+      if (object2.x - object1.x < 0) this.dir = this.dir | Dir.west
+      if (object2.y + object2.height - object1.y - object1.height > 0) this.dir = this.dir | Dir.south
+      if (object2.x + object2.width - object1.x - object1.width > 0) this.dir = this.dir | Dir.east
+
+      let x_align = []
+      // test if top of object2 is x-aligned with object1
+      if (object2.x >= object1.x && object2.x <= object1.x + object1.width) x_align.push(object2.x)
+      // test if bottom of object2 is x-aligned with object1
+      if (object2.x + object2.width >= object1.x && object2.x + object2.width <= object1.x + object1.width) x_align.push(object2.x + object2.width)
+      // test if top of object1 is x-aligned with object2
+      if (object1.x >= object2.x && object1.x <= object2.x + object2.width) x_align.push(object1.x)
+      // test if bottom of object1 is x-aligned with object2
+      if (object1.x + object1.width >= object2.x && object1.x + object1.width <= object2.x + object2.width) x_align.push(object1.x + object1.width)
+
+      let y_align = []
+      // test if top of object2 is y-aligned with object1
+      if (object2.y >= object1.y && object2.y <= object1.y + object1.height) y_align.push(object2.y)
+      // test if bottom of object2 is y-aligned with object1
+      if (object2.y + object2.height >= object1.y && object2.y + object2.height <= object1.y + object1.height) y_align.push(object2.y + object2.height)
+      // test if top of object1 is y-aligned with object2
+      if (object1.y >= object2.y && object1.y <= object2.y + object2.height) y_align.push(object1.y)
+      // test if bottom of object1 is y-aligned with object2
+      if (object1.y + object1.height >= object2.y && object1.y + object1.height <= object2.y + object2.height) y_align.push(object1.y + object1.height)
+
+      this.alignment = {
+        y_align: y_align.sort((x, y) => x > y),
+        x_align: x_align.sort((x, y) => x > y),
+
+        top_aligned: object1.y == object2.y + object2.height,
+        bottom_aligned: object1.y + object2.height == object2.y,
+
+        left_aligned: object1.x == object2.x + object2.width,
+        right_aligned: object1.x + object2.width == object2.x,
+      }
+    }
+  }
+
+  function setup() {
+    createCanvas(windowWidth, windowHeight);
+
+    player = new GameObject(sprites.player_sprite(), createVector(10, 10));
+    block = new GameObject(sprites.block_sprite(), createVector(30, 30));
+
+    game_board = new GameBoard();
+    if (!game_board.add(block)) console.log('block not added');
+    if (!game_board.add(player)) console.log('player not added');
+
+    status_message = new StatusMessage();
+
+    status_message.display("Welcome!");
+  }
+
+  function draw() {
+    background(30);
+
+    // TODO: if key is tapped, move one pixel
+    //       if key is held down, move many pixels, increasing speed from a walk to a run
+    if (keyIsDown(UP_ARROW)) game_board.move_object(player, Dir.up);
+    if (keyIsDown(DOWN_ARROW)) game_board.move_object(player, Dir.down);
+    if (keyIsDown(LEFT_ARROW)) game_board.move_object(player, Dir.left);
+    if (keyIsDown(RIGHT_ARROW)) game_board.move_object(player, Dir.right);
+
+    game_board.game_objects.forEach((object) => {
+      if (player == object) return
+      if (player.alignedNS(object)) console.log('Player aligned NS')
+      if (player.alignedEW(object)) console.log('Player aligned EW')
+
+      let al = player.alignment(object)
+      console.table(al)
+    })
+
+    status_message.draw();
+
+    let alignment = new Alignment(block, player)
+    // console.log(alignment)
+    if (Dir.contains(alignment.dir, Dir.north)) console.log("Player is north")
+    if (Dir.contains(alignment.dir, Dir.south)) console.log("Player is south")
+    if (Dir.contains(alignment.dir, Dir.east)) console.log("Player is east")
+    if (Dir.contains(alignment.dir, Dir.west)) console.log("Player is west")
+
+    stroke("red")
+    alignment.alignment.y_align.forEach((y) => {
+      line(0, y * pixel_width, 1000, y * pixel_width)
+    })
+
+    console.table(alignment.alignment)
+
+    stroke("green")
+    alignment.alignment.x_align.forEach((x) => {
+      line(x * pixel_width, 1000, x * pixel_width, 0)
+    })
+
+    fill(204, 101, 192, 127);
+    noStroke();
+    game_board.draw();
+  }
+
+  window.setup = setup
+  window.draw = draw
+
+  function keyPressed() {
+  }
+
+  function blocked(direction, object_1, object_2) {
+
+  }
+
+  class GameObject {
+
+    constructor(sprite, pos) {
+      this.sprite = sprite;
+      this.pos = pos;
+      this.solid = true;
+    }
+
+    get width() { return this.sprite.width; }
+    get height() { return this.sprite.height; }
+    get x() { return this.pos.x; }
+    get y() { return this.pos.y; }
+
+    draw() {
+      this.sprite.draw(this.pos, pixel_width);
+
+      // draw align boundries
+      stroke(255, 255, 255, 100)
+      // NS (left)
+      line(this.x * pixel_width, 0, this.x * pixel_width, 1000)
+      // NS (right)
+      line((this.x + this.width) * pixel_width, 0, (this.x + this.width) * pixel_width, 1000)
+
+      // EW (top)
+      line(0, this.y * pixel_width, 1000, this.y * pixel_width)
+      // EW (bottom)
+      line(0, (this.y + this.height) * pixel_width, 1000, (this.y + this.height) * pixel_width)
+    }
+
+    alignedEW(object) {
+      return this.y + this.height > object.y && this.y < object.y + object.height
+    }
+
+    alignedNS(object) {
+      return this.x + this.width > object.x && this.x < object.x + object.width
+    }
+
+    alignment(object) {
+      let x_to_right = this.x - (object.x + object.width)
+      let y_to_bottom = this.y - (object.y + object.height)
+
+      let right_to_right = (this.x + this.width) - (object.x + object.width)
+      let bottom_to_bottom = (this.y + this.height) - (object.y + object.height)
+
+      let right_to_x = (this.x + this.width) - object.x
+      let bottom_to_y = (this.y + this.height) - object.y
+
+      let x = Math.min(this.x, object.x + object.width)
+      let width = Math.max(this.x, object.x + object.width)
+
+      let y = Math.min(this.y, object.y + object.height)
+      let height = Math.max(this.y, object.y + object.height)
+
+      return { x_to_right, right_to_right, y_to_bottom, bottom_to_bottom, right_to_x, bottom_to_y, x, width, y, height }
+    }
+
+    intersect(object) {
+      return this.x < object.x + object.width && this.x + this.width > object.x &&
+        this.y < object.y + object.height && this.y + this.height > object.y;
+    }
+
+    move(dir) {
+      switch (dir) {
+        case Dir.up: player.pos.y -= 1; break;
+        case Dir.down: player.pos.y += 1; break;
+        case Dir.left: player.pos.x -= 1; break;
+        case Dir.right: player.pos.x += 1; break;
+        default: console.log('Unknown direction');
+      }
+    }
+
+    touched(dir) {
+      status_message.display(`I was touched from dir: ${dir}`);
+    }
+
+    thud(dir, objects) {
+      status_message.display(`I've run into ${objects.length} objects`)
+    }
+
+    colour(colour) {
+
+    }
+
+  }
+
+  class GameBoard {
+    constructor() {
+      this.game_objects = [];
+      this.object_positions = [];
+    }
+
+    add(object, position) {
+      if (!this.intersects(object)) {
+        this.game_objects.push(object);
+        return true;
+      }
+      return false;
+    }
+
+    remove(object) { }
+
+    move_object(object, dir) {
+      var original_pos = createVector(object.pos.x, object.pos.y);
+
+      // try to move object
+      object.move(dir);
+
+      // return object to previous position if it intersects another game object
+      var objects = this.intersecting_objects(object);
+      if (objects.length > 0) {
+        object.pos = original_pos;
+        object.thud(dir, objects);
+        for (var i = 0; i < objects.length; i++) {
+          objects[i].touched(Dir.opposite(dir), object);
+        }
+      }
+    }
+
+    draw() {
+      for (var i = 0; i < this.game_objects.length; i++) {
+        this.game_objects[i].draw();
+      }
+    }
+
+    intersects(object) {
+      // test for intercept of any objects
+      for (var i = 0; i < this.game_objects.length; i++) {
+        var test_obj = this.game_objects[i];
+        if (test_obj != object && test_obj.intersect(object)) return true;
+      }
+
+      return false;
+    }
+
+    intersecting_objects(object) {
+      var objects = [];
+
+      // test for intercept of all objects
+      for (var i = 0; i < this.game_objects.length; i++) {
+        var test_obj = this.game_objects[i];
+        if (test_obj != object && test_obj.intersect(object)) {
+          objects.push(test_obj);
+        }
+      }
+
+      return objects;
+    }
+  }
+
+  class StatusMessage {
+
+    text_colors = [
+      Palette.magenta,
+      Palette.yellow,
+      Palette.white,
+      Palette.light_grey,
+      Palette.dark_grey,
+      Palette.blue,
+      Palette.green,
+      Palette.cyan,
+      Palette.red,
+    ];
+
+    text_color = 0;
+
+    message;
+
+    constructor() {
+
+      console.log(this.text_colors);
+    }
+
+    display(message) {
+      this.clear();
+      this.message = message;
+      this.clear_id = setTimeout(() => this.clear(), 5000);
+      this.color_id = setInterval(() => this.change_color(), 100);
+    }
+
+    clear() {
+      this.message = null;
+      clearTimeout(this.clear_id);
+      clearInterval(this.color_id);
+    }
+
+    change_color() {
+      this.text_color = (this.text_color + 1) % this.text_colors.length;
+    }
+
+    draw() {
+      if (this.message) {
+        fill(...this.text_colors[this.text_color]);
+        textSize(15);
+        textAlign(CENTER, CENTER);
+        text(this.message, 0, windowHeight - 25, windowWidth);
+      }
+    }
+  }
+</script>
+<!-- <script>
+  function setup() {
+    hello()
+  }
+</script> -->
+
+
+</body>
+
+</html>
