@@ -1,0 +1,181 @@
+---
+layout: blank
+---
+
+<html>
+<head>
+
+  <style>
+    :root {
+      --body-text-color: #3A3B3C;
+    }
+
+    html {
+      color-scheme: light dark;
+    }
+
+    body {
+      font-family: system-ui;
+      font-size: var(--font-size, 1.125rem);
+      line-height: var(--line-height, 1.5);
+      color: var(--body-text-color);
+    }
+
+    :is(h1, h2, h3, h4, h5, h6) > a {
+      text-decoration: none;
+      color: var(--body-text-color);
+      font-weight: 100;
+    }
+
+    h2, h3, h4, h5, h6 {
+      font-weight: 100;
+      margin: 0;
+    }
+
+    p {
+      margin-top: 0;
+    }
+
+    a {
+      color:#007FFF;
+      font-weight: 300;
+      background: linear-gradient(to right, #00BFFF 0%, #007FFF 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      transition: color .2s ease-in-out;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color:rgba(0,0,0,0);
+    }
+
+    :is(h1, h2, h3, h4, h5, h6) > a:hover::after {
+      content: '🔗';
+      padding-left: 0.5rem;
+    }
+
+    article {
+      margin-bottom: 2rem;
+    }
+
+    img,
+    svg,
+    video {
+      max-width: 100%;
+      display: block;
+    }
+
+    .content-grid {
+      --padding-x: 2rem;
+      --content-max-width: 70ch;
+      --breakout-max-width: 85ch;
+      --breakout-size:
+        calc((var(--breakout-max-width) - var(--content-max-width)) / 2);
+
+      display: grid;
+      grid-template-columns:
+        [full-width-start] minmax(var(--padding-x), 1fr)
+          [breakout-start] minmax(0, var(--breakout-size))
+            [content-start]
+              min(100% - (var(--padding-x) * 2), var(--content-max-width))
+            [content-end] minmax(0, var(--breakout-size))
+          [breakout-end] minmax(var(--padding-x), 1fr)
+        [full-width-end];
+    }
+
+    .content-grid > * {
+      grid-column: content;
+    }
+
+    .content-grid > .full-width {
+      grid-column: full-width;
+    }
+
+    .content-grid > .breakout {
+      grid-column: breakout;
+    }
+
+    .draft {
+      font-size: 0.70rem;
+      color: white;
+      background-color: #F40009;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 2px 4px;
+      border-radius: 5px;
+    }
+  </style>
+
+</head>
+<body>
+
+<main class="content-grid">
+
+  <h1>{{ site.title }}</h1>
+
+  <h2>This is a heading</h2>
+
+  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam quae aspernatur aut dignissimos dolor laboriosam
+  temporibus odio corrupti adipisci obcaecati.</p>
+
+
+  <img src="assets/images/telescope.jpeg">
+
+  <section>
+    <h2>Posts</h2>
+    {% for post in site.posts %}
+      <article>
+        <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+
+        {% if post.draft %}
+          <span class="draft">Draft</span>
+        {% endif %}
+
+        {{ post.excerpt }}
+      </article>
+
+    {% endfor %}
+  </section>
+
+  <section>
+    <h2>Pens</h2>
+    {% for pen in site.code_pens %}
+    <article>
+      <h3><a href="{{ pen.url }}">{{ pen.title }}</a></h3>
+
+      {% if pen.draft %}
+      <span class="draft">Draft</span>
+      {% endif %}
+
+      {{ pen.excerpt }}
+    </article>
+
+    {% endfor %}
+  </section>
+
+
+
+  <!-- TODO make these like the above two -->
+
+  <section>
+    <h2>Reviews</h2>
+    {% include reviews.html %}
+  </section>
+
+  <section>
+    <h2>Games</h2>
+    {% include games.html %}
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+    {% include projects.html %}
+  </section>
+
+
+</main>
+
+
+</body>
+</html>

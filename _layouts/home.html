@@ -16,7 +16,7 @@ layout: default
       <div class="flex space-x-4">
         {% assign last_three_posts = site.posts | limit: 3 %}
         {% for post in last_three_posts %}
-          <div class="relative flex-1 p-5 rounded-md bg-gray-800 text-gray-100 shadow-blerg overflow-hidden">
+          <div class="relative flex-1 p-5 ml rounded-md bg-gray-800 text-gray-100 shadow-blerg overflow-hidden">
             {% if post.draft %}
               <div class="absolute top-4 -right-10 transform rotate-45 w-32 text-center bg-red-500 shadow-lg">
                 <span class="uppercase text-white">Draft</span>

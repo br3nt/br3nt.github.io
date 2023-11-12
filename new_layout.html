@@ -1,0 +1,181 @@
+---
+layout: blank
+---
+
+<html>
+<head>
+
+  <style>
+    html {
+      color-scheme: light dark;
+    }
+
+    body {
+      font-family: system-ui;
+      font-size: var(--font-size, 1.125rem);
+      line-height: var(--line-height, 1.5);
+    }
+
+    main {
+      width: min(70ch, 100% - 4rem);
+      margin-inline: auto;
+    }
+
+    img,
+    svg,
+    video {
+      max-width: 100%;
+      display: block;
+    }
+
+    h1 {
+      font-variant: small-caps;
+      color: orange;
+      border-style: solid;
+      border-width: thick;
+      border-color: orange;
+      width: fit-content;
+      margin: 2rem auto;
+      padding: .25rem 1.5rem;
+      font-size: 2.5rem;
+      rotate: 3deg;
+    }
+
+    .rotate {
+      --rotate: ;
+      rotate: var(--rotate);
+    }
+
+    .rotate:hover {
+      --rotate-hover: ;
+      rotate: var(--rotate-hover);
+    }
+
+    .transition {
+      --transition: ;
+      transition: var(--transition);
+    }
+
+    .transition:hover {
+      --transition-hover: ;
+      transition: var(--transition-hover);
+    }
+
+    .border {
+      --border: ;
+      border: var(--border);
+    }
+
+    .border:hover {
+      --border-hover: ;
+      border: var(--border-hover);
+    }
+
+    h2 {
+      font-variant: small-caps;
+      background-color: greenyellow;
+      width: fit-content;
+      margin: 1rem;
+      padding: 0 1rem;
+      rotate: -5deg;
+      transition: rotate 400ms;
+    }
+
+    h2:hover {
+      rotate: -3deg;
+      transition: rotate 200ms;
+    }
+
+    .draft {
+      text-transform: uppercase;
+      font-weight: bolder;
+      background-color: red;
+      color: white;
+      font-size: 0.75rem;
+      display: inline-block;
+      width: fit-content;
+      padding: 0 .25rem;
+      margin: -1rem 5rem;
+    }
+
+    h3 {
+      font-variant: small-caps;
+      color: fuchsia;
+      border-style: solid;
+      border-color: fuchsia;
+      width: fit-content;
+      padding: 0 .25rem;
+    }
+
+    h3 a {
+      text-decoration: none;
+      color: unset;
+    }
+  </style>
+
+</head>
+<body>
+
+<main>
+
+  <h1>
+    <div class="rotate transition border" style="--transition: rotate 400ms; --rotate-hover: 1deg; --transition-hover: rotate 200ms; --border-hover: solid thick #FFE134">
+      <div class="rotate transition border" style="--transition: rotate 400ms; --rotate-hover: 1deg; --transition-hover: rotate 200ms; --border-hover: solid thick #FF9E28">
+        <div class="rotate transition border" style="--transition: rotate 400ms, border-width 400ms; --rotate-hover: 1deg; --transition-hover: rotate 200ms; --border-hover: solid thick #FE5A1C; padding: 0 1rem;">
+          {{ site.title }}
+        </div>
+      </div>
+    </div>
+  </h1>
+
+  <h2>This is a heading</h2>
+
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam quae aspernatur aut dignissimos dolor laboriosam
+  temporibus odio corrupti adipisci obcaecati.
+
+
+  <img src="assets/images/telescope.jpeg">
+
+  <section>
+    <h2>Posts</h2>
+    {% for post in site.posts %}
+      <article>
+        <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+
+        {% if post.draft %}
+          <span class="draft">Draft</span>
+        {% endif %}
+
+        {{ post.excerpt }}
+      </article>
+
+    {% endfor %}
+
+  </section>
+
+  <section>
+    <h2>Pens</h2>
+    {% include pens.html %}
+  </section>
+
+  <section>
+    <h2>Reviews</h2>
+    {% include reviews.html %}
+  </section>
+
+  <section>
+    <h2>Games</h2>
+    {% include games.html %}
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+    {% include projects.html %}
+  </section>
+
+
+</main>
+
+
+</body>
+</html>
