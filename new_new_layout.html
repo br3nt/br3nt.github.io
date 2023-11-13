@@ -8,10 +8,37 @@ layout: blank
   <style>
     :root {
       --body-text-color: #3A3B3C;
+
+
+      --selection-color: var(--selection-color-1);
+      --selection-background: var(--selection-background-1);
+
+      --selection-color-1: white;
+      --selection-background-1: #ff3399;
+
+      --selection-color-2: white;
+      --selection-background-2: #c1b001;
+
+      --selection-color-3: white;
+      --selection-background-3: #a8140e;
+
+      --selection-color-4: white;
+      --selection-background-4: #4315aa;
+
+      --selection-color-5: white;
+      --selection-background-5: #359d09;
+
+      --selection-color-6: white;
+      --selection-background-6: #8f4762;
     }
 
     html {
       color-scheme: light dark;
+    }
+
+    ::selection {
+      color: var(--selection-color);
+      background: var(--selection-background);
     }
 
     body {
@@ -108,6 +135,19 @@ layout: blank
   </style>
 
 </head>
+
+<script>
+  // inspired by: https://www.braydoncoyer.dev/blog/change-text-highlight-color-with-css
+  // modified to move the colors into css variables
+  let colorIndex = -1
+
+  window.addEventListener("mousedown", e => {
+    const nextColor = (++colorIndex % 6) + 1
+
+    document.documentElement.style.setProperty("--selection-color", `var(--selection-color-${nextColor})`)
+    document.documentElement.style.setProperty("--selection-background", `var(--selection-background-${nextColor})`)
+  });
+</script>
 <body>
 
 <main class="content-grid">
