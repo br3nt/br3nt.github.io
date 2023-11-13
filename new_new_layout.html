@@ -9,6 +9,9 @@ layout: blank
     :root {
       --body-text-color: #3A3B3C;
 
+      --link-color: #007FFF;
+      --link-hover-color-1:#72dcff;
+      --link-hover-color-2:#0066cd;
 
       --selection-color: var(--selection-color-1);
       --selection-background: var(--selection-background-1);
@@ -64,9 +67,9 @@ layout: blank
     }
 
     a {
-      color:#007FFF;
+      color: var(--link-color);
       font-weight: 300;
-      background: linear-gradient(to right, #00BFFF 0%, #007FFF 100%);
+      background: linear-gradient(to right, var(--link-hover-color-1) 0%, var(--link-hover-color-2) 100%);
       background-clip: text;
       -webkit-background-clip: text;
       transition: color .2s ease-in-out;
