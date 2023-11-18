@@ -135,6 +135,32 @@ layout: blank
       padding: 2px 4px;
       border-radius: 5px;
     }
+
+    /* Using: https://www.gradient-animator.com/ */
+    .animated-gradient {
+        background: linear-gradient(270deg, #230000, #211200, #181a00, #071a00, #001405, #001816, #000a23, #060025, #150023, #210023, #21000e);
+        background-size: 2200% 2200%;
+
+        -webkit-animation: gradient-animation 120s linear infinite;
+        -moz-animation: gradient-animation 120s linear infinite;
+        animation: gradient-animation 120s linear infinite;
+    }
+
+    @-webkit-keyframes gradient-animation {
+        0%{background-position:0% 50%}
+        50%{background-position:100% 50%}
+        100%{background-position:0% 50%}
+    }
+    @-moz-keyframes gradient-animation {
+        0%{background-position:0% 50%}
+        50%{background-position:100% 50%}
+        100%{background-position:0% 50%}
+    }
+    @keyframes gradient-animation {
+        0%{background-position:0% 50%}
+        50%{background-position:100% 50%}
+        100%{background-position:0% 50%}
+    }
   </style>
 
 </head>
