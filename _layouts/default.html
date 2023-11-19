@@ -2,20 +2,23 @@
 layout: base
 ---
 
-{% ifhascontent header %}
-  <header id="page-header" role="banner">
-    {% contentblock header %}
-  </header>
-{% endifhascontent %}
+{% contentblock head %}
+  <script>
+    // inspired by: https://www.braydoncoyer.dev/blog/change-text-highlight-color-with-css
+    // modified to move the colors into css variables
+    let colorIndex = -1
 
-<h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
+    window.addEventListener("mousedown", e => {
+      const nextColor = (++colorIndex % 6) + 1
 
-<main id="content" class="main-content" role="main">
-  {{ content }}
-</main>
+      document.documentElement.style.setProperty("--selection-color", `var(--selection-color-${nextColor})`)
+      document.documentElement.style.setProperty("--selection-background", `var(--selection-background-${nextColor})`)
+    });
+  </script>
+{% contentblock %}
 
-{% ifhascontent footer %}
-  <footer class="site-footer">
-    {% contentblock footer %}
-  </footer>
-{% endifhascontent %}
+{% contentblock header %}
+
+{{ content }}
+
+{% contentblock footer %}

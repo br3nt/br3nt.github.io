@@ -65,15 +65,10 @@ plugins:
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
-  - jekyll-postcss
   - jekyll-contentblocks
-
-include:
-  - node_modules/tailwindcss
 
 exclude:
   - README.md
   - node_modules
   - '*.config.js'
-  - package*.json
   - bin

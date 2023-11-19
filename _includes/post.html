@@ -1,8 +1,9 @@
-<article class="mb-10">
+<article>
+  <h3><a href="{{ include.post.url }}">{{ include.post.title }}</a></h3>
+
   {% if include.post.draft %}
-    <span class="text-center px-1 py-px text-xs uppercase font-bold text-white bg-red-500 rounded">Draft</span>
+    <span class="draft">Draft</span>
   {% endif %}
-  <h2 class="font-thin"><a href="{{ include.post.url }}">{{ include.post.title }}</a></h2>
 
   {{ include.post.excerpt }}
 </article>

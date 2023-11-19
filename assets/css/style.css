@@ -1,72 +1,195 @@
----
----
-
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
 :root {
-  --color-1: #186cb8;
-  --color-2: #2a9a9f;
-  --color-3: #f1b211;
-  --color-4: #e83611;
-  --color-5: #f9002f;
+  --body-text-color: #3A3B3C;
+
+  --link-color: #007FFF;
+  --link-hover-color-1: #72dcff;
+  --link-hover-color-2: #0066cd;
+
+  --selection-color: var(--selection-color-1);
+  --selection-background: var(--selection-background-1);
+
+  --selection-color-1: white;
+  --selection-background-1: #ff3399;
+
+  --selection-color-2: white;
+  --selection-background-2: #c1b001;
+
+  --selection-color-3: white;
+  --selection-background-3: #a8140e;
+
+  --selection-color-4: white;
+  --selection-background-4: #4315aa;
+
+  --selection-color-5: white;
+  --selection-background-5: #359d09;
+
+  --selection-color-6: white;
+  --selection-background-6: #8f4762;
 }
 
-h1 {
-  font-family: "Exo", sans-serif;
-  font-size: 5em;
-  font-weight: 900;
-  width: -webkit-min-content;
-  width: -moz-min-content;
-  width: min-content;
-  margin: auto;
-  text-transform: uppercase;
-  background: repeating-linear-gradient(
-    45deg,
-    var(--color-1),
-    var(--color-1) 19%,
-    transparent 19%,transparent 20%,
-    var(--color-2) 20%,
-    var(--color-2) 39%,
-    transparent 39%,transparent 40%,
-    var(--color-3) 40%,
-    var(--color-3) 59%,
-    transparent 59%,transparent 60%,
-    var(--color-4) 60%,
-    var(--color-4) 79%,
-    transparent 79%, transparent 80%,
-    var(--color-5) 80%,
-    var(--color-5) 99%,
-    transparent 99%, transparent 100%
-  );
+html {
+  color-scheme: light dark;
+}
+
+::selection {
+  color: var(--selection-color);
+  background: var(--selection-background);
+}
+
+body {
+  font-family: system-ui;
+  font-size: var(--font-size, 1.125rem);
+  line-height: var(--line-height, 1.5);
+  color: var(--body-text-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
+h2 {
+  font-weight: 400;
+}
+
+h2 > a {
+  text-decoration: none;
+  color: var(--body-text-color);
+  font-weight: 400;
+}
+
+:is(h3, h4, h5, h6) > a {
+  text-decoration: none;
+  color: var(--body-text-color);
+  font-weight: 100;
+}
+
+h3, h4, h5, h6 {
+  font-weight: 100;
+}
+
+:is(h3, h4, h5, h6) > a {
+  text-decoration: none;
+  color: var(--body-text-color);
+  font-weight: 100;
+}
+
+p {
+  margin-top: 0;
+}
+
+a {
+  color: var(--link-color);
+  font-weight: 300;
+  background: linear-gradient(to right, var(--link-hover-color-1) 0%, var(--link-hover-color-2) 100%);
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
+  transition: color .2s ease-in-out;
+  text-decoration: none;
+}
+
+a:hover {
+  color: rgba(0, 0, 0, 0);
+}
+
+:is(h1, h2, h3, h4, h5, h6) > a:hover::after {
+  content: '🔗';
+  padding-left: 0.5rem;
+  font-size: small;
+}
+
+article {
+  margin-bottom: 2rem;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+.content-grid {
+  --padding-x: 2rem;
+  --content-max-width: 70ch;
+  --breakout-max-width: 85ch;
+  --breakout-size:
+    calc((var(--breakout-max-width) - var(--content-max-width)) / 2);
+
+  display: grid;
+  grid-template-columns:
+    [full-width-start] minmax(var(--padding-x), 1fr) [breakout-start] minmax(0, var(--breakout-size)) [content-start] min(100% - (var(--padding-x) * 2), var(--content-max-width)) [content-end] minmax(0, var(--breakout-size)) [breakout-end] minmax(var(--padding-x), 1fr) [full-width-end];
+}
+
+.content-grid > * {
+  grid-column: content;
+}
+
+.content-grid > .full-width {
+  grid-column: full-width;
+}
+
+.content-grid > .breakout {
+  grid-column: breakout;
+}
+
+.draft {
+  font-size: 0.70rem;
+  color: white;
+  background-color: #F40009;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 5px;
 }
 
 /* Using: https://www.gradient-animator.com/ */
 .animated-gradient {
-    background: linear-gradient(270deg, #230000, #211200, #181a00, #071a00, #001405, #001816, #000a23, #060025, #150023, #210023, #21000e);
-    background-size: 2200% 2200%;
+  background: linear-gradient(270deg, #230000, #211200, #181a00, #071a00, #001405, #001816, #000a23, #060025, #150023, #210023, #21000e);
+  background-size: 2200% 2200%;
 
-    -webkit-animation: gradient-animation 120s linear infinite;
-    -moz-animation: gradient-animation 120s linear infinite;
-    animation: gradient-animation 120s linear infinite;
+  -webkit-animation: gradient-animation 120s linear infinite;
+  -moz-animation: gradient-animation 120s linear infinite;
+  animation: gradient-animation 120s linear infinite;
 }
 
 @-webkit-keyframes gradient-animation {
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
 }
+
 @-moz-keyframes gradient-animation {
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
 }
+
 @keyframes gradient-animation {
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
 }
