@@ -29,18 +29,15 @@
 
 html {
   color-scheme: light dark;
+  font-family: system-ui;
+  font-size: var(--font-size, 13px);
+  line-height: var(--line-height, 1.5);
+  color: var(--body-text-color);
 }
 
 ::selection {
   color: var(--selection-color);
   background: var(--selection-background);
-}
-
-body {
-  font-family: system-ui;
-  font-size: var(--font-size, 13px);
-  line-height: var(--line-height, 1.5);
-  color: var(--body-text-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
