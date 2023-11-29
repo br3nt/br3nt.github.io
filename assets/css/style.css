@@ -30,7 +30,7 @@
 html {
   color-scheme: light dark;
   font-family: system-ui;
-  font-size: var(--font-size, 13px);
+  font-size: var(--font-size, 0.85rem);
   line-height: var(--line-height, 1.5);
   color: var(--body-text-color);
 }
