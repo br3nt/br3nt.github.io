@@ -12,7 +12,7 @@ description: A megazeux clone
   import * as sprites from './megazeux_clone/sprites.js'
 
   // game objects should subscribe to player events.
-  //   eg: player aligned, only relevent in certain situations
+  //   eg: player aligned, only relevant in certain situations
   //     - add_new_player()
   //     - add_new_npc()
   //     - add_game_object()
@@ -83,19 +83,19 @@ description: A megazeux clone
     },
   }
 
+
   // TODO: split this into RelativePosition, and RelativeDirection
   class Alignment {
     constructor(object1, object2) {
-      this.top_left = { x: object1.x, y: object1.y }
-      // TODO: this should be part of the GameObject class - shouldn't have to recalculate this
-      this.bottom_right = { x: object1.x + object1.width, y: object1.y + object1.height }
+      let top_left = object1.top_left
+      let bottom_right = object1.bottom_right
 
       // relative vectors to other object from origin
       this.to_top_left = { x: object2.x - object1.x, y: object2.y - object1.y }
       this.to_bottom_right = { x: object2.x + object2.width - object1.x, y: object2.y + object2.height - object1.y }
 
       // TODO: alignment boxes
-      if (this.to_top_left.y < this.bottom_right.y && this.to_top_left.y > 0) this.top_y = this.to_top_left.y
+      if (this.to_top_left.y < bottom_right.y && this.to_top_left.y > 0) this.top_y = this.to_top_left.y
 
       // relative direction
       this.dir = 0
@@ -106,23 +106,23 @@ description: A megazeux clone
 
       let x_align = []
       // test if top of object2 is x-aligned with object1
-      if (object2.x >= object1.x && object2.x <= object1.x + object1.width) x_align.push(object2.x)
+      if (object2.x >= object1.x && object2.x <= bottom_right.x) x_align.push(object2.x)
       // test if bottom of object2 is x-aligned with object1
-      if (object2.x + object2.width >= object1.x && object2.x + object2.width <= object1.x + object1.width) x_align.push(object2.x + object2.width)
+      if (object2.x + object2.width >= object1.x && object2.x + object2.width <= bottom_right.x) x_align.push(object2.x + object2.width)
       // test if top of object1 is x-aligned with object2
       if (object1.x >= object2.x && object1.x <= object2.x + object2.width) x_align.push(object1.x)
       // test if bottom of object1 is x-aligned with object2
-      if (object1.x + object1.width >= object2.x && object1.x + object1.width <= object2.x + object2.width) x_align.push(object1.x + object1.width)
+      if (bottom_right.x >= object2.x && bottom_right.x <= object2.x + object2.width) x_align.push(bottom_right.x)
 
       let y_align = []
       // test if top of object2 is y-aligned with object1
-      if (object2.y >= object1.y && object2.y <= object1.y + object1.height) y_align.push(object2.y)
+      if (object2.y >= object1.y && object2.y <= bottom_right.y) y_align.push(object2.y)
       // test if bottom of object2 is y-aligned with object1
-      if (object2.y + object2.height >= object1.y && object2.y + object2.height <= object1.y + object1.height) y_align.push(object2.y + object2.height)
+      if (object2.y + object2.height >= object1.y && object2.y + object2.height <= bottom_right.y) y_align.push(object2.y + object2.height)
       // test if top of object1 is y-aligned with object2
       if (object1.y >= object2.y && object1.y <= object2.y + object2.height) y_align.push(object1.y)
       // test if bottom of object1 is y-aligned with object2
-      if (object1.y + object1.height >= object2.y && object1.y + object1.height <= object2.y + object2.height) y_align.push(object1.y + object1.height)
+      if (bottom_right.y >= object2.y && bottom_right.y <= object2.y + object2.height) y_align.push(bottom_right.y)
 
       this.alignment = {
         y_align: y_align.sort((x, y) => x > y),
@@ -135,7 +135,7 @@ description: A megazeux clone
         right_aligned: object1.x + object2.width == object2.x,
       }
     }
-  }
+  } // Alignment class
 
   function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -152,15 +152,21 @@ description: A megazeux clone
     status_message.display("Welcome!");
   }
 
+  var hold_count = 0
+
   function draw() {
     background(30);
 
-    // TODO: if key is tapped, move one pixel
-    //       if key is held down, move many pixels, increasing speed from a walk to a run
-    if (keyIsDown(UP_ARROW)) game_board.move_object(player, Dir.up);
-    if (keyIsDown(DOWN_ARROW)) game_board.move_object(player, Dir.down);
-    if (keyIsDown(LEFT_ARROW)) game_board.move_object(player, Dir.left);
-    if (keyIsDown(RIGHT_ARROW)) game_board.move_object(player, Dir.right);
+    hold_count = keyIsDown(UP_ARROW) || keyIsDown(DOWN_ARROW) || keyIsDown(LEFT_ARROW) || keyIsDown(RIGHT_ARROW) ? hold_count + 1 : 0
+    console.log(hold_count)
+
+    // if key is held down, move many pixels, increasing speed from a walk to a run
+    let dist = hold_count > 25 ? hold_count > 50 ? 3 : 2 : 1
+
+    if (keyIsDown(UP_ARROW)) game_board.move_object(player, Dir.up, dist);
+    if (keyIsDown(DOWN_ARROW)) game_board.move_object(player, Dir.down, dist);
+    if (keyIsDown(LEFT_ARROW)) game_board.move_object(player, Dir.left, dist);
+    if (keyIsDown(RIGHT_ARROW)) game_board.move_object(player, Dir.right, dist);
 
     game_board.game_objects.forEach((object) => {
       if (player == object) return
@@ -210,18 +216,20 @@ description: A megazeux clone
   class GameObject {
 
     constructor(sprite, pos) {
-      this.sprite = sprite;
-      this.pos = pos;
-      this.solid = true;
+      this.sprite = sprite
+      this.pos = pos
+      this.solid = true
     }
 
-    get width() { return this.sprite.width; }
-    get height() { return this.sprite.height; }
-    get x() { return this.pos.x; }
-    get y() { return this.pos.y; }
+    get width() { return this.sprite.width }
+    get height() { return this.sprite.height }
+    get x() { return this.pos.x }
+    get y() { return this.pos.y }
+    get top_right() { return { x: pos.x + this.sprite.width, y: this.pos.y } }
+    get bottom_right() { return { x: this.pos.x + this.sprite.width, y: this.pos.y + this.sprite.height } }
 
     draw() {
-      this.sprite.draw(this.pos, pixel_width);
+      this.sprite.draw(this.pos, pixel_width)
 
       // draw align boundries
       stroke(255, 255, 255, 100)
@@ -268,12 +276,12 @@ description: A megazeux clone
         this.y < object.y + object.height && this.y + this.height > object.y;
     }
 
-    move(dir) {
+    move(dir, dist = 1) {
       switch (dir) {
-        case Dir.up: player.pos.y -= 1; break;
-        case Dir.down: player.pos.y += 1; break;
-        case Dir.left: player.pos.x -= 1; break;
-        case Dir.right: player.pos.x += 1; break;
+        case Dir.up: player.pos.y -= dist; break;
+        case Dir.down: player.pos.y += dist; break;
+        case Dir.left: player.pos.x -= dist; break;
+        case Dir.right: player.pos.x += dist; break;
         default: console.log('Unknown direction');
       }
     }
@@ -308,11 +316,11 @@ description: A megazeux clone
 
     remove(object) { }
 
-    move_object(object, dir) {
+    move_object(object, dir, dist = 1) {
       var original_pos = createVector(object.pos.x, object.pos.y);
 
       // try to move object
-      object.move(dir);
+      object.move(dir, dist);
 
       // return object to previous position if it intersects another game object
       var objects = this.intersecting_objects(object);
