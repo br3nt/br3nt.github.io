@@ -27,6 +27,8 @@ collections:
     output: true
   reviews:
     output: true
+  shader_examples:
+    output: true
 
 defaults:
   - scope:
@@ -44,7 +46,6 @@ defaults:
       type: code_pens
     values:
       layout: code_pen
-
   - scope:
       path: ""
       type: games
@@ -60,6 +61,11 @@ defaults:
       type: reviews
     values:
       layout: default
+  - scope:
+      path: ""
+      type: shader_examples
+    values:
+      layout: game
 
 plugins:
   - jekyll-sitemap
