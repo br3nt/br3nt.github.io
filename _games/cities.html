@@ -4,12 +4,22 @@ description: A civ game
 ---
 <script>
 
-  const cellSize = 20;
-  const map_size = 15;
-  let debugging = false;
+  // [x] Create nomadic tribe unit
+  // [ ] Select nomadic tribe
+  // [ ] Allow nomadic tribe to move
+  // [ ] Allow nomadic tribe to settle
+  // [ ] Early game - settled tribe my occasionally produce nomadic tribes, requires nearby agriculture
+  // [ ] Later game, cities are planned - select spot, resources need to be supplied, pop needs to grow, develops resource requirements
 
-  const map = {};
-  const click_actions = {}
+  // click on screen
+  // click through layers...
+  // each layer can respond to click and then pass click down
+
+  const cellSize = 20
+  const map_size = 15
+  let debugging = false
+
+  let map
 
   class Orientation {
     constructor(f0, f1, f2, f3, b0, b1, b2, b3, start_angle) {
@@ -47,10 +57,14 @@ description: A civ game
 
   let city_selector, cities, city_selector_enabled;
 
+  let menu
+
   function setup() {
     createCanvas(windowWidth, windowHeight);
 
-    cities = [];
+    cities = {}
+    map = new Map()
+    menu = new Map()
 
     orientation_pointy = new OrientationPointy();
     orientation_flat = new OrientationFlat();
@@ -70,9 +84,9 @@ description: A civ game
     for (var r = 0; r < map_size; r++) {
       var r_offset = floor(r / 2); // or r>>1
       for (var q = -r_offset; q < map_size - r_offset; q++) {
-        let hex = new Hex(q, r, -q - r, layout);
+        let hex = new Hex(q, r);
         let cell = new Cell(hex);
-        map[hex.locationId] = cell;
+        map.place(hex, cell)
       }
     }
 
@@ -82,58 +96,69 @@ description: A civ game
     selected_colour = color(7, 100, 200);
 
     // create and position the city selector hex
-    let cq = map_size + 3;
-    let cr = 0;
-    city_selector = new Cell(new Hex(cq, cr, -cq - cr, layout), color(200, 100, 7));
+    let city_hex = new Hex(map_size + 3, 0)
+    city_selector = new BuildCityButton(city_hex, color(200, 100, 7));
+    map.place(city_hex, city_selector)
 
-    click_actions[city_selector.locationId] = new BuildCityClickAction();
+    hovered = new Cell(new Hex(0, 0), hover_colour);
+    selected = new Cell(new Hex(0, 0), selected_colour);
 
-    hovered = new Cell(new Hex(0, 0, 0, layout), hover_colour);
-    selected = new Cell(new Hex(0, 0, 0, layout), selected_colour);
+    // place starting unit
+    var cells = map.cells()
+    var randomCell = cells[cells.length * Math.random() | 0]
+    var randomLocation = randomCell.hex
+    map.place(randomLocation, new NomadicTribe(randomLocation))
   }
 
   function draw() {
     background(30);
 
-    Object.keys(map).forEach(locationId => map[locationId].render());
+    map.render(layout)
 
     hovered_pixel = pixel_to_hex(layout, createVector(mouseX, mouseY));
-    hovered.hex = cube_round(hovered_pixel, layout);
-    hovered.render();
+    hovered.hex = cube_round(hovered_pixel)
+    hovered.render(layout)
 
-    if (selected) selected.render();
-
-    city_selector.render();
+    if (selected) selected.render(layout)
 
     if (debugging) {
       // draw hex axis
-      let qh = new Hex(10, 0, -10);
-      let qp = hex_to_pixel(layout, qh);
-      let rh = new Hex(0, 10, -10);
-      let rp = hex_to_pixel(layout, rh);
+      let qh = new Hex(10, 0)
+      let qp = hex_to_pixel(layout, qh)
+      let rh = new Hex(0, 10)
+      let rp = hex_to_pixel(layout, rh)
       push();
       stroke(255);
       line(layout.offset.x, layout.offset.y, qp.x, qp.y);
       line(layout.offset.x, layout.offset.y, rp.x, rp.y);
       pop();
     }
-
-
-    for (var i = 0; i < cities.length; i++) {
-      cities[i].render();
-    }
   }
 
   function mousePressed() {
     // select the hex
     clickedPoint = pixel_to_hex(layout, createVector(mouseX, mouseY))
-    clickedHex = cube_round(clickedPoint, layout)
+    clickedHex = cube_round(clickedPoint)
 
-    // the current hex may have click actions attached to it
-    console.log(clickedHex.locationId)
-    let action = click_actions[clickedHex.locationId] || new SelectHexClickAction()
-    console.log(action)
-    if (action) action.perform(clickedHex, selected)
+    console.log('clicking', clickedHex)
+    let selectedItems = map.getList(clickedHex)
+
+    console.log('neighbor', hex_neighbor(clickedHex, 0))
+
+    click(selectedItems, selected)
+  }
+
+  function click(selectedItems, selectedCell) {
+    console.log('selectedItems', selectedItems)
+
+    for (let item of selectedItems) {
+      let handled = false
+      let handler = () => handled = true
+
+      let action = item.clickAction()
+      if (action) action.perform(clickedHex, selectedCell, handler)
+      if (handled) break
+    }
   }
 
   //
@@ -146,8 +171,9 @@ description: A civ game
   class SelectHexClickAction extends ClickAction {
     perform(clickedHex, selectedCell) {
       // select hex
-      console.log("select cell click action")
       selectedCell.hex = clickedHex
+
+      // show hex details. eg coord, tile properties, city, units
     }
   }
 
@@ -156,44 +182,154 @@ description: A civ game
       // place city
       console.log("place city click action")
 
-      let map_cell = map[selectedCell.locationId]
+      let map_cell = map.getTop(selectedCell)
 
-      if (map_cell) {
+      if (map_cell && !cities[map_cell.locationId]) {
         // Place city
         console.log('placing city')
-        cities.push(new City(map_cell.hex.dup()))
+        let city = new City(map_cell.hex.dup())
+        cities[map_cell.locationId] = city
+        map.place(selectedCell, city)
       }
     }
   }
 
+  class ShowCellMenuClickAction extends ClickAction {
+      perform(clickedHex, selectedCell, handled) {
+        // select hex
+        selectedCell.hex = clickedHex
+        handled()
+        // show cell menu
+      }
+    }
+
+  class CityClickedClickAction extends ClickAction {
+    perform(clickedHex, selectedCell, handled) {
+      // select hex
+      selectedCell.hex = clickedHex
+
+
+      let hexes = this.select(clickedHex)
+      console.log(hexes)
+      hexes.forEach(h => map.place(h, new Cell(h, null, 'red')))
+
+      handled()
+      // show city menu
+    }
+
+    select(center_hex) {
+      let N = 2
+      let results = []
+      for (let x = -N; x <= +N; x++) {
+        for (let y = Math.max(-N, -x-N); y <= Math.min(N, -x+N); y++) {
+          results.push(center_hex.add(new Hex(x, y)))
+        }
+      }
+      return results
+    }
+  }
+
+  class UnitSelectedClickAction extends ClickAction {
+    perform(clickedHex, selectedCell) {
+      // select hex
+      // selectedCell.hex = clickedHex
+
+      // show city menu
+
+      console.log('unit clicked')
+    }
+  }
+
   class Hex {
-    constructor(q, r, s, layout) {
-      this.pos = createVector(q, r, s)
-      this.q = q;
-      this.r = r;
-      this.s = s;
-      this.layout = layout;
-      if (q + r + s != 0) throw "Args must add up to 0";
+    constructor(q, r) {
+      this.q = q
+      this.r = r
+      this.s = -q-r
     }
 
     at(hex) {
-      return this.q == hex.q && this.r == hex.r && this.s == hex.s;
+      return this.q == hex.q && this.r == hex.r && this.s == hex.s
     }
 
     distance(hex) {
-      return Math.max(Math.abs(this.q - hex.q), Math.abs(this.r - hex.y), Math.abs(this.s - hex.z));
+      return Math.max(Math.abs(this.q - hex.q), Math.abs(this.r - hex.y), Math.abs(this.s - hex.z))
     }
 
     in_range(hex, distance) {
-      return this.distance(hex) <= distance;
+      return this.distance(hex) <= distance
     }
 
     dup() {
-      return new Hex(this.q, this.r, this.s, this.layout);
+      return new Hex(this.q, this.r)
+    }
+
+    add(hex) {
+      return new Hex(this.q + hex.q, this.r + hex.r)
+    }
+
+    subtract(hex) {
+      return new Hex(this.q - hex.q, this.r - hex.r)
+    }
+
+    multiply(k) {
+      return new Hex(this.q * k, this.r * k)
     }
 
     get locationId() {
       return `${this.q},${this.r}`
+    }
+  }
+
+  var axial_directions = [
+    new Hex(+1, 0), new Hex(+1, -1), new Hex(0, -1),
+    new Hex(-1, 0), new Hex(-1, +1), new Hex(0, +1),
+  ]
+
+  function hex_direction(direction) {
+    return axial_directions[direction]
+  }
+
+  function hex_neighbor(hex, direction) {
+    var dir = hex_direction(direction)
+    return hex.add(dir)
+  }
+
+  function hex_neighbors(hex) {
+    return axial_directions.map(() =>) hex.add(dir)
+  }
+
+
+  class Unit {
+    constructor(hex) {
+      this.hex = hex;
+    }
+
+    render(layout) {
+      let point = hex_to_pixel(layout, this.hex);
+      push();
+      fill(color(0, 102, 153));
+      textSize(10);
+      textAlign(CENTER, CENTER);
+      text(`U`, point.x, point.y)
+      pop();
+    }
+
+    clickAction() {
+      return new UnitSelectedClickAction()
+    }
+  }
+
+  class NomadicTribe extends Unit {
+    constructor(hex) { super(hex) }
+
+    render(layout) {
+      let point = hex_to_pixel(layout, this.hex);
+      push();
+      fill(color(128, 255, 0));
+      textSize(10);
+      textAlign(CENTER, CENTER);
+      text(`T`, point.x, point.y)
+      pop();
     }
   }
 
@@ -202,14 +338,19 @@ description: A civ game
       this.hex = hex;
     }
 
-    render() {
-      let point = hex_to_pixel(this.hex.layout, this.hex);
+    render(layout) {
+      let point = hex_to_pixel(layout, this.hex);
       push();
       fill(color(0, 102, 153));
       textSize(10);
       textAlign(CENTER, CENTER);
       text(`C`, point.x, point.y)
       pop();
+    }
+
+    clickAction() {
+      console.log('city clicked')
+      return new CityClickedClickAction()
     }
   }
 
@@ -220,11 +361,11 @@ description: A civ game
       this.fill_color = fill_color;
     }
 
-    render() {
-      let point = hex_to_pixel(this.hex.layout, this.hex);
+    render(layout) {
+      let point = hex_to_pixel(layout, this.hex);
       push();
       if (this.fill_color) {
-        fill(this.fill_color);
+        fill(this.fill_color)
       } else {
         noFill();
       }
@@ -235,7 +376,7 @@ description: A civ game
         text(`${this.hex.q} ${this.hex.r}\n${this.hex.s}`, point.x, point.y);
       }
       translate(point.x, point.y);
-      rotate(this.hex.layout.orientation.start_angle);
+      rotate(layout.orientation.start_angle);
       this.polygon(0, 0, cellSize, 6);
       pop();
     }
@@ -253,6 +394,16 @@ description: A civ game
 
     get locationId() {
       return this.hex.locationId
+    }
+
+    clickAction() {
+      return new ShowCellMenuClickAction()
+    }
+  }
+
+  class BuildCityButton extends Cell {
+    clickAction() {
+      return new BuildCityClickAction()
     }
   }
 
@@ -278,17 +429,17 @@ description: A civ game
       (point.y - layout.origin.y - layout.offset.y) / layout.size.y);
     let q = m.b0 * pt.x + m.b1 * pt.y;
     let r = m.b2 * pt.x + m.b3 * pt.y;
-    return new Hex(q, r, -q - r, layout);
+    return new Hex(q, r);
   }
 
-  function cube_round(hex, layout) {
-    var rx = round(hex.pos.x)
-    var ry = round(hex.pos.y)
-    var rz = round(hex.pos.z)
+  function cube_round(hex) {
+    var rx = round(hex.q)
+    var ry = round(hex.r)
+    var rz = round(hex.s)
 
-    var x_diff = abs(rx - hex.pos.x)
-    var y_diff = abs(ry - hex.pos.y)
-    var z_diff = abs(rz - hex.pos.z)
+    var x_diff = abs(rx - hex.q)
+    var y_diff = abs(ry - hex.r)
+    var z_diff = abs(rz - hex.s)
 
     if (x_diff > y_diff && x_diff > z_diff) {
       rx = -ry - rz;
@@ -298,7 +449,7 @@ description: A civ game
       rz = -rx - ry;
     }
 
-    return new Hex(rx, ry, rz, layout);
+    return new Hex(rx, ry);
   }
 
 
@@ -313,6 +464,147 @@ description: A civ game
 //   return results;
 // }
 
+  // TODO:
+  // each map location could be a node in a linked list
+  // getTop gets the head node
+  // clicking on the head passes down the click to lower nodes
 
+  class Node {
+    constructor(value) {
+      this.value = value
+    }
+
+    remove() {
+      if (this.prev) this.prev.next = this.next
+      if (this.next )this.next.prev = this.prev
+      delete this.next
+      delete this.prev
+    }
+
+    insert_after(node) {
+      this.remove()
+
+      this.next = node.next
+      if (this.next) this.next.prev = this
+      this.prev = node
+      node.next = this
+    }
+  }
+
+  class ListNode extends Node {
+
+    constructor() {
+      super()
+      this.next = this.prev = this
+    }
+
+    remove() { throw "can't do this on a ListNode" }
+
+    get head() {
+      if (this.next == this) return
+      return this.next
+    }
+
+    get tail() {
+      if (this.prev == this) return
+      return this.prev
+    }
+
+    add_to_head(node) {
+      node.insert_after(this)
+    }
+
+    add_to_tail(node) {
+      node.insert_after(this.prev)
+    }
+
+    *[Symbol.iterator]() {
+      let node = this.next
+      while (node != this) {
+        yield node
+        node = node.next
+      }
+    }
+
+    nodes() {
+      return [...this]
+    }
+
+    values() {
+      return [...this].map(node => node.value)
+    }
+  }
+
+  head = new Node(1)
+  middle = new Node(2)
+  middle.insert_after(head)
+  tail = new Node(3)
+  tail.insert_after(middle)
+
+  // create a new list
+  list = new ListNode()
+
+  // add some items to the head or tail
+  list.add_to_head(new Node('Hello'))
+  list.add_to_tail(new Node('World'))
+  list.values() // => ["Hello", "World"]
+
+  // // remove items from the head
+  // list.head.remove()
+  // list.values() // => ["World"]
+  // list.head == list.tail // => true
+
+  // // remove items from the tail
+  // list.tail.remove()
+  // list.values() // => []
+
+  // setup for enumeration example
+  // list = new ListNode()
+  // list.add_to_head(new Node(1))
+  // list.add_to_head(new Node(2))
+  // list.add_to_head(new Node(3))
+  // list.add_to_head(new Node(4))
+
+  // list each value
+  //list.each {| node | puts node.value }
+
+  // select all nodes with values greater than 2
+  //list.each.select {| node | node.value > 2 }
+
+  // find the first node with a value of 4
+  //list.each.find {| node | node.value == 4 }
+
+
+  class Map {
+    constructor() {
+      this.map = {}
+    }
+
+    place(hex, mapItem) {
+      this.map[hex.locationId] || (this.map[hex.locationId] = [])
+      this.map[hex.locationId].unshift(mapItem)
+    }
+
+    getTop({ locationId }) {
+      var list = this.map[locationId] || []
+      return list[0]
+    }
+
+    getList({ locationId }) {
+      return this.map[clickedHex.locationId] || []
+    }
+
+    everything() {
+      return Object.values(this.map).flat()
+    }
+
+    cells() {
+      return this.everything().filter(e => e instanceof Cell)
+    }
+
+    render(layout) {
+      this.everything().forEach(mapItem => mapItem.render(layout))
+    }
+  }
 
 </script>
