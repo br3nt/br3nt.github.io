@@ -1,5 +1,4 @@
 ---
-layout: default
 title: The Endless (2017)
 ---
 Science Fiction/Thriller
