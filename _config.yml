@@ -36,6 +36,7 @@ defaults:
     values:
       author: *author
       author_alias: *alias
+      pen_height: 500
   - scope:
       path: ""
       type: posts
