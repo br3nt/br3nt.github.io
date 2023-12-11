@@ -1,12 +1,20 @@
 ---
 layout: default
 ---
-<h1>{{ page.title }}</h1>
-<p>{{ page.created_at | date_to_string }} - {{ page.author }} - See the Pen <a href="https://codepen.io/br3nt/full/{{ page.link }}/">{{ page.title }}</a></p>
 
-<p data-height="265" data-theme-id="0" data-slug-hash="{{ page.pen_slug }}" data-default-tab="js,result" data-user="br3nt"
-  data-pen-title="Hex Grid" class="codepen">See the Pen <a href="https://codepen.io/br3nt/full/{{ page.link }}/">{{ page.title }}</a> by
-  {{page.author}} (<a href="https://codepen.io/br3nt">@br3nt</a>) on <a href="https://codepen.io">CodePen</a>.</p>
-<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+<main id="content" class="content-grid" role="main">
+  <h1>{{ page.title }}</h1>
+  <p>{{ page.created_at | date_to_string }} - {{ page.author }} - See the Pen <a
+      href="https://codepen.io/br3nt/full/{{ page.pen_slug }}/">{{ page.title }}</a></p>
 
-{{ content }}
+  <div class="breakout" style="margin-top: 2rem; margin-bottom: 3rem">
+    <p data-height="{{ page.pen_height | pen_height }}" data-theme-id="0" data-slug-hash="{{ page.pen_slug }}" data-default-tab="js,result"
+      data-user="br3nt" data-pen-title="Hex Grid" class="codepen">See the Pen <a
+        href="https://codepen.io/br3nt/full/{{ page.pen_slug }}/">{{ page.title }}</a> by
+      {{page.author}} (<a href="https://codepen.io/br3nt">@br3nt</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+    <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+  </div>
+
+
+  {{ content }}
+</main>

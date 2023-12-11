@@ -60,7 +60,7 @@ defaults:
       path: ""
       type: reviews
     values:
-      layout: default
+      layout: post
   - scope:
       path: ""
       type: shader_examples
