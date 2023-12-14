@@ -80,7 +80,7 @@ a {
   background: linear-gradient(to right, var(--link-hover-color-1) 0%, var(--link-hover-color-2) 100%);
   background-clip: text;
   -webkit-background-clip: text;
-  transition: color .2s ease-in-out;
+  transition: color .1s ease-in-out;
   text-decoration: none;
 }
 
