@@ -48,7 +48,7 @@ h2 {
   font-weight: 400;
 }
 
-h2 > a {
+:is(h1, h2) > a {
   text-decoration: none;
   color: var(--body-text-color);
   font-weight: 400;
@@ -88,7 +88,7 @@ a:hover {
   color: rgba(0, 0, 0, 0);
 }
 
-:is(h1, h2, h3, h4, h5, h6) > a:hover::after {
+:is(h2, h3, h4, h5, h6) > a:hover::after {
   content: '🔗';
   padding-left: 0.5rem;
   font-size: small;
