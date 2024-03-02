@@ -2,6 +2,14 @@
 layout: default
 ---
 
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/atelier-dune-light.min.css"
+  integrity="sha512-n7iIWjqc8zLD3Kkv4aXT7gdwJNCAUK9yOe8GjqEgUVO79syWvlA06WLuJ4kMTS0emrnZPg+f/p4HLHJxSGfGuQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
+  integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <main id="content" class="content-grid" role="main">
   <h1>{{ page.title }}</h1>
   <p>{{ page.date | date_to_string }} - {{ page.author }}</p>
@@ -9,3 +17,7 @@ layout: default
 
   {{ content }}
 </main>
+
+<script>
+  hljs.highlightAll()
+</script>

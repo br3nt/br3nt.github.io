@@ -29,6 +29,8 @@ collections:
     output: true
   shader_examples:
     output: true
+  advent_of_code:
+    output: true
 
 defaults:
   - scope:
@@ -67,6 +69,11 @@ defaults:
       type: shader_examples
     values:
       layout: game
+  - scope:
+      path: ""
+      type: advent_of_code
+    values:
+      layout: post
 
 plugins:
   - jekyll-sitemap

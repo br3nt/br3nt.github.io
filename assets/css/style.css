@@ -94,6 +94,10 @@ a:hover {
   font-size: small;
 }
 
+figure {
+  margin: 0;
+}
+
 article {
   margin-bottom: 2rem;
 }
@@ -108,13 +112,20 @@ video {
 .content-grid {
   --padding-x: 2rem;
   --content-max-width: 70ch;
-  --breakout-max-width: 85ch;
-  --breakout-size:
-    calc((var(--breakout-max-width) - var(--content-max-width)) / 2);
+  --breakout-width: 15ch;
 
   display: grid;
   grid-template-columns:
-    [full-width-start] minmax(var(--padding-x), 1fr) [breakout-start] minmax(0, var(--breakout-size)) [content-start] min(100% - (var(--padding-x) * 2), var(--content-max-width)) [content-end] minmax(0, var(--breakout-size)) [breakout-end] minmax(var(--padding-x), 1fr) [full-width-end];
+    [full-width-start] minmax(var(--padding-x), 1fr)
+      [breakout-lg-start] minmax(0, var(--breakout-width))
+        [breakout-md-start] minmax(0, var(--breakout-width))
+          [breakout-start] minmax(0, var(--breakout-width))
+            [content-start] min(100% - (var(--padding-x) * 2), var(--content-max-width))
+            [content-end] minmax(0, var(--breakout-width))
+          [breakout-end] minmax(0, var(--breakout-width))
+        [breakout-md-end] minmax(0, var(--breakout-width))
+      [breakout-lg-end] minmax(var(--padding-x), 1fr)
+    [full-width-end];
 }
 
 .content-grid > * {
@@ -128,6 +139,15 @@ video {
 .content-grid > .breakout {
   grid-column: breakout;
 }
+
+.content-grid > .breakout-md {
+  grid-column: breakout-md;
+}
+
+.content-grid > .breakout-lg {
+  grid-column: breakout-lg;
+}
+
 
 .draft {
   font-size: 0.70rem;
