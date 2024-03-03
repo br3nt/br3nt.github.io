@@ -36,7 +36,7 @@ This page is following along to the [Can I clone this fun effect from CSS Day us
     --row-count: 5;
     --column-size: 100px;
     --row-size: 50px;
-    --hover-animation-ms: 200ms;
+    --hover-animation-ms: 2000ms;
     --primary-color: #986960;
     --text-color: var(--primary-color);
     --link-color: color-mix(in srgb, var(--primary-color), black 40%);
@@ -160,7 +160,7 @@ This clone demonstrates some interesting uses and quirks of <code>grid</code>.
 }
 </code></pre>
 
-The above code defines a grid which has 5 columns and 5 rows. <code>repeat()</code> is used along with the CSS variables to define the size of the grid the images will get placed inside. A grid area called <code>list</code> has also been defined which spans the last column and all the rows.
+The above code defines a grid which has 5 columns and 5 rows. <code>repeat()</code> is used along with the CSS variables to define the size of the grid the images will get placed inside. A [grid area](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Grid_template_areas) called <code>list</code> has also been defined which spans the last column and all the rows.
 
 As the images are not child elements of the <code>.speakers-grid</code> grid, a hack needs to be introduced to place them with  <code>grid-template-columns</code> and <code>grid-template-rows</code>.  By positioning the images absolutely within the <code>.speakers-grid</code> grid, they can be positioned within the grid.
 
@@ -224,8 +224,46 @@ li img {
 </code></pre>
 
 
-A <code>transition</code> is used to enlarge the image on hover.
+A <code>transition</code> is used to enlarge and reveal the full image on hover.
 
-<code>keyframes</code> is used to control the <code>z-index</code> to avoid some visual artifacts as the image resizes.
+<pre><code>
+.speakers-grid {
+    --hover-animation-ms: 200ms;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        transition: var(--hover-animation-ms);
+    }
+
+    a:is(:hover, :focus) {
+      img  {
+        scale: 2;
+        z-index: 2;
+        width: initial;
+        height: initial;
+        object-fit: initial;
+      }
+    }
+}
+</code></pre>
+
+Due to the <code>transition</code>, the <code>z-index</code> changes abruptly when moving the cursor off off a link.  This causes other images to be rendered on top of the collapsing image.  An <code>animation</code> can be used to correct this by controlling the <code>z-index</code> for the duration of the <code>transition</code>.
+
+<pre><code>
+.speakers-grid {
+    --hover-animation-ms: 200ms;
+
+    a:not(:hover, :focus) img {
+      animation: z-index-hack var(--hover-animation-ms);
+    }
+
+    @keyframes z-index-hack {
+        0%, 100% { z-index: 1; }
+    }
+}
+</code></pre>
 
 I also took some time to learn how to use <code>color-mix</code> for the text and link colour and background colour.
