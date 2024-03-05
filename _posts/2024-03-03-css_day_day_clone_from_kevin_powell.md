@@ -3,7 +3,7 @@ title: CSS Day clone by David Powell
 last_updated: 2024-03-03
 ---
 
-This page is following along to the [Can I clone this fun effect from CSS Day using modern CSS?](https://youtu.be/fs_5R8V4JCI?si=miqApIn_7SJgY9b0) YouTube video by David Powell.
+This post is following along to the [Can I clone this fun effect from CSS Day using modern CSS?](https://youtu.be/fs_5R8V4JCI?si=miqApIn_7SJgY9b0) YouTube video by David Powell.
 
 You can use the browser developer tools to inspect the below example. I will also show code snippets .
 
