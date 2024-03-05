@@ -1,10 +1,11 @@
 ---
 title: CSS Day clone by David Powell
 last_updated: 2024-03-03
-draft: true
 ---
 
 This page is following along to the [Can I clone this fun effect from CSS Day using modern CSS?](https://youtu.be/fs_5R8V4JCI?si=miqApIn_7SJgY9b0) YouTube video by David Powell.
+
+You can use the browser developer tools to inspect the below example. I will also show code snippets .
 
 <div class="breakout">
   <div class="speakers-grid">
@@ -29,19 +30,21 @@ This page is following along to the [Can I clone this fun effect from CSS Day us
 
 <style>
   .speakers-grid {
-    margin-top: 4rem;
-    margin-bottom: 4rem;
-
     --column-count: 3;
     --row-count: 5;
     --column-size: 100px;
     --row-size: 50px;
-    --hover-animation-ms: 2000ms;
+
+    --hover-animation-ms: 3s00ms;
+
     --primary-color: #986960;
     --text-color: var(--primary-color);
     --link-color: color-mix(in srgb, var(--primary-color), black 40%);
     --link-hover-color: color-mix(in srgb, var(--primary-color), white 90%);
     --link-hover-background-color: color-mix(in srgb, var(--primary-color), black 40%);
+
+    margin-top: 4rem;
+    margin-bottom: 4rem;
 
     display: grid;
     gap: 1rem;
@@ -140,7 +143,7 @@ This page is following along to the [Can I clone this fun effect from CSS Day us
 </style>
 
 
-This clone demonstrates some interesting uses and quirks of <code>grid</code>.
+This clone demonstrates some interesting uses and quirks of <code>grid</code>.  The code below defines a grid which has 5 columns and 5 rows.
 
 <pre class="breakout-md"><code>
 .speakers-grid {
@@ -160,7 +163,8 @@ This clone demonstrates some interesting uses and quirks of <code>grid</code>.
 }
 </code></pre>
 
-The above code defines a grid which has 5 columns and 5 rows. <code>repeat()</code> is used along with the CSS variables to define the size of the grid the images will get placed inside. A [grid area](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Grid_template_areas) called <code>list</code> has also been defined which spans the last column and all the rows.
+In the code above, <code>repeat()</code> is used along with the four CSS variables, <code>--column-count</code>, <code>--row-count</code>, <code>--column-size</code>, <code>--row-size</code>, to define the size of the grid that will contain the images of the speakers.  A [grid area](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Grid_template_areas) called <code>list</code> has also been defined which spans the last column and all the rows.  This will contain the list of speakers.
+
 
 As the images are not child elements of the <code>.speakers-grid</code> grid, a hack needs to be introduced to place them with  <code>grid-template-columns</code> and <code>grid-template-rows</code>.  By positioning the images absolutely within the <code>.speakers-grid</code> grid, they can be positioned within the grid.
 
@@ -250,7 +254,7 @@ A <code>transition</code> is used to enlarge and reveal the full image on hover.
 }
 </code></pre>
 
-Due to the <code>transition</code>, the <code>z-index</code> changes abruptly when moving the cursor off off a link.  This causes other images to be rendered on top of the collapsing image.  An <code>animation</code> can be used to correct this by controlling the <code>z-index</code> for the duration of the <code>transition</code>.
+Due to the <code>transition</code>, the <code>z-index</code> changes abruptly when moving the cursor off of a link.  This causes other images to be rendered on top of the collapsing image.  An <code>animation</code> is used to correct this by setting the <code>z-index</code> for the duration of the <code>transition</code>.
 
 <pre><code>
 .speakers-grid {
@@ -266,4 +270,28 @@ Due to the <code>transition</code>, the <code>z-index</code> changes abruptly wh
 }
 </code></pre>
 
-I also took some time to learn how to use <code>color-mix</code> for the text and link colour and background colour.
+I have selected a brownish colour as a base for the text of the list. The link and link hover uses shades of this base colour.  The shades are created using <code>color-mix()</code> with differing amounts of <code>black</code> or <code>white</code>.
+
+<pre class="breakout-md   "><code>
+.speakers-grid {
+    --primary-color: #986960;
+    --text-color: var(--primary-color);
+    --link-color: color-mix(in srgb, var(--primary-color), black 40%);
+    --link-hover-color: color-mix(in srgb, var(--primary-color), white 90%);
+    --link-hover-background-color: color-mix(in srgb, var(--primary-color), black 40%);
+
+    li {
+        color: var(--text-color);
+    }
+
+    a {
+        color: var(--link-color);
+    }
+
+    a:is(:hover, :focus) {
+        color: var(--link-hover-color);
+        background-color: var(--link-hover-background-color);
+    }
+
+}
+</code></pre>
