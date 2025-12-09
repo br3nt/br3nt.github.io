@@ -1,0 +1,177 @@
+---
+layout: p5
+title: Space Attack
+description: A space tower defence game
+---
+
+<style>
+  #todo-panel {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  #todo-panel.collapsed > *:not(#todo-header) {
+    display: none;
+  }
+
+  #todo-header {
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #todo-header:hover {
+    color: #4CAF50;
+  }
+
+  .toggle-icon {
+    font-size: 20px;
+    margin-left: 10px;
+  }
+</style>
+
+<div id="todo-panel" class="collapsed">
+  <h2 id="todo-header">TODO <span class="toggle-icon">▼</span></h2>
+  <markdown>
+## placement of structures
+
+Have a single structure that can be placed on click of the mouse
+
+## add an enemy
+
+Have a single enemy that can attack the player structures
+Consider enemy behaviour - movement, attack style, range, etc
+
+## structures can defend against enemies
+
+Need a way to kill the enemy
+How does the structure do this?
+
+
+## multiple defence structure types
+
+Swap the structure that will be placed via a keyboard shortcut
+Choose a different shape or graphic per structure
+
+## hud for structure selection
+
+Provide a way to visually show the available structures
+Distinct styling for the structure selected for placment
+
+## multiple enemy types
+
+## waves of enemies
+
+## scarcity to prevent infinite building
+
+need a way to control the speed at which structures can be built
+
+idea: initially have resources passivly accumulation over time
+idea: need to build bots.  bots need to move between a store of resources and structures being built. strategy in not too much placement.  distance to travel.  etc.  upgrade oportunities like speed of bot, number of bots, speed of bot production.  bots can be destroyed, so must be protected.  hp can be upgraded.  upgraded bots take longer to build.
+idea: special purpose bots to refill ammunition?
+
+# increase difficulty
+  </markdown>
+</div>
+
+<script>
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  // Deep space background
+  background(5, 5, 15);
+
+  // Draw nebula effect
+  drawNebula();
+}
+
+function drawNebula() {
+  noStroke();
+  drawingContext.filter = 'blur(40px)';
+
+  // Red nebula clouds
+  fill(150, 20, 40, 100);
+  circle(width * 0.25, height * 0.25, 200);
+  fill(180, 30, 50, 80);
+  circle(width * 0.31, height * 0.33, 180);
+
+  // Magenta nebula clouds
+  fill(150, 20, 100, 90);
+  circle(width * 0.62, height * 0.67, 220);
+  fill(170, 30, 120, 70);
+  circle(width * 0.56, height * 0.58, 180);
+
+  // Green nebula clouds
+  fill(20, 150, 80, 85);
+  circle(width * 0.75, height * 0.33, 190);
+  fill(30, 170, 100, 75);
+  circle(width * 0.81, height * 0.42, 160);
+
+  // Reset filter for normal drawing
+  drawingContext.filter = 'none';
+}
+
+function mousePressed() {
+  // Check if click is on the TODO panel
+  const todoPanel = document.getElementById('todo-panel');
+  const rect = todoPanel.getBoundingClientRect();
+  if (mouseX >= rect.left && mouseX <= rect.right &&
+      mouseY >= rect.top && mouseY <= rect.bottom) {
+    return false;
+  }
+
+  fill(255);
+  circle(mouseX, mouseY, 10);
+  return false;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  background(5, 5, 15);
+  drawNebula();
+}
+
+// Toggle TODO panel
+document.addEventListener('DOMContentLoaded', function() {
+  const todoHeader = document.getElementById('todo-header');
+  const todoPanel = document.getElementById('todo-panel');
+  const toggleIcon = document.querySelector('.toggle-icon');
+
+  // Function to toggle visibility of all siblings after the header
+  function toggleContent() {
+    const isCollapsed = todoPanel.classList.contains('collapsed');
+
+    // Get all children of todoPanel
+    Array.from(todoPanel.children).forEach(child => {
+      if (child.id !== 'todo-header') {
+        child.style.display = isCollapsed ? 'none' : '';
+      }
+    });
+
+    toggleIcon.textContent = isCollapsed ? '▼' : '▲';
+  }
+
+  // Initialize collapsed state
+  toggleContent();
+
+  todoHeader.addEventListener('click', function(e) {
+    e.stopPropagation();
+    todoPanel.classList.toggle('collapsed');
+    toggleContent();
+  });
+});
+</script>
