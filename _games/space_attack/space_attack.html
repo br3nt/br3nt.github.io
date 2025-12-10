@@ -89,14 +89,70 @@ idea: special purpose bots to refill ammunition?
 </div>
 
 <script>
+let player;
+let enemies = [];
+let bullets = [];
+let dots = [];
+let spawnTime = 10000; // 10 seconds
+let startTime;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  // Player at center of screen
+  player = {
+    x: width / 2,
+    y: height / 2,
+    size: 20
+  };
+
+  // Record start time
+  startTime = millis();
 
   // Deep space background
   background(5, 5, 15);
 
   // Draw nebula effect
   drawNebula();
+}
+
+function draw() {
+  // Redraw background
+  background(5, 5, 15);
+  drawNebula();
+
+  // Draw dots
+  fill(255);
+  for (let dot of dots) {
+    circle(dot.x, dot.y, 10);
+  }
+
+  // Draw player
+  fill(0, 200, 255);
+  circle(player.x, player.y, player.size);
+
+  // Spawn enemy after 10 seconds
+  if (millis() - startTime > spawnTime && enemies.length === 0) {
+    spawnEnemy();
+  }
+
+  // Update and draw enemies
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    enemies[i].update();
+    enemies[i].draw();
+    enemies[i].shoot();
+  }
+
+  // Update and draw bullets
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    bullets[i].update();
+    bullets[i].draw();
+
+    // Remove bullets that are off screen
+    if (bullets[i].isOffScreen()) {
+      bullets.splice(i, 1);
+    }
+  }
 }
 
 function drawNebula() {
@@ -125,6 +181,89 @@ function drawNebula() {
   drawingContext.filter = 'none';
 }
 
+function spawnEnemy() {
+  // Spawn from random edge
+  let edge = floor(random(4)); // 0: top, 1: right, 2: bottom, 3: left
+  let x, y;
+
+  if (edge === 0) { // Top
+    x = random(width);
+    y = 0;
+  } else if (edge === 1) { // Right
+    x = width;
+    y = random(height);
+  } else if (edge === 2) { // Bottom
+    x = random(width);
+    y = height;
+  } else { // Left
+    x = 0;
+    y = random(height);
+  }
+
+  enemies.push(new Enemy(x, y));
+}
+
+class Enemy {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = 15;
+    this.speed = 1;
+    this.color = [255, 50, 50];
+    this.lastShot = millis();
+    this.shootInterval = 2000; // Shoot every 2 seconds
+  }
+
+  update() {
+    // Move towards player
+    let angle = atan2(player.y - this.y, player.x - this.x);
+    this.x += cos(angle) * this.speed;
+    this.y += sin(angle) * this.speed;
+  }
+
+  draw() {
+    fill(this.color);
+    stroke(255, 100, 100);
+    strokeWeight(2);
+    circle(this.x, this.y, this.size);
+    noStroke();
+  }
+
+  shoot() {
+    // Shoot intermittently
+    if (millis() - this.lastShot > this.shootInterval) {
+      let angle = atan2(player.y - this.y, player.x - this.x);
+      bullets.push(new Bullet(this.x, this.y, angle));
+      this.lastShot = millis();
+    }
+  }
+}
+
+class Bullet {
+  constructor(x, y, angle) {
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.speed = 4;
+    this.size = 5;
+    this.color = [255, 200, 0];
+  }
+
+  update() {
+    this.x += cos(this.angle) * this.speed;
+    this.y += sin(this.angle) * this.speed;
+  }
+
+  draw() {
+    fill(this.color);
+    circle(this.x, this.y, this.size);
+  }
+
+  isOffScreen() {
+    return this.x < 0 || this.x > width || this.y < 0 || this.y > height;
+  }
+}
+
 function mousePressed() {
   // Check if click is on the TODO panel
   const todoPanel = document.getElementById('todo-panel');
@@ -134,15 +273,16 @@ function mousePressed() {
     return false;
   }
 
-  fill(255);
-  circle(mouseX, mouseY, 10);
+  // Add dot to array
+  dots.push({ x: mouseX, y: mouseY });
   return false;
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  background(5, 5, 15);
-  drawNebula();
+  // Update player position to stay centered
+  player.x = width / 2;
+  player.y = height / 2;
 }
 
 // Toggle TODO panel
