@@ -7,6 +7,8 @@ title: Perlin noise experiments
 
 <script>
 
+
+
 let saturation = 50
 let lightness = 30
 
@@ -22,6 +24,10 @@ function setup() {
 
   noiseDetail(10, 0.4)
   colorMode(HSL);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function shapeGamma(u, gamma) {
@@ -76,11 +82,14 @@ function noiseToHue(x, y, t, {
 
 function draw() {
 
+  const screenScale = 10
+  const perlinWidth = Math.ceil(windowWidth / screenScale)
+  const perlinHeight = Math.ceil(windowHeight / screenScale)
 
   // Iterate from top to bottom.
-  for (let y = 0; y < 100; y += 1) {
+  for (let y = 0; y < perlinHeight; y += 1) {
     // Iterate from left to right.
-    for (let x = 0; x < 100; x += 1) {
+    for (let x = 0; x < perlinWidth; x += 1) {
       // Scale the input coordinates.
       let nx = noiseScale * x
       let ny = noiseScale * y
@@ -111,7 +120,7 @@ function draw() {
       fill(color(h % 360, saturation, lightness))
       noStroke()
 
-      square(x * 10, y * 10, 10)
+      square(x * screenScale, y * screenScale, screenScale)
     }
   }
 }
