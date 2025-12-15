@@ -1,0 +1,412 @@
+---
+layout: p5
+description: Bezier Curves
+---
+
+<script>
+  var p0, p1, p2, p3
+
+  class CubicBezier {
+    constructor(p0, p1, p2, p3) {
+      this.p0 = p0
+      this.p1 = p1
+      this.p2 = p2
+      this.p3 = p3
+    }
+
+    bernstein_polynomial_scale(t) {
+      let t3 = t ** 3
+      let t2 = t ** 2
+
+      // scale of each vector
+      let s0 = -t3 + 3 * t2 - 3 * t + 1
+      let s1 = 3 * t3 - 6 * t2 + 3 * t
+      let s2 = -3 * t3 + 3 * t2
+      let s3 = t3
+
+      let a0 = p5.Vector.mult(this.p0, s0)
+      let a1 = p5.Vector.mult(this.p1, s1)
+      let a2 = p5.Vector.mult(this.p2, s2)
+      let a3 = p5.Vector.mult(this.p3, s3)
+    }
+  }
+
+  class CubicBezierPoint {
+    constructor(t, a0, a1, a2, a3) {
+      this.t = t
+      this.a0 = a0
+      this.a1 = a1
+      this.a2 = a2
+      this.a3 = a3
+
+      this.point = a0.add(a1).add(a2).add(a3)
+    }
+  }
+
+  function setup() {
+    createCanvas(600, 600)
+    p0 = createVector(0, 300)
+    p1 = createVector(300, 0)
+    p2 = createVector(400, 20)
+    p3 = createVector(600, 300)
+
+    background(0)
+    // stroke(255)
+
+    // example8_bernstein_polynomial_form(p0, p1, p2, p3, 0.05)
+    // cubic_bezier_point_bernstein_polynomial_form_first_derivative_bounding_box(p0, p1, p2, p3)
+  }
+
+  function draw() {
+    background(0)
+    stroke(255)
+
+    // example1()
+    // example2()
+    // example3()
+    // example4_linear_bezier(p0, p1)
+    // example5_quadratic_bezier(p0, p1, p2)
+    // example6_quadratic_bezier_lines(p0, p1, p2, 0.05)
+    // example7_cubic_bezier_lines(p0, p1, p2, p3, 0.05)
+
+    example8_bernstein_polynomial_form(p0, p1, p2, p3, 0.005)
+    cubic_bezier_point_bernstein_polynomial_form_first_derivative_bounding_box(p0, p1, p2, p3)
+  }
+
+  function example1() {
+    strokeWeight(24)
+    point(0, 300)
+    point(mouseX, mouseY)
+    point(400, 400)
+    point(600, 300)
+
+    strokeWeight(4)
+    noFill()
+    bezier(0, 300, mouseX, mouseY, 400, 400, 600, 300)
+
+    strokeWeight(2)
+    line(0, 300, mouseX, mouseY)
+    line(mouseX, mouseY, 400, 400)
+    line(400, 400, 600, 300)
+  }
+
+  function example2() {
+    strokeWeight(4)
+    fill(127)
+    beginShape()
+    vertex(0, 300)
+    bezierVertex(mouseX, mouseY, 400, 400, 600, 300)
+    bezierVertex(200, 100, 400, 600, 0, 300)
+    endShape()
+  }
+
+  function example3() {
+    strokeWeight(4)
+    line(p0.x, p0.y, p1.x, p1.y)
+  }
+
+  function example4_linear_bezier(p0, p1) {
+    strokeWeight(4)
+    beginShape()
+    for (let t = 0; t <= 1; t += 0.1) {
+      // let x = lerp(p0.x, p1.x, t)
+      // let y = lerp(p0.y, p1.y, t)
+      // vertex(x, y)
+      let point = p5.Vector.lerp(p0, p1, t)
+      vertex(point.x, point.y)
+    }
+    endShape()
+  }
+
+  function example5_quadratic_bezier(p0, p1, p2) {
+    strokeWeight(4)
+    noFill()
+
+    p1.x = mouseX
+    p1.y = mouseY
+
+    beginShape()
+    for (let t = 0; t <= 1; t += 0.1) {
+      let point1 = p5.Vector.lerp(p0, p1, t)
+      let point2 = p5.Vector.lerp(p1, p2, t)
+      let point = p5.Vector.lerp(point1, point2, t)
+      vertex(point.x, point.y)
+    }
+    endShape()
+  }
+
+  function example6_quadratic_bezier_lines(p0, p1, p2, delta) {
+
+    noFill()
+
+    p1.x = mouseX
+    p1.y = mouseY
+
+    colorMode(HSB)
+
+    // beginShape()
+    for (let t = 0; t <= 1.001; t += delta || 0.1) {
+      let point1 = p5.Vector.lerp(p0, p1, t)
+      let point2 = p5.Vector.lerp(p1, p2, t)
+
+      strokeWeight(1)
+      stroke(t*360, 255, 255)
+      line(point1.x, point1.y, point2.x, point2.y)
+
+      // let point = p5.Vector.lerp(point1, point2, t)
+
+      // strokeWeight(4)
+      // vertex(point.x, point.y)
+    }
+    // endShape()
+  }
+
+  function example7_cubic_bezier_lines(p0, p1, p2, p3, delta) {
+
+    noFill()
+
+    p1.x = mouseX
+    p1.y = mouseY
+
+    colorMode(HSB)
+
+    // beginShape()
+    for (let t = 0; t <= 1.001; t += delta || 0.1) {
+      let [a1, a2, point1] = quadratic_bezier_points(p0, p1, p2, t)
+      let [b1, b2, point2] = quadratic_bezier_points(p1, p2, p3, t)
+
+      strokeWeight(1)
+      stroke(t * 360, 255, 255)
+      line(a1.x, a1.y, a2.x, a2.y)
+      line(b1.x, b1.y, b2.x, b2.y)
+      line(point1.x, point1.y, point2.x, point2.y)
+
+      // let point = p5.Vector.lerp(point1, point2, t)
+      // strokeWeight(4)
+      // vertex(point.x, point.y)
+    }
+    // endShape()
+  }
+
+  function example8_bernstein_polynomial_form(p0, p1, p2, p3, delta) {
+    noFill()
+
+    p1.set([mouseX, mouseY])
+
+    // colorMode(HSB)
+
+    beginShape()
+    for (let t = 0; t <= 1.001; t += delta || 0.1) {
+
+      let point = cubic_bezier_point_bernstein_polynomial_form(p0, p1, p2, p3, t)
+
+      strokeWeight(1)
+      stroke(t * 360, 255, 255)
+      // line(point1.x, point1.y, point2.x, point2.y)
+
+      // console.log(point)
+
+      // let point = p5.Vector.lerp(point1, point2, t)
+      strokeWeight(4)
+      vertex(point.x, point.y)
+    }
+    endShape()
+  }
+
+
+  function quadratic_bezier_points(p0, p1, p2, t) {
+    let point1 = p5.Vector.lerp(p0, p1, t)
+    let point2 = p5.Vector.lerp(p1, p2, t)
+    let point = p5.Vector.lerp(point1, point2, t)
+
+    return [point1, point2, point]
+  }
+
+  function cubic_bezier_points(p0, p1, p2, t) {
+    let [a1, a2, point1] = quadratic_bezier_points(p0, p1, p2, t)
+    let [b1, b2, point2] = quadratic_bezier_points(p1, p2, p3, t)
+
+    return [a1, a2, point1, b1, b2, point2]
+  }
+
+  function lerped_cubic_curve(p0, p1, p2, p3, t) {
+    let a = p5.Vector.lerp(p0, p1, t)
+    let b = p5.Vector.lerp(p1, p2, t)
+    let c = p5.Vector.lerp(p2, p3, t)
+
+    let d = p5.Vector.lerp(a, b, t)
+    let e = p5.Vector.lerp(b, c, t)
+
+    let point = lerp(d, e, t)
+    return point
+  }
+
+  // same as `lerped_cubic_curve` except the lerp is explicitly defined
+  function expanded_cubic_curve(p0, p1, p2, p3, t) {
+    let a = (1 - t) * p0 + t * p1
+    let b = (1 - t) * p1 + t * p2
+    let c = (1 - t) * p2 + t * p3
+
+    let d = (1 - t) * a + t * b
+    let e = (1 - t) * b + t * c
+
+    let point = (1 - t) * d + t * e
+    return point
+  }
+
+  // each point can be seen as a vector from an origin point
+  //
+  function cubic_bezier_point_bernstein_polynomial_form(p0, p1, p2, p3, t) {
+    let t3 = t**3
+    let t2 = t**2
+
+    // scale of each vector
+    let s0 = -t3 + 3 * t2 - 3 * t + 1
+    let s1 = 3 * t3 - 6 * t2 + 3 * t
+    let s2 = -3 * t3 + 3 * t2
+    let s3 = t3
+
+    let a0 = p5.Vector.mult(p0, s0)
+    let a1 = p5.Vector.mult(p1, s1)
+    let a2 = p5.Vector.mult(p2, s2)
+    let a3 = p5.Vector.mult(p3, s3)
+
+    // chart scale of each vector vs t
+    stroke(t * 360, 255, 255)
+    strokeWeight(1)
+    let size = 100
+    circle(t * size, -s0 * size + size, 1)
+    circle(t * size, -s1 * size + size, 1)
+    circle(t * size, -s2 * size + size, 1)
+    circle(t * size, -s3 * size + size, 1)
+
+    let point = a0.add(a1).add(a2).add(a3)
+    circle(point.x, point.y, 1)
+
+    // calculate velocity and translate to the current bezier point
+    let velocity = cubic_bezier_point_bernstein_polynomial_form_first_derivative(p0, p1, p2, p3, t)
+    let velocityNormalised = velocity.normalize().mult(100)
+    let velocityTranslated = p5.Vector.add(point, velocityNormalised)
+    line(point.x, point.y, velocityTranslated.x, velocityTranslated.y)
+
+    // calculate velocity normal and translate to the current bezier point
+    let velocityNormal = p5.Vector.rotate(velocityNormalised, HALF_PI)
+    let velocityNormalTranslated = p5.Vector.add(point, velocityNormal)
+    line(point.x, point.y, velocityNormalTranslated.x, velocityNormalTranslated.y)
+
+    // calculate acceleration and translate to the current bezier point
+    let acceleration = cubic_bezier_point_bernstein_polynomial_form_second_derivative(p0, p1, p2, p3, t)
+    let accelerationNormalised = acceleration.normalize().mult(100)
+    let accelerationTranslated = p5.Vector.add(point, accelerationNormalised)
+    line(point.x, point.y, accelerationTranslated.x, accelerationTranslated.y)
+
+    return point
+  }
+
+  // the first derivative is the rate of change or velocity vector at the given t value
+  function cubic_bezier_point_bernstein_polynomial_form_first_derivative(p0, p1, p2, p3, t) {
+    let t2 = t ** 2
+
+    // scale of each vector
+    let s0 = -3 * t2 + 6 * t - 3
+    let s1 = 9 * t2 - 12 * t + 3
+    let s2 = -9 * t2 + 6 * t
+    let s3 = 3 * t2
+
+    let a0 = p5.Vector.mult(p0, s0)
+    let a1 = p5.Vector.mult(p1, s1)
+    let a2 = p5.Vector.mult(p2, s2)
+    let a3 = p5.Vector.mult(p3, s3)
+
+    let point = a0.add(a1).add(a2).add(a3)
+
+    // circle(point.x, point.y, 5)
+    return point
+  }
+
+  // the second derivative is the acceleration vector at the given t value
+  function cubic_bezier_point_bernstein_polynomial_form_second_derivative(p0, p1, p2, p3, t) {
+    // scale of each vector
+    let s0 = -6 * t + 6
+    let s1 = 18 * t - 12
+    let s2 = -18 * t + 6
+    let s3 = 6 * t
+
+    let a0 = p5.Vector.mult(p0, s0)
+    let a1 = p5.Vector.mult(p1, s1)
+    let a2 = p5.Vector.mult(p2, s2)
+    let a3 = p5.Vector.mult(p3, s3)
+
+    let point = a0.add(a1).add(a2).add(a3)
+
+    // circle(point.x, point.y, 5)
+    return point
+  }
+
+  function cubic_bezier_point_bernstein_polynomial_form_first_derivative_bounding_box(p0, p1, p2, p3) {
+    // a = -3*p0 + 9*p1 - 9*p2 + 3*p3
+    let a0 = p5.Vector.mult(p0, -3)
+    let a1 = p5.Vector.mult(p1, 9)
+    let a2 = p5.Vector.mult(p2, -9)
+    let a3 = p5.Vector.mult(p3, 3)
+    let a = a0.add(a1).add(a2).add(a3)
+
+    // b = 6*p0 - 12*p1 + 6*p2
+    let b0 = p5.Vector.mult(p0, 6)
+    let b1 = p5.Vector.mult(p1, -12)
+    let b2 = p5.Vector.mult(p2, 6)
+    let b = b0.add(b1).add(b2)
+
+    // c = -3*p0 + 3*p1
+    let c0 = p5.Vector.mult(p0, -3)
+    let c1 = p5.Vector.mult(p1, 3)
+    let c = c0.add(c1)
+
+    // console.log(a.x, b.x, c.x)
+    // console.log(a.x, b.x, c.x)
+    let tx = quadratic_equation(a.x, b.x, c.x)
+    let ty = quadratic_equation(a.y, b.y, c.y)
+
+    let t = tx.concat(ty).filter(Number).filter(v => v >= 0 && v <= 1)
+
+    let blah = t.map(v => cubic_bezier_point_bernstein_polynomial_form(p0, p1, p2, p3, v))
+
+    for (const point of blah) {
+      circle(point.x, point.y, 10)
+    }
+
+    let possibleBounds = blah.concat(p0, p3)
+    // console.table(possibleBounds)
+
+    for (const point of possibleBounds) {
+      circle(point.x, point.y, 10)
+    }
+
+
+    let x = possibleBounds.map(v => v.x)
+    let minX = Math.min(...x)
+    let maxX = Math.max(...x)
+
+    let y = possibleBounds.map(v => v.y)
+    let minY = Math.min(...y)
+    let maxY = Math.max(...y)
+
+    rect(minX, minY, maxX - minX, maxY - minY);
+  }
+
+  function quadratic_equation(a, b, c) {
+    let discriminant = b**2 - 4 * a * c
+
+    if (discriminant < 0) return [undefined, undefined]
+
+    if (discriminant == 0) {
+      let x = -b / (2 * a)
+      return [x, x]
+    }
+
+    let discriminantSqrt = Math.sqrt(discriminant)
+    let x1 = (-b + discriminantSqrt) / (2 * a)
+    let x2 = (-b - discriminantSqrt) / (2 * a)
+    return [x1, x2]
+  }
+</script>

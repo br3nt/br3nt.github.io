@@ -1,0 +1,218 @@
+---
+layout: p5
+description: Bezier Curves
+---
+
+<script>
+  var p0, p1, p2, p3
+
+
+  function setup() {
+    createCanvas(600, 600)
+    p0 = createVector(0, 300)
+    p1 = createVector(300, 0)
+    p2 = createVector(400, 20)
+    p3 = createVector(600, 300)
+  }
+
+  function draw() {
+    background(0)
+    stroke(255)
+
+    // example1()
+    // example2()
+    // example3()
+    // example4_linear_bezier(p0, p1)
+    // example5_quadratic_bezier(p0, p1, p2)
+    // example6_quadratic_bezier_lines(p0, p1, p2, 0.05)
+    example7_cubic_bezier_lines(p0, p1, p2, p3, 0.05)
+  }
+
+  class Circle {
+    constructor(x, y, d) {
+      this.position = createVector(x, y)
+      this.diameter = d
+    }
+
+    draw() {
+      circle(this.position.x, this.position.y, this.diameter)
+    }
+  }
+
+  class Bezier {
+    constructor(p0, p1, p2) {
+      this.p0 = p0
+      this.p1 = p1
+      this.p2 = p2
+    }
+  }
+
+
+
+  function example1() {
+    strokeWeight(24)
+    point(0, 300)
+    point(mouseX, mouseY)
+    point(400, 400)
+    point(600, 300)
+
+    strokeWeight(4)
+    noFill()
+    bezier(0, 300, mouseX, mouseY, 400, 400, 600, 300)
+
+    strokeWeight(2)
+    line(0, 300, mouseX, mouseY)
+    line(mouseX, mouseY, 400, 400)
+    line(400, 400, 600, 300)
+  }
+
+  function example2() {
+    strokeWeight(4)
+    fill(127)
+    beginShape()
+    vertex(0, 300)
+    bezierVertex(mouseX, mouseY, 400, 400, 600, 300)
+    bezierVertex(200, 100, 400, 600, 0, 300)
+    endShape()
+  }
+
+  function example3() {
+    strokeWeight(4)
+    line(p0.x, p0.y, p1.x, p1.y)
+  }
+
+  function example4_linear_bezier(p0, p1) {
+    strokeWeight(4)
+    beginShape()
+    for (let t = 0; t <= 1; t += 0.1) {
+      // let x = lerp(p0.x, p1.x, t)
+      // let y = lerp(p0.y, p1.y, t)
+      // vertex(x, y)
+      let point = p5.Vector.lerp(p0, p1, t)
+      vertex(point.x, point.y)
+    }
+    endShape()
+  }
+
+  function example5_quadratic_bezier(p0, p1, p2) {
+    strokeWeight(4)
+    noFill()
+
+    p1.x = mouseX
+    p1.y = mouseY
+
+    beginShape()
+    for (let t = 0; t <= 1; t += 0.1) {
+      let point1 = p5.Vector.lerp(p0, p1, t)
+      let point2 = p5.Vector.lerp(p1, p2, t)
+      let point = p5.Vector.lerp(point1, point2, t)
+      vertex(point.x, point.y)
+    }
+    endShape()
+  }
+
+  function example6_quadratic_bezier_lines(p0, p1, p2, delta) {
+
+    noFill()
+
+    p1.x = mouseX
+    p1.y = mouseY
+
+    colorMode(HSB)
+
+    // beginShape()
+    for (let t = 0; t <= 1.001; t += delta || 0.1) {
+      let point1 = p5.Vector.lerp(p0, p1, t)
+      let point2 = p5.Vector.lerp(p1, p2, t)
+
+      strokeWeight(1)
+      stroke(t*360, 255, 255)
+      line(point1.x, point1.y, point2.x, point2.y)
+
+      // let point = p5.Vector.lerp(point1, point2, t)
+
+      // strokeWeight(4)
+      // vertex(point.x, point.y)
+    }
+    // endShape()
+  }
+
+  function example7_cubic_bezier_lines(p0, p1, p2, p3, delta) {
+
+    noFill()
+
+    p1.x = mouseX
+    p1.y = mouseY
+
+    colorMode(HSB)
+
+    // beginShape()
+    for (let t = 0; t <= 1.001; t += delta || 0.1) {
+      let [a1, a2, point1] = quadratic_bezier_points(p0, p1, p2, t)
+      let [b1, b2, point2] = quadratic_bezier_points(p1, p2, p3, t)
+
+      strokeWeight(1)
+      stroke(t * 360, 255, 255)
+      line(a1.x, a1.y, a2.x, a2.y)
+      line(b1.x, b1.y, b2.x, b2.y)
+      line(point1.x, point1.y, point2.x, point2.y)
+
+      // let point = p5.Vector.lerp(point1, point2, t)
+      // strokeWeight(4)
+      // vertex(point.x, point.y)
+    }
+    // endShape()
+  }
+
+  function quadratic_bezier_points(p0, p1, p2, t) {
+    let point1 = p5.Vector.lerp(p0, p1, t)
+    let point2 = p5.Vector.lerp(p1, p2, t)
+    let point = p5.Vector.lerp(point1, point2, t)
+
+    return [point1, point2, point]
+  }
+
+  function cubic_bezier_points(p0, p1, p2, t) {
+    let [a1, a2, point1] = quadratic_bezier_points(p0, p1, p2, t)
+    let [b1, b2, point2] = quadratic_bezier_points(p1, p2, p3, t)
+
+    return [a1, a2, point1, b1, b2, point2]
+  }
+
+  function lerped_cubic_curve(p0, p1, p2, p3, t) {
+    let a = lerp(p0, p1, t)
+    let b = lerp(p1, p2, t)
+    let c = lerp(p2, p3, t)
+
+    let d = lerp(a, b, t)
+    let e = lerp(b, c, t)
+
+    let point = lerp(d, e, t)
+    return point
+  }
+
+  // same as `lerped_cubic_curve` except the lerp is explicitly defined
+  function expanded_cubic_curve(p0, p1, p2, p3, t) {
+    let a = (1 - t) * p0 + t * p1
+    let b = (1 - t) * p1 + t * p2
+    let c = (1 - t) * p2 + t * p3
+
+    let d = (1 - t) * a + t * b
+    let e = (1 - t) * b + t * c
+
+    let point = (1 - t) * d + t * e
+    return point
+  }
+
+  // each point can be seen as a vector from an origin point
+  //
+  function fully_expanded_cubic_curve(p0, p1, p2, p3, t) {
+    let point =
+      p0 * ((-t)**3 + 3 * t**2 - 3 * t + 1) +
+      p1 * (3 * t**3 - 6**2 + 3 * t) +
+      p2 * (-3 * t**3 + 3 * t**2) +
+      p3 * t**3
+
+    return p
+  }
+</script>

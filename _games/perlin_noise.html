@@ -1,0 +1,118 @@
+---
+layout: p5
+title: Perlin noise experiments
+---
+
+
+
+<script>
+
+let saturation = 50
+let lightness = 30
+
+// Set the noise level and scale.
+let noiseLevel = 255
+let noiseScale = 0.009
+
+
+function setup() {
+  createCanvas(windowWidth, windowHeight)
+
+  describe('A gray cloudy pattern that changes.')
+
+  noiseDetail(10, 0.4)
+  colorMode(HSL);
+}
+
+function shapeGamma(u, gamma) {
+  // gamma < 1 pushes toward 1, gamma > 1 pushes toward 0
+  return pow(u, gamma);
+}
+
+function shapeContrast(u, c) {
+  // c = 0 -> unchanged
+  // c > 0 -> more extreme (more near 0/1)
+  // c < 0 -> more mid (more near 0.5)
+  u = constrain(u, 0, 1);
+  let k = pow(2, c);          // try c in [-3..+3]
+  return 0.5 + (u - 0.5) * k;
+}
+
+function hash01(x, y) {
+  // deterministic-ish 0..1 from coordinates
+  return fract(sin(x * 127.1 + y * 311.7) * 43758.5453);
+}
+function fract(v){ return v - floor(v); }
+
+function flattenNoise(n, uniformMix, x, y) {
+  // uniformMix: 0 = pure noise, 1 = pure uniform
+  return lerp(n, hash01(x, y), uniformMix);
+}
+
+function mapHue(u, hueMin, hueMax) {
+  u = constrain(u, 0, 1);
+  hueMin = ((hueMin % 360) + 360) % 360;
+  hueMax = ((hueMax % 360) + 360) % 360;
+
+  let delta = (hueMax - hueMin + 360) % 360; // shortest forward arc
+  return (hueMin + u * delta) % 360;
+}
+
+function noiseToHue(x, y, t, {
+  hueMin = 0,
+  hueMax = 360,
+  flatten = 0.0,     // 0..1 mix toward uniform distribution
+  contrast = 0.0,    // -3..+3 (optional)
+  gamma = 1.0        // >1 pushes toward lower u, <1 toward higher u
+} = {}) {
+  let n = noise(x, y, t);                  // 0..1
+  n = flattenNoise(n, flatten, x, y);      // more even coverage
+  // n = shapeContrast(n, contrast);          // adjust mid-vs-extremes
+  n = shapeGamma(n, gamma);                // skew
+  n = constrain(n, 0, 1);
+
+  return mapHue(n, hueMin, hueMax);
+}
+
+function draw() {
+
+
+  // Iterate from top to bottom.
+  for (let y = 0; y < 100; y += 1) {
+    // Iterate from left to right.
+    for (let x = 0; x < 100; x += 1) {
+      // Scale the input coordinates.
+      let nx = noiseScale * x
+      let ny = noiseScale * y
+      let nt = noiseScale * frameCount
+
+      // Compute the noise value.
+      // let c = noiseLevel * noise(nx, ny, nt)
+
+      let c = map(noise(nx, ny, nt), 0, 1, 0, 360)
+
+      // Draw the point.
+      // stroke(c);
+      // point(x, y);
+
+
+      // let h = noiseToHue(x * 0.01, y * 0.01, frameCount, {
+      //   hueMin: 200,
+      //   hueMax: 20,     // wraps through 0 (blue -> red)
+      //   flatten: 0.6,   // more uniform hue distribution
+      //   contrast: 1,  // slightly more extremes
+      //   gamma: 1.0
+      // });
+      // let h = shapeGamma(c, 0.5)
+      let h = shapeGamma(c, 1.2)
+      // let h = shapeContrast(c, 300)
+
+
+      fill(color(h % 360, saturation, lightness))
+      noStroke()
+
+      square(x * 10, y * 10, 10)
+    }
+  }
+}
+</script>
