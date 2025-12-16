@@ -1,0 +1,128 @@
+---
+layout: p5
+title: Perlin space rocks
+description: |
+  <div>This animation is based off the <a href="https://www.youtube.com/watch?v=ZI1dmHv3MeM&list=WL&index=5">Polar Perlin Noise Loops</a> vid by The Coding Train.</div>
+  <div>I create several moving space rocks.</div>
+---
+
+
+<script>
+
+
+class Asteroid {
+  // TODO: use random to generate the offsets from the center....
+  // random points... between 5 and 15
+  // there will always be a "blip" where we start and finish as the random values don't line up nicely.
+  // This is fine for small objects, as it creates nicely jagged rocks
+}
+
+function wrapAroundEdges(position, radius) {
+    if (position.x > width + radius) {
+      position.x = -radius;
+    }
+    else if (position.x < -radius) {
+      position.x = width + radius;
+    }
+    else if (position.y > height + radius) {
+      position.y = -radius;
+    }
+    else if (position.y < -radius) {
+      position.y = height + radius;
+    }
+}
+
+
+class Planet {
+  // TODO: use a circle in 2D perlin noise space.  This ensures the start value matches the end.
+  // the larger the planet, the flatter it should be, so normalise the min and max value to a defined range
+  // add colour based on height.... white for snow topped peaks, grey for steep slopes, light blue for shallow water, dark blue for deeper water.
+  // can I use layers cutouts?  E.g. a blue gradient for ocean, overalayed with the planet.  Can have a white cutout (also using perlin noise) for the snowtops, etc
+
+
+  constructor() {
+    this.position = createVector(random(width), random(height))
+    this.velocity = p5.Vector.random2D()
+
+    this.radius = random(105, 200)
+    this.innerRadius = random(20, 95)
+
+    this.rotation = random(-0.03, 0.03)
+    this.points = []
+
+    for (let a = 0; a < TWO_PI; a += 0.1) {
+      const xOffset = cos(a) + 1
+      const yOffset = sin(a) + 1
+      const radius = map(noise(xOffset, yOffset), 0, 1, this.innerRadius, this.radius)
+      const x = radius * cos(a)
+      const y = radius * sin(a)
+      this.points.push(createVector(x, y))
+    }
+
+  }
+
+  update() {
+    this.position.add(this.velocity);
+    wrapAroundEdges(this.position, this.radius)
+  }
+
+  draw() {
+    // TODO: rotation, and rotation speed
+
+    push()
+
+    translate(this.position)
+
+    rotate(frameCount * this.rotation % 360);
+
+    // rotate(this.rotation * frameCount)
+    stroke(200)
+    noFill()
+    beginShape()
+
+    this.points.forEach(p => vertex(p.x, p.y))
+
+    // for (let a = 0; a < TWO_PI; a += 0.1) {
+    //   const xOffset = cos(a) + 1
+    //   const yOffset = sin(a) + 1
+    //   const radius = map(noise(xOffset, yOffset), 0, 1, this.innerRadius, this.radius)
+    //   const x = radius * cos(a)
+    //   const y = radius * sin(a)
+    //   vertex(x, y)
+    // }
+    endShape(CLOSE)
+
+    pop()
+  }
+
+}
+
+const planets = []
+
+function setup() {
+  createCanvas(windowWidth, windowHeight)
+
+  describe('Space rocks created with perlin noise.')
+
+  for (let i = 0; i < 10; i++) {
+    planets.push(new Planet());
+  }
+  
+
+  noiseDetail(10, 0.4)
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+    background(0)
+    planets.forEach(p => {
+      p.update()
+      p.draw()
+    })
+}
+
+
+</script>
