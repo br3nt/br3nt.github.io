@@ -1,0 +1,474 @@
+---
+layout: p5
+title: Fallout Shelter Perspective
+description: |
+  <div>Recreation of the Fallout Shelter perspective effect with cabinet projection.</div>
+  <div>Use F to zoom out, 1 to zoom to a room, mouse wheel to zoom, drag to pan, arrows to navigate.</div>
+---
+
+<script defer>
+
+// Grid configuration
+const GRID_WIDTH = 15;   // cells wide
+const GRID_HEIGHT = 20;  // cells high
+const CELL_WIDTH = 80;   // base width of each cell in pixels
+const CELL_HEIGHT = 60;  // base height of each cell in pixels
+const CELL_DEPTH = 30;   // depth for cabinet projection
+
+// Global variables
+let camera;
+let grid = [];
+
+// ============================================================================
+// Camera Class - Handles smooth zoom/pan with snap-to-finish
+// ============================================================================
+class Camera {
+  constructor() {
+    // Current state
+    this.x = 0;
+    this.y = 0;
+    this.zoom = 1;
+
+    // Target state (for smooth animation)
+    this.targetX = 0;
+    this.targetY = 0;
+    this.targetZoom = 1;
+
+    // Animation configuration
+    this.lerpFactor = 0.1;      // Base interpolation speed (0-1)
+    this.snapThreshold = 0.01;  // Distance from target to snap
+    this.snapFactor = 0.95;     // Aggressive lerp when close to target
+  }
+
+  // Update camera position with smooth interpolation
+  update() {
+    // Calculate distance to target
+    const distX = abs(this.targetX - this.x);
+    const distY = abs(this.targetY - this.y);
+    const distZoom = abs(this.targetZoom - this.zoom);
+
+    // Use aggressive snap if close to target
+    const factor = (distX < this.snapThreshold &&
+                    distY < this.snapThreshold &&
+                    distZoom < this.snapThreshold)
+                   ? this.snapFactor
+                   : this.lerpFactor;
+
+    // Smooth interpolation
+    this.x = lerp(this.x, this.targetX, factor);
+    this.y = lerp(this.y, this.targetY, factor);
+    this.zoom = lerp(this.zoom, this.targetZoom, factor);
+
+    // Snap to target if very close
+    if (distX < 0.001) this.x = this.targetX;
+    if (distY < 0.001) this.y = this.targetY;
+    if (distZoom < 0.001) this.zoom = this.targetZoom;
+  }
+
+  // Apply camera transformation to canvas
+  apply() {
+    push();
+    // Center viewport
+    translate(width / 2, height / 2);
+    // Apply zoom
+    scale(this.zoom);
+    // Apply camera position (negative to move world opposite direction)
+    translate(-this.x, -this.y);
+  }
+
+  // Remove camera transformation
+  unapply() {
+    pop();
+  }
+}
+
+// ============================================================================
+// Room Class - Represents a single cell in the grid
+// ============================================================================
+class Room {
+  constructor(x, y) {
+    this.gridX = x;
+    this.gridY = y;
+    this.type = 'empty';
+    // Assign a color based on position for visual distinction
+    this.color = color(
+      100 + (x * 10) % 100,
+      150 + (y * 5) % 50,
+      200 + ((x + y) * 8) % 55
+    );
+  }
+}
+
+// ============================================================================
+// Coordinate Transformation Functions
+// ============================================================================
+
+// Convert grid coordinates to world coordinates
+function gridToWorld(gridX, gridY) {
+  const x = gridX * CELL_WIDTH + CELL_WIDTH / 2;
+  const y = gridY * CELL_HEIGHT + CELL_HEIGHT / 2;
+  return createVector(x, y);
+}
+
+// Convert world coordinates to grid coordinates
+function worldToGrid(worldX, worldY) {
+  const gridX = floor(worldX / CELL_WIDTH);
+  const gridY = floor(worldY / CELL_HEIGHT);
+
+  return {
+    x: constrain(gridX, 0, GRID_WIDTH - 1),
+    y: constrain(gridY, 0, GRID_HEIGHT - 1)
+  };
+}
+
+// Convert screen/mouse coordinates to world coordinates
+function screenToWorld(camera, screenX, screenY) {
+  // Reverse the camera transformation
+  // 1. Translate to origin
+  const x1 = screenX - width / 2;
+  const y1 = screenY - height / 2;
+
+  // 2. Reverse scale
+  const x2 = x1 / camera.zoom;
+  const y2 = y1 / camera.zoom;
+
+  // 3. Reverse camera translation
+  const worldX = x2 + camera.x;
+  const worldY = y2 + camera.y;
+
+  return createVector(worldX, worldY);
+}
+
+// ============================================================================
+// Zoom/Pan Control Functions
+// ============================================================================
+
+// Calculate zoom level to fit full grid on screen
+function calculateFullGridView(camera) {
+  // Total world dimensions in pixels
+  const worldWidth = GRID_WIDTH * CELL_WIDTH;
+  const worldHeight = GRID_HEIGHT * CELL_HEIGHT;
+
+  // Add padding
+  const padding = 40;
+
+  // Calculate zoom to fit (choose smaller to fit both dimensions)
+  const zoomX = (width - padding * 2) / worldWidth;
+  const zoomY = (height - padding * 2) / worldHeight;
+  camera.targetZoom = min(zoomX, zoomY);
+
+  // Center on grid
+  camera.targetX = worldWidth / 2;
+  camera.targetY = worldHeight / 2;
+}
+
+// Calculate zoom to fill screen with single room
+function zoomToRoom(camera, gridX, gridY) {
+  // Target zoom to fill most of screen with one cell
+  const padding = 100;
+  const zoomX = (width - padding * 2) / CELL_WIDTH;
+  const zoomY = (height - padding * 2) / CELL_HEIGHT;
+  camera.targetZoom = min(zoomX, zoomY);
+
+  // Center on room (convert grid to world coords)
+  const roomWorldPos = gridToWorld(gridX, gridY);
+  camera.targetX = roomWorldPos.x;
+  camera.targetY = roomWorldPos.y;
+}
+
+// Pan to adjacent room (for keyboard navigation)
+function panToAdjacentRoom(camera, dx, dy) {
+  // Find current room from camera position
+  const currentRoom = worldToGrid(camera.targetX, camera.targetY);
+
+  // Move to adjacent room
+  const newX = constrain(currentRoom.x + dx, 0, GRID_WIDTH - 1);
+  const newY = constrain(currentRoom.y + dy, 0, GRID_HEIGHT - 1);
+
+  zoomToRoom(camera, newX, newY);
+}
+
+// ============================================================================
+// Drawing Functions
+// ============================================================================
+
+// Draw a single room (simple rectangle version for Phase 1)
+function drawRoomSimple(room) {
+  const worldPos = gridToWorld(room.gridX, room.gridY);
+
+  push();
+  translate(worldPos.x, worldPos.y);
+
+  // Draw simple rectangle
+  fill(room.color);
+  stroke(50);
+  strokeWeight(2);
+  rectMode(CENTER);
+  rect(0, 0, CELL_WIDTH - 4, CELL_HEIGHT - 4);
+
+  pop();
+}
+
+// Perspective settings
+const PERSPECTIVE_STRENGTH = 0.3;  // How much perspective distortion (0 = none, 1 = extreme)
+const BACK_WALL_SCALE = 0.7;       // Back wall size relative to front (0.7 = 70% size)
+
+// Draw a room with true perspective projection (vanishing point at screen center)
+function drawRoom(room) {
+  const worldPos = gridToWorld(room.gridX, room.gridY);
+
+  push();
+  translate(worldPos.x, worldPos.y);
+
+  // Calculate this room's position on screen (after camera transform)
+  // We need to know where this room appears relative to screen center
+  // Screen center in world coordinates is camera position
+  const offsetFromCameraX = worldPos.x - camera.x;
+  const offsetFromCameraY = worldPos.y - camera.y;
+
+  // Perspective effect: back wall shifts toward screen center
+  // The farther from center, the more the back wall shifts toward it
+  const perspectiveShiftX = -offsetFromCameraX * PERSPECTIVE_STRENGTH;
+  const perspectiveShiftY = -offsetFromCameraY * PERSPECTIVE_STRENGTH;
+
+  // Front face corners (full size - the opening we look through)
+  const frontLeft = createVector(-CELL_WIDTH / 2, -CELL_HEIGHT / 2);
+  const frontRight = createVector(CELL_WIDTH / 2, -CELL_HEIGHT / 2);
+  const frontBottomLeft = createVector(-CELL_WIDTH / 2, CELL_HEIGHT / 2);
+  const frontBottomRight = createVector(CELL_WIDTH / 2, CELL_HEIGHT / 2);
+
+  // Back wall corners (smaller and shifted toward screen center)
+  const backWidth = CELL_WIDTH * BACK_WALL_SCALE;
+  const backHeight = CELL_HEIGHT * BACK_WALL_SCALE;
+
+  const backTopLeft = createVector(-backWidth / 2 + perspectiveShiftX, -backHeight / 2 + perspectiveShiftY);
+  const backTopRight = createVector(backWidth / 2 + perspectiveShiftX, -backHeight / 2 + perspectiveShiftY);
+  const backBottomLeft = createVector(-backWidth / 2 + perspectiveShiftX, backHeight / 2 + perspectiveShiftY);
+  const backBottomRight = createVector(backWidth / 2 + perspectiveShiftX, backHeight / 2 + perspectiveShiftY);
+
+  // Get base color
+  const baseColor = room.color;
+  const r = red(baseColor);
+  const g = green(baseColor);
+  const b = blue(baseColor);
+
+  // Colors for different faces (to show depth)
+  const backWallColor = color(r * 0.8, g * 0.8, b * 0.8);
+  const leftWallColor = color(r * 0.65, g * 0.65, b * 0.65);
+  const rightWallColor = color(r * 0.70, g * 0.70, b * 0.70);
+  const ceilingColor = color(r * 0.75, g * 0.75, b * 0.75);
+  const floorColor = color(r * 0.60, g * 0.60, b * 0.60);
+
+  stroke(40);
+  strokeWeight(1);
+
+  // Draw back wall (interior - always visible, smaller)
+  fill(backWallColor);
+  quad(
+    backTopLeft.x, backTopLeft.y,
+    backTopRight.x, backTopRight.y,
+    backBottomRight.x, backBottomRight.y,
+    backBottomLeft.x, backBottomLeft.y
+  );
+
+  // Draw left wall (connecting front left edge to back left edge)
+  fill(leftWallColor);
+  quad(
+    frontLeft.x, frontLeft.y,
+    backTopLeft.x, backTopLeft.y,
+    backBottomLeft.x, backBottomLeft.y,
+    frontBottomLeft.x, frontBottomLeft.y
+  );
+
+  // Draw right wall (connecting front right edge to back right edge)
+  fill(rightWallColor);
+  quad(
+    frontRight.x, frontRight.y,
+    backTopRight.x, backTopRight.y,
+    backBottomRight.x, backBottomRight.y,
+    frontBottomRight.x, frontBottomRight.y
+  );
+
+  // Draw ceiling (connecting front top edge to back top edge)
+  fill(ceilingColor);
+  quad(
+    frontLeft.x, frontLeft.y,
+    frontRight.x, frontRight.y,
+    backTopRight.x, backTopRight.y,
+    backTopLeft.x, backTopLeft.y
+  );
+
+  // Draw floor (connecting front bottom edge to back bottom edge)
+  fill(floorColor);
+  quad(
+    frontBottomLeft.x, frontBottomLeft.y,
+    frontBottomRight.x, frontBottomRight.y,
+    backBottomRight.x, backBottomRight.y,
+    backBottomLeft.x, backBottomLeft.y
+  );
+
+  // Draw front opening outline (shows the cut-away edge)
+  noFill();
+  stroke(30);
+  strokeWeight(2);
+  rectMode(CENTER);
+  rect(0, 0, CELL_WIDTH, CELL_HEIGHT);
+
+  pop();
+}
+
+// Draw UI overlay
+function drawUI() {
+  push();
+  fill(255);
+  noStroke();
+  textSize(14);
+  textAlign(LEFT, TOP);
+
+  text(`Zoom: ${camera.zoom.toFixed(2)}`, 10, 10);
+  text(`Position: (${camera.x.toFixed(0)}, ${camera.y.toFixed(0)})`, 10, 30);
+  text(`FPS: ${frameRate().toFixed(0)}`, 10, 50);
+
+  textSize(12);
+  text(`Controls:`, 10, 80);
+  text(`  F = Fit full grid`, 10, 100);
+  text(`  1 = Zoom to room (7, 10)`, 10, 120);
+  text(`  Arrow keys = Navigate rooms`, 10, 140);
+  text(`  Mouse wheel = Zoom`, 10, 160);
+  text(`  Mouse drag = Pan`, 10, 180);
+
+  pop();
+}
+
+// ============================================================================
+// p5.js Core Functions
+// ============================================================================
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  describe('Fallout Shelter perspective effect with cabinet projection.');
+
+  // Initialize camera
+  camera = new Camera();
+
+  // Initialize grid
+  for (let y = 0; y < GRID_HEIGHT; y++) {
+    grid[y] = [];
+    for (let x = 0; x < GRID_WIDTH; x++) {
+      grid[y][x] = new Room(x, y);
+    }
+  }
+
+  // Start with full grid view
+  calculateFullGridView(camera);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+  background(30, 30, 40);
+
+  // Update camera
+  camera.update();
+
+  // Apply camera transformation
+  camera.apply();
+
+  // Draw all rooms
+  for (let y = 0; y < GRID_HEIGHT; y++) {
+    for (let x = 0; x < GRID_WIDTH; x++) {
+      drawRoom(grid[y][x]);
+    }
+  }
+
+  // Unapply camera transformation
+  camera.unapply();
+
+  // Draw UI (not affected by camera)
+  drawUI();
+}
+
+// ============================================================================
+// Input Handlers
+// ============================================================================
+
+// Mouse wheel for zoom
+function mouseWheel(event) {
+  // Get world position under mouse before zoom
+  const worldPosBefore = screenToWorld(camera, mouseX, mouseY);
+
+  // Adjust zoom
+  const zoomDelta = event.delta > 0 ? 0.9 : 1.1;
+  camera.targetZoom *= zoomDelta;
+
+  // Clamp zoom
+  camera.targetZoom = constrain(camera.targetZoom, 0.1, 10);
+
+  // Adjust camera position to zoom toward mouse
+  // (This requires calculating the new screen position and adjusting)
+  const dx = mouseX - width / 2;
+  const dy = mouseY - height / 2;
+
+  const worldDx = dx / camera.zoom;
+  const worldDy = dy / camera.zoom;
+
+  camera.targetX = worldPosBefore.x;
+  camera.targetY = worldPosBefore.y;
+
+  return false; // Prevent default scrolling
+}
+
+// Mouse drag for pan
+let isDragging = false;
+let dragStart = null;
+
+function mousePressed() {
+  isDragging = true;
+  dragStart = createVector(mouseX, mouseY);
+}
+
+function mouseDragged() {
+  if (isDragging && dragStart) {
+    const dx = mouseX - dragStart.x;
+    const dy = mouseY - dragStart.y;
+
+    // Move camera (inverse of drag direction, scaled by zoom)
+    camera.targetX -= dx / camera.zoom;
+    camera.targetY -= dy / camera.zoom;
+
+    // Update current position immediately for smooth dragging
+    camera.x = camera.targetX;
+    camera.y = camera.targetY;
+
+    dragStart = createVector(mouseX, mouseY);
+  }
+}
+
+function mouseReleased() {
+  isDragging = false;
+  dragStart = null;
+}
+
+// Keyboard controls
+function keyPressed() {
+  if (key === 'f' || key === 'F') {
+    // Fit full grid
+    calculateFullGridView(camera);
+  } else if (key === '1') {
+    // Zoom to specific room (example: room at 7, 10)
+    zoomToRoom(camera, 7, 10);
+  } else if (keyCode === LEFT_ARROW) {
+    panToAdjacentRoom(camera, -1, 0);
+  } else if (keyCode === RIGHT_ARROW) {
+    panToAdjacentRoom(camera, 1, 0);
+  } else if (keyCode === UP_ARROW) {
+    panToAdjacentRoom(camera, 0, -1);
+  } else if (keyCode === DOWN_ARROW) {
+    panToAdjacentRoom(camera, 0, 1);
+  }
+}
+
+</script>
