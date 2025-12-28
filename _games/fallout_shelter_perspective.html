@@ -396,14 +396,32 @@ function draw() {
   // Apply camera transformation
   camera.apply();
 
-  // Draw all rooms in back-to-front order
-  // For perspective converging to screen center, draw from edges to center
-  // But for simplicity, draw from top-left to bottom-right
-  // Actually, reverse it: bottom-right to top-left for proper occlusion
-  for (let y = GRID_HEIGHT - 1; y >= 0; y--) {
-    for (let x = GRID_WIDTH - 1; x >= 0; x--) {
-      drawRoom(grid[y][x]);
+  // Draw all rooms sorted by distance from camera (painter's algorithm)
+  // Rooms farther from camera = drawn first (background)
+  // Rooms closer to camera = drawn last (foreground)
+
+  // Flatten grid to array and calculate distance from camera for each room
+  const roomsWithDistance = [];
+  for (let y = 0; y < GRID_HEIGHT; y++) {
+    for (let x = 0; x < GRID_WIDTH; x++) {
+      const room = grid[y][x];
+      const worldPos = gridToWorld(room.gridX, room.gridY);
+
+      // Distance from camera (screen center in world space)
+      const dx = worldPos.x - camera.x;
+      const dy = worldPos.y - camera.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      roomsWithDistance.push({ room, distance });
     }
+  }
+
+  // Sort by distance - farthest first
+  roomsWithDistance.sort((a, b) => b.distance - a.distance);
+
+  // Draw in sorted order
+  for (const item of roomsWithDistance) {
+    drawRoom(item.room);
   }
 
   // Unapply camera transformation
