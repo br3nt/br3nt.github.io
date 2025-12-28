@@ -311,28 +311,6 @@ function drawRoom(room) {
     frontBottomRight.x, frontBottomRight.y
   );
 
-  // Draw front frame to cover any overflow from ceiling/floor/walls
-  // This creates a clean rectangular opening
-  stroke(30);
-  strokeWeight(2);
-
-  // Frame color - dark to show it's the cut edge
-  const frameColor = color(20, 20, 25);
-  fill(frameColor);
-
-  // Top frame bar
-  rectMode(CORNER);
-  rect(-CELL_WIDTH/2 - 5, -CELL_HEIGHT/2 - 5, CELL_WIDTH + 10, 5);
-
-  // Bottom frame bar
-  rect(-CELL_WIDTH/2 - 5, CELL_HEIGHT/2, CELL_WIDTH + 10, 5);
-
-  // Left frame bar
-  rect(-CELL_WIDTH/2 - 5, -CELL_HEIGHT/2, 5, CELL_HEIGHT);
-
-  // Right frame bar
-  rect(CELL_WIDTH/2, -CELL_HEIGHT/2, 5, CELL_HEIGHT);
-
   pop();
 }
 
