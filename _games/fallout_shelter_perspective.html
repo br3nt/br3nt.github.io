@@ -262,7 +262,11 @@ function drawRoom(room) {
   stroke(40);
   strokeWeight(1);
 
-  // Draw back wall (interior - always visible, smaller)
+  // Draw in back-to-front order for proper occlusion
+  // When looking DOWN into a room: back wall -> ceiling -> floor -> side walls
+  // Side walls should draw OVER both ceiling and floor edges
+
+  // 1. Back wall (farthest into the room)
   fill(backWallColor);
   quad(
     backTopLeft.x, backTopLeft.y,
@@ -271,25 +275,7 @@ function drawRoom(room) {
     backBottomLeft.x, backBottomLeft.y
   );
 
-  // Draw left wall (connecting front left edge to back left edge)
-  fill(leftWallColor);
-  quad(
-    frontLeft.x, frontLeft.y,
-    backTopLeft.x, backTopLeft.y,
-    backBottomLeft.x, backBottomLeft.y,
-    frontBottomLeft.x, frontBottomLeft.y
-  );
-
-  // Draw right wall (connecting front right edge to back right edge)
-  fill(rightWallColor);
-  quad(
-    frontRight.x, frontRight.y,
-    backTopRight.x, backTopRight.y,
-    backBottomRight.x, backBottomRight.y,
-    frontBottomRight.x, frontBottomRight.y
-  );
-
-  // Draw ceiling (connecting front top edge to back top edge)
+  // 2. Ceiling (top surface, before side walls)
   fill(ceilingColor);
   quad(
     frontLeft.x, frontLeft.y,
@@ -298,7 +284,7 @@ function drawRoom(room) {
     backTopLeft.x, backTopLeft.y
   );
 
-  // Draw floor (connecting front bottom edge to back bottom edge)
+  // 3. Floor (bottom surface, before side walls)
   fill(floorColor);
   quad(
     frontBottomLeft.x, frontBottomLeft.y,
@@ -307,12 +293,45 @@ function drawRoom(room) {
     backBottomLeft.x, backBottomLeft.y
   );
 
-  // Draw front opening outline (shows the cut-away edge)
-  noFill();
+  // 4. Left wall (side, draws over ceiling AND floor edges)
+  fill(leftWallColor);
+  quad(
+    frontLeft.x, frontLeft.y,
+    backTopLeft.x, backTopLeft.y,
+    backBottomLeft.x, backBottomLeft.y,
+    frontBottomLeft.x, frontBottomLeft.y
+  );
+
+  // 5. Right wall (side, draws over ceiling AND floor edges)
+  fill(rightWallColor);
+  quad(
+    frontRight.x, frontRight.y,
+    backTopRight.x, backTopRight.y,
+    backBottomRight.x, backBottomRight.y,
+    frontBottomRight.x, frontBottomRight.y
+  );
+
+  // Draw front frame to cover any overflow from ceiling/floor/walls
+  // This creates a clean rectangular opening
   stroke(30);
   strokeWeight(2);
-  rectMode(CENTER);
-  rect(0, 0, CELL_WIDTH, CELL_HEIGHT);
+
+  // Frame color - dark to show it's the cut edge
+  const frameColor = color(20, 20, 25);
+  fill(frameColor);
+
+  // Top frame bar
+  rectMode(CORNER);
+  rect(-CELL_WIDTH/2 - 5, -CELL_HEIGHT/2 - 5, CELL_WIDTH + 10, 5);
+
+  // Bottom frame bar
+  rect(-CELL_WIDTH/2 - 5, CELL_HEIGHT/2, CELL_WIDTH + 10, 5);
+
+  // Left frame bar
+  rect(-CELL_WIDTH/2 - 5, -CELL_HEIGHT/2, 5, CELL_HEIGHT);
+
+  // Right frame bar
+  rect(CELL_WIDTH/2, -CELL_HEIGHT/2, 5, CELL_HEIGHT);
 
   pop();
 }
@@ -377,9 +396,12 @@ function draw() {
   // Apply camera transformation
   camera.apply();
 
-  // Draw all rooms
-  for (let y = 0; y < GRID_HEIGHT; y++) {
-    for (let x = 0; x < GRID_WIDTH; x++) {
+  // Draw all rooms in back-to-front order
+  // For perspective converging to screen center, draw from edges to center
+  // But for simplicity, draw from top-left to bottom-right
+  // Actually, reverse it: bottom-right to top-left for proper occlusion
+  for (let y = GRID_HEIGHT - 1; y >= 0; y--) {
+    for (let x = GRID_WIDTH - 1; x >= 0; x--) {
       drawRoom(grid[y][x]);
     }
   }
