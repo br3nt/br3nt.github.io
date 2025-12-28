@@ -260,7 +260,7 @@ function drawRoom(room) {
   const floorColor = color(r * 0.60, g * 0.60, b * 0.60);
 
   stroke(40);
-  strokeWeight(1);
+  strokeWeight(1);  // Thin lines for perspective edges
 
   // Draw in back-to-front order for proper occlusion
   // When looking DOWN into a room: back wall -> ceiling -> floor -> side walls
@@ -310,6 +310,23 @@ function drawRoom(room) {
     backBottomRight.x, backBottomRight.y,
     frontBottomRight.x, frontBottomRight.y
   );
+
+  // 6. Draw thick front opening frame (the 4 rectangular edges only)
+  noFill();
+  stroke(30);
+  strokeWeight(3);
+
+  // Top edge
+  line(frontLeft.x, frontLeft.y, frontRight.x, frontRight.y);
+
+  // Bottom edge
+  line(frontBottomLeft.x, frontBottomLeft.y, frontBottomRight.x, frontBottomRight.y);
+
+  // Left edge
+  line(frontLeft.x, frontLeft.y, frontBottomLeft.x, frontBottomLeft.y);
+
+  // Right edge
+  line(frontRight.x, frontRight.y, frontBottomRight.x, frontBottomRight.y);
 
   pop();
 }
