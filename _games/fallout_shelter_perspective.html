@@ -96,6 +96,98 @@ class Room {
       150 + (y * 5) % 50,
       200 + ((x + y) * 8) % 55
     );
+    // Furniture objects in this room
+    this.objects = [];
+  }
+
+  addFurniture() {
+    // Add 1-3 random furniture items to the room
+    const numItems = int(random(1, 4)); // 1-3 items
+    const furnitureTypes = ['cupboard', 'tv', 'table', 'couch'];
+    const usedTypes = [];
+
+    // Generate x-positions based on number of items to avoid overlaps
+    // These are OFFSETS from center (0.5), not absolute positions
+    const xPositions = [];
+    if (numItems === 1) {
+      xPositions.push(0); // Center
+    } else if (numItems === 2) {
+      xPositions.push(-0.2, 0.2); // Left and right (smaller offset)
+    } else { // 3 items
+      xPositions.push(-0.25, 0, 0.25); // Left, center, right (smaller offset)
+    }
+
+    for (let i = 0; i < numItems; i++) {
+      // Pick random furniture type not yet used
+      let furnitureType;
+      let attempts = 0;
+      do {
+        furnitureType = random(furnitureTypes);
+        attempts++;
+      } while (usedTypes.includes(furnitureType) && attempts < 10);
+
+      if (attempts >= 10) break; // Safety check
+      usedTypes.push(furnitureType);
+
+      // Get x position for this item
+      const x = xPositions[i];
+
+      // Create furniture with proper coordinate system
+      // Coordinate system: x,y,z are normalized 0-1
+      // Origin at bottom-left: x(left->right), y(floor->ceiling), z(front->back)
+      // To place on floor: y = height/2 (center of object)
+      // Objects must stay within bounds: x in [width/2, 1-width/2], y in [height/2, 1-height/2]
+
+      if (furnitureType === 'cupboard') {
+        const width = 0.3;
+        const height = 0.6;
+        const xPos = constrain(0.5 + x, width/2, 1 - width/2);  // Keep within room
+        this.objects.push({
+          type: 'cupboard',
+          z: 0.85,      // Depth: toward back wall
+          x: xPos,
+          y: height/2,  // Y position: center at half-height (sits on floor)
+          width: width,
+          height: height
+        });
+      } else if (furnitureType === 'tv') {
+        const width = 0.15;
+        const height = 0.3;
+        const xPos = constrain(0.5 + x, width/2, 1 - width/2);
+        this.objects.push({
+          type: 'tv',
+          z: 0.9,       // Against back wall
+          x: xPos,
+          y: 0.5,       // Wall-mounted at mid-height
+          width: width,
+          height: height
+        });
+      } else if (furnitureType === 'table') {
+        const width = 0.4;
+        const height = 0.3;
+        const xPos = constrain(0.5 + x, width/2, 1 - width/2);
+        this.objects.push({
+          type: 'table',
+          z: 0.5,       // Center of room
+          x: xPos,
+          y: height/2,  // Sits on floor
+          width: width,
+          height: height
+        });
+      } else if (furnitureType === 'couch') {
+        const width = 0.3;
+        const height = 0.35;
+        const xPos = constrain(0.5 + x, width/2, 1 - width/2);
+        this.objects.push({
+          type: 'couch',
+          z: 0.6,       // Slightly toward back
+          x: xPos,
+          y: height/2,  // Sits on floor
+          width: width,
+          height: height
+        });
+      }
+    }
   }
 }
 
@@ -217,6 +309,148 @@ function drawRoomSimple(room) {
 // Perspective settings
 const PERSPECTIVE_STRENGTH = 0.3;  // How much perspective distortion (0 = none, 1 = extreme)
 const BACK_WALL_SCALE = 0.7;       // Back wall size relative to front (0.7 = 70% size)
+
+// Draw a furniture object with perspective as a 3D box
+function drawFurnitureObject(obj, perspectiveShiftX, perspectiveShiftY) {
+  // Transform from new coordinate system (origin at inner bottom-left-front corner)
+  // to drawing coordinate system (origin at room center)
+  // New system: x,y,z in [0,1] where (0,0,0) is bottom-left-front INNER corner
+  // Drawing system: expects coords where (0,0) is room center, accounting for frame thickness
+
+  const frameHalfWidth = 1.5; // Thickness of the frame border
+
+  // Map from new coords (0-1) to drawing coords accounting for inner room bounds
+  // Inner room starts at frameHalfWidth from the edge
+  const drawX = lerp(-CELL_WIDTH/2 + frameHalfWidth, CELL_WIDTH/2 - frameHalfWidth, obj.x);
+  const drawY = lerp(CELL_HEIGHT/2 - frameHalfWidth, -CELL_HEIGHT/2 + frameHalfWidth, obj.y);
+
+  // Normalize to -1 to 1 range for perspective scaling
+  const normalizedX = drawX / (CELL_WIDTH/2);
+  const normalizedY = drawY / (CELL_HEIGHT/2);
+
+  // Calculate object position based on depth (0 = front, 1 = back wall)
+  // Lerp between front opening and back wall position
+  const frontScale = 1.0;
+  const backScale = BACK_WALL_SCALE;
+
+  // Front face scale (closer to camera)
+  const frontObjScale = lerp(frontScale, backScale, obj.z);
+  // Back face scale (farther from camera) - with 3D depth
+  const objDepth = obj.z * 0.15; // How much depth the object has
+  const backObjScale = lerp(frontScale, backScale, obj.z + objDepth);
+
+  // Front face corners
+  const frontCenterX = normalizedX * CELL_WIDTH / 2 * frontObjScale + perspectiveShiftX * obj.z;
+  const frontCenterY = normalizedY * CELL_HEIGHT / 2 * frontObjScale + perspectiveShiftY * obj.z;
+  const frontWidth = obj.width * CELL_WIDTH * frontObjScale;
+  const frontHeight = obj.height * CELL_HEIGHT * frontObjScale;
+
+  const frontTopLeft = createVector(frontCenterX - frontWidth/2, frontCenterY - frontHeight/2);
+  const frontTopRight = createVector(frontCenterX + frontWidth/2, frontCenterY - frontHeight/2);
+  const frontBottomLeft = createVector(frontCenterX - frontWidth/2, frontCenterY + frontHeight/2);
+  const frontBottomRight = createVector(frontCenterX + frontWidth/2, frontCenterY + frontHeight/2);
+
+  // Back face corners (smaller, shifted toward vanishing point)
+  const backCenterX = normalizedX * CELL_WIDTH / 2 * backObjScale + perspectiveShiftX * (obj.z + objDepth);
+  const backCenterY = normalizedY * CELL_HEIGHT / 2 * backObjScale + perspectiveShiftY * (obj.z + objDepth);
+  const backWidth = obj.width * CELL_WIDTH * backObjScale;
+  const backHeight = obj.height * CELL_HEIGHT * backObjScale;
+
+  const backTopLeft = createVector(backCenterX - backWidth/2, backCenterY - backHeight/2);
+  const backTopRight = createVector(backCenterX + backWidth/2, backCenterY - backHeight/2);
+  const backBottomLeft = createVector(backCenterX - backWidth/2, backCenterY + backHeight/2);
+  const backBottomRight = createVector(backCenterX + backWidth/2, backCenterY + backHeight/2);
+
+  // Colors based on furniture type
+  let baseColor;
+  if (obj.type === 'cupboard') {
+    baseColor = color(139, 90, 43); // Brown
+  } else if (obj.type === 'tv') {
+    baseColor = color(40, 40, 45); // Dark gray/black
+  } else if (obj.type === 'table') {
+    baseColor = color(160, 120, 80); // Light brown
+  } else if (obj.type === 'couch') {
+    baseColor = color(100, 80, 150); // Purple-ish
+  } else {
+    baseColor = color(150, 150, 150); // Default gray
+  }
+
+  const r = red(baseColor);
+  const g = green(baseColor);
+  const b = blue(baseColor);
+
+  // Different shading for different faces (to show 3D depth)
+  const backFaceColor = color(r * 0.6, g * 0.6, b * 0.6);
+  const topFaceColor = color(r * 0.8, g * 0.8, b * 0.8);
+  const leftFaceColor = color(r * 0.5, g * 0.5, b * 0.5);
+  const rightFaceColor = color(r * 0.55, g * 0.55, b * 0.55);
+  const frontFaceColor = baseColor;
+
+  // Draw in back-to-front order
+  noStroke();
+
+  // 1. Back face
+  fill(backFaceColor);
+  quad(
+    backTopLeft.x, backTopLeft.y,
+    backTopRight.x, backTopRight.y,
+    backBottomRight.x, backBottomRight.y,
+    backBottomLeft.x, backBottomLeft.y
+  );
+
+  // 2. Top face
+  fill(topFaceColor);
+  quad(
+    frontTopLeft.x, frontTopLeft.y,
+    frontTopRight.x, frontTopRight.y,
+    backTopRight.x, backTopRight.y,
+    backTopLeft.x, backTopLeft.y
+  );
+
+  // 3. Left face
+  fill(leftFaceColor);
+  quad(
+    frontTopLeft.x, frontTopLeft.y,
+    backTopLeft.x, backTopLeft.y,
+    backBottomLeft.x, backBottomLeft.y,
+    frontBottomLeft.x, frontBottomLeft.y
+  );
+
+  // 4. Right face
+  fill(rightFaceColor);
+  quad(
+    frontTopRight.x, frontTopRight.y,
+    backTopRight.x, backTopRight.y,
+    backBottomRight.x, backBottomRight.y,
+    frontBottomRight.x, frontBottomRight.y
+  );
+
+  // 5. Front face
+  fill(frontFaceColor);
+  quad(
+    frontTopLeft.x, frontTopLeft.y,
+    frontTopRight.x, frontTopRight.y,
+    frontBottomRight.x, frontBottomRight.y,
+    frontBottomLeft.x, frontBottomLeft.y
+  );
+
+  // Draw edges for definition
+  stroke(0, 100);
+  strokeWeight(0.5);
+  noFill();
+
+  // Front edges
+  line(frontTopLeft.x, frontTopLeft.y, frontTopRight.x, frontTopRight.y);
+  line(frontTopRight.x, frontTopRight.y, frontBottomRight.x, frontBottomRight.y);
+  line(frontBottomRight.x, frontBottomRight.y, frontBottomLeft.x, frontBottomLeft.y);
+  line(frontBottomLeft.x, frontBottomLeft.y, frontTopLeft.x, frontTopLeft.y);
+
+  // Depth edges
+  line(frontTopLeft.x, frontTopLeft.y, backTopLeft.x, backTopLeft.y);
+  line(frontTopRight.x, frontTopRight.y, backTopRight.x, backTopRight.y);
+  line(frontBottomLeft.x, frontBottomLeft.y, backBottomLeft.x, backBottomLeft.y);
+  line(frontBottomRight.x, frontBottomRight.y, backBottomRight.x, backBottomRight.y);
+}
 
 // Draw a room with true perspective projection (vanishing point at screen center)
 function drawRoom(room) {
@@ -345,6 +579,12 @@ function drawRoom(room) {
     innerBottomRight.x, innerBottomRight.y
   );
 
+  // 5.5. Draw furniture objects in the room (back to front for proper z-ordering)
+  const sortedObjects = [...room.objects].sort((a, b) => b.z - a.z);
+  for (const obj of sortedObjects) {
+    drawFurnitureObject(obj, perspectiveShiftX, perspectiveShiftY);
+  }
+
   // 6. Draw thin corner perspective lines (slightly inset from frame corners)
   stroke(40);
   strokeWeight(0.3);  // Very thin corner lines
@@ -430,6 +670,10 @@ function setup() {
     grid[y] = [];
     for (let x = 0; x < GRID_WIDTH; x++) {
       grid[y][x] = new Room(x, y);
+      // Add furniture to some rooms (70% chance)
+      if (random() < 0.7) {
+        grid[y][x].addFurniture();
+      }
     }
   }
 
