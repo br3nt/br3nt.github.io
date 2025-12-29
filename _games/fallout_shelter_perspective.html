@@ -164,16 +164,21 @@ function calculateFullGridView(camera) {
 
 // Calculate zoom to fill screen with single room
 function zoomToRoom(camera, gridX, gridY) {
-  // Target zoom to fill most of screen with one cell
-  const padding = 100;
-  const zoomX = (width - padding * 2) / CELL_WIDTH;
-  const zoomY = (height - padding * 2) / CELL_HEIGHT;
-  camera.targetZoom = min(zoomX, zoomY);
+  // Calculate zoom to make left/right walls touch screen edges
+  // (No padding - we want walls exactly at edges)
+  camera.targetZoom = width / CELL_WIDTH;
 
-  // Center on room (convert grid to world coords)
+  // Get room world position
   const roomWorldPos = gridToWorld(gridX, gridY);
+
+  // Center camera horizontally on room
   camera.targetX = roomWorldPos.x;
-  camera.targetY = roomWorldPos.y;
+
+  // Position camera vertically so floor is at bottom edge of screen
+  // Floor is at roomY + CELL_HEIGHT/2 in world coords
+  // We want: height = (roomY + CELL_HEIGHT/2 - camera.y) * zoom + height/2
+  // Solving for camera.y: camera.y = roomY + CELL_HEIGHT/2 - height/(2*zoom)
+  camera.targetY = roomWorldPos.y + CELL_HEIGHT/2 - height / (2 * camera.targetZoom);
 }
 
 // Pan to adjacent room (for keyboard navigation)
@@ -486,24 +491,27 @@ function draw() {
 
 // Mouse wheel for zoom
 function mouseWheel(event) {
+  // Calculate new zoom level
+  const zoomDelta = event.delta > 0 ? 0.9 : 1.1;
+  const newZoom = camera.targetZoom * zoomDelta;
+
+  // Check if we're at min/max zoom - if so, don't update anything
+  const minZoom = 0.1;
+  const maxZoom = 100; // Allow high zoom for filling screen with single room
+
+  if ((newZoom < minZoom && camera.targetZoom <= minZoom) ||
+      (newZoom > maxZoom && camera.targetZoom >= maxZoom)) {
+    // Already at limit - prevent any updates to avoid page scrolling
+    return false;
+  }
+
   // Get world position under mouse before zoom
   const worldPosBefore = screenToWorld(camera, mouseX, mouseY);
 
-  // Adjust zoom
-  const zoomDelta = event.delta > 0 ? 0.9 : 1.1;
-  camera.targetZoom *= zoomDelta;
-
-  // Clamp zoom
-  camera.targetZoom = constrain(camera.targetZoom, 0.1, 10);
+  // Apply zoom
+  camera.targetZoom = constrain(newZoom, minZoom, maxZoom);
 
   // Adjust camera position to zoom toward mouse
-  // (This requires calculating the new screen position and adjusting)
-  const dx = mouseX - width / 2;
-  const dy = mouseY - height / 2;
-
-  const worldDx = dx / camera.zoom;
-  const worldDy = dy / camera.zoom;
-
   camera.targetX = worldPosBefore.x;
   camera.targetY = worldPosBefore.y;
 
