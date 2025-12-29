@@ -495,25 +495,49 @@ function mouseWheel(event) {
   const zoomDelta = event.delta > 0 ? 0.9 : 1.1;
   const newZoom = camera.targetZoom * zoomDelta;
 
-  // Check if we're at min/max zoom - if so, don't update anything
+  // Max zoom is when room fills screen width (walls touch edges)
   const minZoom = 0.1;
-  const maxZoom = 100; // Allow high zoom for filling screen with single room
+  const maxZoom = width / CELL_WIDTH;
+  const snapThreshold = maxZoom * 0.95; // Snap when within 5% of max zoom
 
+  // Check if we're at min/max zoom - if so, don't update anything
   if ((newZoom < minZoom && camera.targetZoom <= minZoom) ||
       (newZoom > maxZoom && camera.targetZoom >= maxZoom)) {
     // Already at limit - prevent any updates to avoid page scrolling
     return false;
   }
 
-  // Get world position under mouse before zoom
-  const worldPosBefore = screenToWorld(camera, mouseX, mouseY);
-
-  // Apply zoom
+  // Apply zoom (constrained to max)
   camera.targetZoom = constrain(newZoom, minZoom, maxZoom);
 
-  // Adjust camera position to zoom toward mouse
-  camera.targetX = worldPosBefore.x;
-  camera.targetY = worldPosBefore.y;
+  // Find the nearest room to camera center
+  const nearestRoom = worldToGrid(camera.targetX, camera.targetY);
+  const roomWorldPos = gridToWorld(nearestRoom.x, nearestRoom.y);
+
+  // Calculate ideal snapped position (room centered, floor at bottom)
+  const snappedX = roomWorldPos.x;
+  const snappedY = roomWorldPos.y + CELL_HEIGHT/2 - height / (2 * camera.targetZoom);
+
+  // Check if we should snap to max zoom
+  if (camera.targetZoom >= snapThreshold && event.delta < 0) {
+    // Full snap to max zoom and ideal position
+    camera.targetZoom = maxZoom;
+    camera.targetX = snappedX;
+    camera.targetY = snappedY;
+  } else {
+    // Get world position under mouse before zoom
+    const worldPosBefore = screenToWorld(camera, mouseX, mouseY);
+
+    // Calculate how close we are to max zoom (0 to 1)
+    const zoomProgress = constrain(camera.targetZoom / maxZoom, 0, 1);
+
+    // Blend between "zoom toward mouse" and "snap to room center"
+    // As we approach max zoom, gradually shift toward snapped position
+    const blendFactor = pow(zoomProgress, 3); // Cubic easing for smooth transition
+
+    camera.targetX = lerp(worldPosBefore.x, snappedX, blendFactor);
+    camera.targetY = lerp(worldPosBefore.y, snappedY, blendFactor);
+  }
 
   return false; // Prevent default scrolling
 }
