@@ -232,10 +232,41 @@ function drawRoom(room) {
   const perspectiveShiftY = -offsetFromCameraY * PERSPECTIVE_STRENGTH;
 
   // Front face corners (full size - the opening we look through)
+  // These are the CENTER of where the thick frame lines will be drawn
   const frontLeft = createVector(-CELL_WIDTH / 2, -CELL_HEIGHT / 2);
   const frontRight = createVector(CELL_WIDTH / 2, -CELL_HEIGHT / 2);
   const frontBottomLeft = createVector(-CELL_WIDTH / 2, CELL_HEIGHT / 2);
   const frontBottomRight = createVector(CELL_WIDTH / 2, CELL_HEIGHT / 2);
+
+  // For wall geometry, meet at the EXACT inner corner of frame intersections
+  // Thick frame strokeWeight is 3, so it extends 1.5px on each side from center
+  const frameHalfWidth = 1.5;
+
+  // Inner corners of the thick frame intersections (for wall quads - exact position)
+  // Top-left intersection: inner corner is bottom-right of the intersection square
+  const innerTopLeft = createVector(frontLeft.x + frameHalfWidth, frontLeft.y + frameHalfWidth);
+
+  // Top-right intersection: inner corner is bottom-left of the intersection square
+  const innerTopRight = createVector(frontRight.x - frameHalfWidth, frontRight.y + frameHalfWidth);
+
+  // Bottom-left intersection: inner corner is top-right of the intersection square
+  const innerBottomLeft = createVector(frontBottomLeft.x + frameHalfWidth, frontBottomLeft.y - frameHalfWidth);
+
+  // Bottom-right intersection: inner corner is top-left of the intersection square
+  const innerBottomRight = createVector(frontBottomRight.x - frameHalfWidth, frontBottomRight.y - frameHalfWidth);
+
+  // Corner lines use the same exact inner corner points as wall quads
+  // The thin strokeWeight (0.3) prevents them from sticking out
+  const lineTopLeft = innerTopLeft;
+  const lineTopRight = innerTopRight;
+  const lineBottomLeft = innerBottomLeft;
+  const lineBottomRight = innerBottomRight;
+
+  // Also need outer corners for the quad geometry
+  const outerTopLeft = createVector(frontLeft.x - frameHalfWidth, frontLeft.y - frameHalfWidth);
+  const outerTopRight = createVector(frontRight.x + frameHalfWidth, frontRight.y - frameHalfWidth);
+  const outerBottomLeft = createVector(frontBottomLeft.x - frameHalfWidth, frontBottomLeft.y + frameHalfWidth);
+  const outerBottomRight = createVector(frontBottomRight.x + frameHalfWidth, frontBottomRight.y + frameHalfWidth);
 
   // Back wall corners (smaller and shifted toward screen center)
   const backWidth = CELL_WIDTH * BACK_WALL_SCALE;
@@ -259,12 +290,10 @@ function drawRoom(room) {
   const ceilingColor = color(r * 0.75, g * 0.75, b * 0.75);
   const floorColor = color(r * 0.60, g * 0.60, b * 0.60);
 
-  stroke(40);
-  strokeWeight(1);  // Thin lines for perspective edges
+  // Draw fills only (no stroke on quads - we'll draw corner lines separately)
+  noStroke();
 
   // Draw in back-to-front order for proper occlusion
-  // When looking DOWN into a room: back wall -> ceiling -> floor -> side walls
-  // Side walls should draw OVER both ceiling and floor edges
 
   // 1. Back wall (farthest into the room)
   fill(backWallColor);
@@ -275,45 +304,70 @@ function drawRoom(room) {
     backBottomLeft.x, backBottomLeft.y
   );
 
-  // 2. Ceiling (top surface, before side walls)
+  // 2. Ceiling (top surface) - use INNER corners
   fill(ceilingColor);
   quad(
-    frontLeft.x, frontLeft.y,
-    frontRight.x, frontRight.y,
+    innerTopLeft.x, innerTopLeft.y,
+    innerTopRight.x, innerTopRight.y,
     backTopRight.x, backTopRight.y,
     backTopLeft.x, backTopLeft.y
   );
 
-  // 3. Floor (bottom surface, before side walls)
+  // 3. Floor (bottom surface) - use INNER corners
   fill(floorColor);
   quad(
-    frontBottomLeft.x, frontBottomLeft.y,
-    frontBottomRight.x, frontBottomRight.y,
+    innerBottomLeft.x, innerBottomLeft.y,
+    innerBottomRight.x, innerBottomRight.y,
     backBottomRight.x, backBottomRight.y,
     backBottomLeft.x, backBottomLeft.y
   );
 
-  // 4. Left wall (side, draws over ceiling AND floor edges)
+  // 4. Left wall (side) - use INNER corners
   fill(leftWallColor);
   quad(
-    frontLeft.x, frontLeft.y,
+    innerTopLeft.x, innerTopLeft.y,
     backTopLeft.x, backTopLeft.y,
     backBottomLeft.x, backBottomLeft.y,
-    frontBottomLeft.x, frontBottomLeft.y
+    innerBottomLeft.x, innerBottomLeft.y
   );
 
-  // 5. Right wall (side, draws over ceiling AND floor edges)
+  // 5. Right wall (side) - use INNER corners
   fill(rightWallColor);
   quad(
-    frontRight.x, frontRight.y,
+    innerTopRight.x, innerTopRight.y,
     backTopRight.x, backTopRight.y,
     backBottomRight.x, backBottomRight.y,
-    frontBottomRight.x, frontBottomRight.y
+    innerBottomRight.x, innerBottomRight.y
   );
 
-  // 6. Draw thick front opening frame (the 4 rectangular edges only)
+  // 6. Draw thin corner perspective lines (slightly inset from frame corners)
+  stroke(40);
+  strokeWeight(0.3);  // Very thin corner lines
   noFill();
-  stroke(30);
+
+  // Top-left corner line (from inset point to back wall)
+  line(lineTopLeft.x, lineTopLeft.y, backTopLeft.x, backTopLeft.y);
+
+  // Top-right corner line
+  line(lineTopRight.x, lineTopRight.y, backTopRight.x, backTopRight.y);
+
+  // Bottom-left corner line
+  line(lineBottomLeft.x, lineBottomLeft.y, backBottomLeft.x, backBottomLeft.y);
+
+  // Bottom-right corner line
+  line(lineBottomRight.x, lineBottomRight.y, backBottomRight.x, backBottomRight.y);
+
+  // Back wall edges (very thin lines, same as corners)
+  stroke(40);
+  strokeWeight(0.3);
+  line(backTopLeft.x, backTopLeft.y, backTopRight.x, backTopRight.y); // top
+  line(backTopRight.x, backTopRight.y, backBottomRight.x, backBottomRight.y); // right
+  line(backBottomRight.x, backBottomRight.y, backBottomLeft.x, backBottomLeft.y); // bottom
+  line(backBottomLeft.x, backBottomLeft.y, backTopLeft.x, backTopLeft.y); // left
+
+  // 7. Draw thick front opening frame
+  noFill();
+  stroke(30);  // Dark frame color
   strokeWeight(3);
 
   // Top edge
