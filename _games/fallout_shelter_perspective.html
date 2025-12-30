@@ -3,7 +3,7 @@ layout: p5
 title: Fallout Shelter Perspective
 description: |
   <div>Recreation of the Fallout Shelter perspective effect with cabinet projection.</div>
-  <div>Use F to zoom out, 1 to zoom to a room, mouse wheel to zoom, drag to pan, arrows to navigate.</div>
+  <div>Use F to zoom out, 1 to zoom to a room, G to toggle grid, mouse wheel to zoom, drag to pan, arrows to navigate.</div>
 ---
 
 <script defer>
@@ -18,6 +18,7 @@ const CELL_DEPTH = 30;   // depth for cabinet projection
 // Global variables
 let camera;
 let grid = [];
+let showGridLines = false;  // Toggle with 'G' key
 
 // ============================================================================
 // Camera Class - Handles smooth zoom/pan with snap-to-finish
@@ -672,8 +673,10 @@ function drawRoom(room) {
     innerBottomRight.x, innerBottomRight.y
   );
 
-  // 5.5. Draw room grid lines (transparent)
-  drawRoomGrid(perspectiveShiftX, perspectiveShiftY);
+  // 5.5. Draw room grid lines (transparent) - toggle with 'G' key
+  if (showGridLines) {
+    drawRoomGrid(perspectiveShiftX, perspectiveShiftY);
+  }
 
   // 5.6. Draw furniture objects in the room (back to front for proper z-ordering)
   const sortedObjects = [...room.objects].sort((a, b) => (b.gridZ || 0) - (a.gridZ || 0));
@@ -742,9 +745,10 @@ function drawUI() {
   text(`Controls:`, 10, 80);
   text(`  F = Fit full grid`, 10, 100);
   text(`  1 = Zoom to room (7, 10)`, 10, 120);
-  text(`  Arrow keys = Navigate rooms`, 10, 140);
-  text(`  Mouse wheel = Zoom`, 10, 160);
-  text(`  Mouse drag = Pan`, 10, 180);
+  text(`  G = Toggle grid lines`, 10, 140);
+  text(`  Arrow keys = Navigate rooms`, 10, 160);
+  text(`  Mouse wheel = Zoom`, 10, 180);
+  text(`  Mouse drag = Pan`, 10, 200);
 
   pop();
 }
@@ -921,6 +925,9 @@ function keyPressed() {
   } else if (key === '1') {
     // Zoom to specific room (example: room at 7, 10)
     zoomToRoom(camera, 7, 10);
+  } else if (key === 'g' || key === 'G') {
+    // Toggle grid lines
+    showGridLines = !showGridLines;
   } else if (keyCode === LEFT_ARROW) {
     panToAdjacentRoom(camera, -1, 0);
   } else if (keyCode === RIGHT_ARROW) {
