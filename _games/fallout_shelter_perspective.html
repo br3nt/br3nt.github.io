@@ -101,6 +101,44 @@ class Room {
   }
 
   addFurniture() {
+    // TEMP: Add 3 test boxes using new grid coordinate system
+    // Grid is 12x12x12 where (0,0,0) is bottom-left-front
+
+    // Box 1: Origin (bottom-left-front) - 1x2x1 grid units
+    this.objects.push({
+      type: 'tv',
+      gridX: 0,  // Left edge
+      gridY: 0,  // Bottom (floor)
+      gridZ: 0,  // Front
+      gridWidth: 1,
+      gridHeight: 2,
+      gridDepth: 1
+    });
+
+    // Box 2: Bottom-right-front - 1x2x1 grid units
+    this.objects.push({
+      type: 'tv',
+      gridX: 11,  // Right edge (12 - 1)
+      gridY: 0,   // Bottom (floor)
+      gridZ: 0,   // Front
+      gridWidth: 1,
+      gridHeight: 2,
+      gridDepth: 1
+    });
+
+    // Box 3: Bottom-right-back - 1x2x1 grid units
+    this.objects.push({
+      type: 'tv',
+      gridX: 11,  // Right edge
+      gridY: 0,   // Bottom (floor)
+      gridZ: 11,  // Back (12 - 1)
+      gridWidth: 1,
+      gridHeight: 2,
+      gridDepth: 1
+    });
+
+    return; // Skip normal furniture generation for now
+
     // Add 1-3 random furniture items to the room
     const numItems = int(random(1, 4)); // 1-3 items
     const furnitureTypes = ['cupboard', 'tv', 'table', 'couch'];
@@ -310,56 +348,78 @@ function drawRoomSimple(room) {
 const PERSPECTIVE_STRENGTH = 0.3;  // How much perspective distortion (0 = none, 1 = extreme)
 const BACK_WALL_SCALE = 0.7;       // Back wall size relative to front (0.7 = 70% size)
 
-// Draw a furniture object with perspective as a 3D box
+// Room grid coordinate system
+const ROOM_GRID_SIZE = 12;  // 12x12x12 grid per room
+
+// Convert room grid coordinates to world drawing coordinates
+// gridX, gridY, gridZ are integers 0-12
+// Returns {x, y} in drawing coordinates (relative to room center)
+function roomGridToWorld(gridX, gridY, gridZ, perspectiveShiftX, perspectiveShiftY) {
+  const frameHalfWidth = 1.5;
+
+  // Normalize grid coords to 0-1
+  const nx = gridX / ROOM_GRID_SIZE;
+  const ny = gridY / ROOM_GRID_SIZE;
+  const nz = gridZ / ROOM_GRID_SIZE;
+
+  // Front edges (z=0, at inner frame boundary)
+  const frontLeft = -CELL_WIDTH/2 + frameHalfWidth;
+  const frontRight = CELL_WIDTH/2 - frameHalfWidth;
+  const frontFloor = CELL_HEIGHT/2 - frameHalfWidth;
+  const frontCeiling = -CELL_HEIGHT/2 + frameHalfWidth;
+
+  // Back edges (z=1, at back wall)
+  const backWidth = CELL_WIDTH * BACK_WALL_SCALE;
+  const backHeight = CELL_HEIGHT * BACK_WALL_SCALE;
+  const backLeft = -backWidth/2 + perspectiveShiftX;
+  const backRight = backWidth/2 + perspectiveShiftX;
+  const backFloor = backHeight/2 + perspectiveShiftY;
+  const backCeiling = -backHeight/2 + perspectiveShiftY;
+
+  // Lerp edges from front to back based on depth
+  const leftEdge = lerp(frontLeft, backLeft, nz);
+  const rightEdge = lerp(frontRight, backRight, nz);
+  const floorEdge = lerp(frontFloor, backFloor, nz);
+  const ceilingEdge = lerp(frontCeiling, backCeiling, nz);
+
+  // Position within the lerped bounds
+  const worldX = lerp(leftEdge, rightEdge, nx);
+  const worldY = lerp(floorEdge, ceilingEdge, ny);
+
+  return {x: worldX, y: worldY};
+}
+
+// Draw a furniture object using grid coordinates
 function drawFurnitureObject(obj, perspectiveShiftX, perspectiveShiftY) {
-  // Transform from new coordinate system (origin at inner bottom-left-front corner)
-  // to drawing coordinate system (origin at room center)
-  // New system: x,y,z in [0,1] where (0,0,0) is bottom-left-front INNER corner
-  // Drawing system: expects coords where (0,0) is room center, accounting for frame thickness
+  // Object is defined by grid coordinates (integers 0-12)
+  const {gridX, gridY, gridZ, gridWidth, gridHeight, gridDepth} = obj;
 
-  const frameHalfWidth = 1.5; // Thickness of the frame border
+  // Get the 8 corners of the box in grid coordinates
+  const corners = [
+    // Front face (z = gridZ)
+    {gx: gridX, gy: gridY, gz: gridZ},  // bottom-left-front
+    {gx: gridX + gridWidth, gy: gridY, gz: gridZ},  // bottom-right-front
+    {gx: gridX, gy: gridY + gridHeight, gz: gridZ},  // top-left-front
+    {gx: gridX + gridWidth, gy: gridY + gridHeight, gz: gridZ},  // top-right-front
+    // Back face (z = gridZ + gridDepth)
+    {gx: gridX, gy: gridY, gz: gridZ + gridDepth},  // bottom-left-back
+    {gx: gridX + gridWidth, gy: gridY, gz: gridZ + gridDepth},  // bottom-right-back
+    {gx: gridX, gy: gridY + gridHeight, gz: gridZ + gridDepth},  // top-left-back
+    {gx: gridX + gridWidth, gy: gridY + gridHeight, gz: gridZ + gridDepth}   // top-right-back
+  ];
 
-  // Map from new coords (0-1) to drawing coords accounting for inner room bounds
-  // Inner room starts at frameHalfWidth from the edge
-  const drawX = lerp(-CELL_WIDTH/2 + frameHalfWidth, CELL_WIDTH/2 - frameHalfWidth, obj.x);
-  const drawY = lerp(CELL_HEIGHT/2 - frameHalfWidth, -CELL_HEIGHT/2 + frameHalfWidth, obj.y);
+  // Convert all corners to world coordinates
+  const worldCorners = corners.map(c => roomGridToWorld(c.gx, c.gy, c.gz, perspectiveShiftX, perspectiveShiftY));
 
-  // Normalize to -1 to 1 range for perspective scaling
-  const normalizedX = drawX / (CELL_WIDTH/2);
-  const normalizedY = drawY / (CELL_HEIGHT/2);
-
-  // Calculate object position based on depth (0 = front, 1 = back wall)
-  // Lerp between front opening and back wall position
-  const frontScale = 1.0;
-  const backScale = BACK_WALL_SCALE;
-
-  // Front face scale (closer to camera)
-  const frontObjScale = lerp(frontScale, backScale, obj.z);
-  // Back face scale (farther from camera) - with 3D depth
-  const objDepth = obj.z * 0.15; // How much depth the object has
-  const backObjScale = lerp(frontScale, backScale, obj.z + objDepth);
-
-  // Front face corners
-  const frontCenterX = normalizedX * CELL_WIDTH / 2 * frontObjScale + perspectiveShiftX * obj.z;
-  const frontCenterY = normalizedY * CELL_HEIGHT / 2 * frontObjScale + perspectiveShiftY * obj.z;
-  const frontWidth = obj.width * CELL_WIDTH * frontObjScale;
-  const frontHeight = obj.height * CELL_HEIGHT * frontObjScale;
-
-  const frontTopLeft = createVector(frontCenterX - frontWidth/2, frontCenterY - frontHeight/2);
-  const frontTopRight = createVector(frontCenterX + frontWidth/2, frontCenterY - frontHeight/2);
-  const frontBottomLeft = createVector(frontCenterX - frontWidth/2, frontCenterY + frontHeight/2);
-  const frontBottomRight = createVector(frontCenterX + frontWidth/2, frontCenterY + frontHeight/2);
-
-  // Back face corners (smaller, shifted toward vanishing point)
-  const backCenterX = normalizedX * CELL_WIDTH / 2 * backObjScale + perspectiveShiftX * (obj.z + objDepth);
-  const backCenterY = normalizedY * CELL_HEIGHT / 2 * backObjScale + perspectiveShiftY * (obj.z + objDepth);
-  const backWidth = obj.width * CELL_WIDTH * backObjScale;
-  const backHeight = obj.height * CELL_HEIGHT * backObjScale;
-
-  const backTopLeft = createVector(backCenterX - backWidth/2, backCenterY - backHeight/2);
-  const backTopRight = createVector(backCenterX + backWidth/2, backCenterY - backHeight/2);
-  const backBottomLeft = createVector(backCenterX - backWidth/2, backCenterY + backHeight/2);
-  const backBottomRight = createVector(backCenterX + backWidth/2, backCenterY + backHeight/2);
+  // Extract specific corners for drawing
+  const frontBottomLeft = createVector(worldCorners[0].x, worldCorners[0].y);
+  const frontBottomRight = createVector(worldCorners[1].x, worldCorners[1].y);
+  const frontTopLeft = createVector(worldCorners[2].x, worldCorners[2].y);
+  const frontTopRight = createVector(worldCorners[3].x, worldCorners[3].y);
+  const backBottomLeft = createVector(worldCorners[4].x, worldCorners[4].y);
+  const backBottomRight = createVector(worldCorners[5].x, worldCorners[5].y);
+  const backTopLeft = createVector(worldCorners[6].x, worldCorners[6].y);
+  const backTopRight = createVector(worldCorners[7].x, worldCorners[7].y);
 
   // Colors based on furniture type
   let baseColor;
@@ -450,6 +510,39 @@ function drawFurnitureObject(obj, perspectiveShiftX, perspectiveShiftY) {
   line(frontTopRight.x, frontTopRight.y, backTopRight.x, backTopRight.y);
   line(frontBottomLeft.x, frontBottomLeft.y, backBottomLeft.x, backBottomLeft.y);
   line(frontBottomRight.x, frontBottomRight.y, backBottomRight.x, backBottomRight.y);
+}
+
+// Draw grid lines for the room coordinate system
+function drawRoomGrid(perspectiveShiftX, perspectiveShiftY) {
+  stroke(255, 255, 255, 30);  // White, very transparent
+  strokeWeight(0.2);  // Ultra thin
+
+  // Draw vertical lines (X direction) at different Z depths
+  for (let z = 0; z <= ROOM_GRID_SIZE; z++) {
+    for (let x = 0; x <= ROOM_GRID_SIZE; x++) {
+      const bottom = roomGridToWorld(x, 0, z, perspectiveShiftX, perspectiveShiftY);
+      const top = roomGridToWorld(x, ROOM_GRID_SIZE, z, perspectiveShiftX, perspectiveShiftY);
+      line(bottom.x, bottom.y, top.x, top.y);
+    }
+  }
+
+  // Draw horizontal lines (Y direction) at different Z depths
+  for (let z = 0; z <= ROOM_GRID_SIZE; z++) {
+    for (let y = 0; y <= ROOM_GRID_SIZE; y++) {
+      const left = roomGridToWorld(0, y, z, perspectiveShiftX, perspectiveShiftY);
+      const right = roomGridToWorld(ROOM_GRID_SIZE, y, z, perspectiveShiftX, perspectiveShiftY);
+      line(left.x, left.y, right.x, right.y);
+    }
+  }
+
+  // Draw depth lines (Z direction)
+  for (let x = 0; x <= ROOM_GRID_SIZE; x++) {
+    for (let y = 0; y <= ROOM_GRID_SIZE; y++) {
+      const front = roomGridToWorld(x, y, 0, perspectiveShiftX, perspectiveShiftY);
+      const back = roomGridToWorld(x, y, ROOM_GRID_SIZE, perspectiveShiftX, perspectiveShiftY);
+      line(front.x, front.y, back.x, back.y);
+    }
+  }
 }
 
 // Draw a room with true perspective projection (vanishing point at screen center)
@@ -579,8 +672,11 @@ function drawRoom(room) {
     innerBottomRight.x, innerBottomRight.y
   );
 
-  // 5.5. Draw furniture objects in the room (back to front for proper z-ordering)
-  const sortedObjects = [...room.objects].sort((a, b) => b.z - a.z);
+  // 5.5. Draw room grid lines (transparent)
+  drawRoomGrid(perspectiveShiftX, perspectiveShiftY);
+
+  // 5.6. Draw furniture objects in the room (back to front for proper z-ordering)
+  const sortedObjects = [...room.objects].sort((a, b) => (b.gridZ || 0) - (a.gridZ || 0));
   for (const obj of sortedObjects) {
     drawFurnitureObject(obj, perspectiveShiftX, perspectiveShiftY);
   }
