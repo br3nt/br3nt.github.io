@@ -363,19 +363,25 @@ function roomGridToWorld(gridX, gridY, gridZ, perspectiveShiftX, perspectiveShif
   const ny = gridY / ROOM_GRID_SIZE;
   const nz = gridZ / ROOM_GRID_SIZE;
 
-  // Front edges (z=0, at inner frame boundary)
+  // Front edges (z=0, at INNER frame boundary)
   const frontLeft = -CELL_WIDTH/2 + frameHalfWidth;
   const frontRight = CELL_WIDTH/2 - frameHalfWidth;
   const frontFloor = CELL_HEIGHT/2 - frameHalfWidth;
   const frontCeiling = -CELL_HEIGHT/2 + frameHalfWidth;
 
-  // Back edges (z=1, at back wall)
+  // Back edges (z=1, at INNER back wall boundary)
+  // The back wall outer edges
   const backWidth = CELL_WIDTH * BACK_WALL_SCALE;
   const backHeight = CELL_HEIGHT * BACK_WALL_SCALE;
-  const backLeft = -backWidth/2 + perspectiveShiftX;
-  const backRight = backWidth/2 + perspectiveShiftX;
-  const backFloor = backHeight/2 + perspectiveShiftY;
-  const backCeiling = -backHeight/2 + perspectiveShiftY;
+
+  // Frame thickness scales with perspective too
+  const backFrameThickness = frameHalfWidth * BACK_WALL_SCALE;
+
+  // Inner back wall boundaries (inset from outer edge by scaled frame thickness)
+  const backLeft = -backWidth/2 + backFrameThickness + perspectiveShiftX;
+  const backRight = backWidth/2 - backFrameThickness + perspectiveShiftX;
+  const backFloor = backHeight/2 - backFrameThickness + perspectiveShiftY;
+  const backCeiling = -backHeight/2 + backFrameThickness + perspectiveShiftY;
 
   // Lerp edges from front to back based on depth
   const leftEdge = lerp(frontLeft, backLeft, nz);
@@ -605,10 +611,31 @@ function drawRoom(room) {
   const backWidth = CELL_WIDTH * BACK_WALL_SCALE;
   const backHeight = CELL_HEIGHT * BACK_WALL_SCALE;
 
+  // Outer back wall corners (for drawing the back wall face)
   const backTopLeft = createVector(-backWidth / 2 + perspectiveShiftX, -backHeight / 2 + perspectiveShiftY);
   const backTopRight = createVector(backWidth / 2 + perspectiveShiftX, -backHeight / 2 + perspectiveShiftY);
   const backBottomLeft = createVector(-backWidth / 2 + perspectiveShiftX, backHeight / 2 + perspectiveShiftY);
   const backBottomRight = createVector(backWidth / 2 + perspectiveShiftX, backHeight / 2 + perspectiveShiftY);
+
+  // INNER back wall corners (accounting for scaled frame thickness)
+  // These are where the room's usable space actually ends
+  const backFrameThickness = frameHalfWidth * BACK_WALL_SCALE;
+  const innerBackTopLeft = createVector(
+    backTopLeft.x + backFrameThickness,
+    backTopLeft.y + backFrameThickness
+  );
+  const innerBackTopRight = createVector(
+    backTopRight.x - backFrameThickness,
+    backTopRight.y + backFrameThickness
+  );
+  const innerBackBottomLeft = createVector(
+    backBottomLeft.x + backFrameThickness,
+    backBottomLeft.y - backFrameThickness
+  );
+  const innerBackBottomRight = createVector(
+    backBottomRight.x - backFrameThickness,
+    backBottomRight.y - backFrameThickness
+  );
 
   // Get base color
   const baseColor = room.color;
@@ -637,39 +664,39 @@ function drawRoom(room) {
     backBottomLeft.x, backBottomLeft.y
   );
 
-  // 2. Ceiling (top surface) - use INNER corners
+  // 2. Ceiling (top surface) - use INNER corners (both front and back)
   fill(ceilingColor);
   quad(
     innerTopLeft.x, innerTopLeft.y,
     innerTopRight.x, innerTopRight.y,
-    backTopRight.x, backTopRight.y,
-    backTopLeft.x, backTopLeft.y
+    innerBackTopRight.x, innerBackTopRight.y,
+    innerBackTopLeft.x, innerBackTopLeft.y
   );
 
-  // 3. Floor (bottom surface) - use INNER corners
+  // 3. Floor (bottom surface) - use INNER corners (both front and back)
   fill(floorColor);
   quad(
     innerBottomLeft.x, innerBottomLeft.y,
     innerBottomRight.x, innerBottomRight.y,
-    backBottomRight.x, backBottomRight.y,
-    backBottomLeft.x, backBottomLeft.y
+    innerBackBottomRight.x, innerBackBottomRight.y,
+    innerBackBottomLeft.x, innerBackBottomLeft.y
   );
 
-  // 4. Left wall (side) - use INNER corners
+  // 4. Left wall (side) - use INNER corners (both front and back)
   fill(leftWallColor);
   quad(
     innerTopLeft.x, innerTopLeft.y,
-    backTopLeft.x, backTopLeft.y,
-    backBottomLeft.x, backBottomLeft.y,
+    innerBackTopLeft.x, innerBackTopLeft.y,
+    innerBackBottomLeft.x, innerBackBottomLeft.y,
     innerBottomLeft.x, innerBottomLeft.y
   );
 
-  // 5. Right wall (side) - use INNER corners
+  // 5. Right wall (side) - use INNER corners (both front and back)
   fill(rightWallColor);
   quad(
     innerTopRight.x, innerTopRight.y,
-    backTopRight.x, backTopRight.y,
-    backBottomRight.x, backBottomRight.y,
+    innerBackTopRight.x, innerBackTopRight.y,
+    innerBackBottomRight.x, innerBackBottomRight.y,
     innerBottomRight.x, innerBottomRight.y
   );
 
@@ -690,24 +717,24 @@ function drawRoom(room) {
   noFill();
 
   // Top-left corner line (from inset point to back wall)
-  line(lineTopLeft.x, lineTopLeft.y, backTopLeft.x, backTopLeft.y);
+  line(lineTopLeft.x, lineTopLeft.y, innerBackTopLeft.x, innerBackTopLeft.y);
 
   // Top-right corner line
-  line(lineTopRight.x, lineTopRight.y, backTopRight.x, backTopRight.y);
+  line(lineTopRight.x, lineTopRight.y, innerBackTopRight.x, innerBackTopRight.y);
 
   // Bottom-left corner line
-  line(lineBottomLeft.x, lineBottomLeft.y, backBottomLeft.x, backBottomLeft.y);
+  line(lineBottomLeft.x, lineBottomLeft.y, innerBackBottomLeft.x, innerBackBottomLeft.y);
 
   // Bottom-right corner line
-  line(lineBottomRight.x, lineBottomRight.y, backBottomRight.x, backBottomRight.y);
+  line(lineBottomRight.x, lineBottomRight.y, innerBackBottomRight.x, innerBackBottomRight.y);
 
   // Back wall edges (very thin lines, same as corners)
   stroke(40);
   strokeWeight(0.3);
-  line(backTopLeft.x, backTopLeft.y, backTopRight.x, backTopRight.y); // top
-  line(backTopRight.x, backTopRight.y, backBottomRight.x, backBottomRight.y); // right
-  line(backBottomRight.x, backBottomRight.y, backBottomLeft.x, backBottomLeft.y); // bottom
-  line(backBottomLeft.x, backBottomLeft.y, backTopLeft.x, backTopLeft.y); // left
+  line(innerBackTopLeft.x, innerBackTopLeft.y, innerBackTopRight.x, innerBackTopRight.y); // top
+  line(innerBackTopRight.x, innerBackTopRight.y, innerBackBottomRight.x, innerBackBottomRight.y); // right
+  line(innerBackBottomRight.x, innerBackBottomRight.y, innerBackBottomLeft.x, innerBackBottomLeft.y); // bottom
+  line(innerBackBottomLeft.x, innerBackBottomLeft.y, innerBackTopLeft.x, innerBackTopLeft.y); // left
 
   // 7. Draw thick front opening frame
   noFill();
