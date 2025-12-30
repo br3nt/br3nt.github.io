@@ -3,7 +3,7 @@ layout: p5
 title: Fallout Shelter Perspective
 description: |
   <div>Recreation of the Fallout Shelter perspective effect with cabinet projection.</div>
-  <div>Use F to zoom out, 1 to zoom to a room, G to toggle grid, mouse wheel to zoom, drag to pan, arrows to navigate.</div>
+  <div>Double-click rooms to zoom. F to zoom out, G to toggle grid, wheel to zoom, drag to pan, arrows to navigate.</div>
 ---
 
 <script defer>
@@ -747,8 +747,9 @@ function drawUI() {
   text(`  1 = Zoom to room (7, 10)`, 10, 120);
   text(`  G = Toggle grid lines`, 10, 140);
   text(`  Arrow keys = Navigate rooms`, 10, 160);
-  text(`  Mouse wheel = Zoom`, 10, 180);
-  text(`  Mouse drag = Pan`, 10, 200);
+  text(`  Double-click = Zoom in/out`, 10, 180);
+  text(`  Mouse wheel = Zoom`, 10, 200);
+  text(`  Mouse drag = Pan`, 10, 220);
 
   pop();
 }
@@ -893,6 +894,44 @@ let dragStart = null;
 function mousePressed() {
   isDragging = true;
   dragStart = createVector(mouseX, mouseY);
+}
+
+// Double-click to zoom in/out
+function doubleClicked() {
+  // Threshold to determine if we're "zoomed in" - halfway to max zoom
+  const fullGridZoom = camera.zoom; // Current zoom level
+  const maxZoom = width / CELL_WIDTH;
+  const zoomThreshold = (calculateFullGridZoom() + maxZoom) / 2;
+
+  if (camera.targetZoom > zoomThreshold) {
+    // Already zoomed in - zoom out to full grid
+    calculateFullGridView(camera);
+  } else {
+    // Zoomed out - zoom into the clicked room
+    // Convert screen coords to world coords
+    const worldPos = screenToWorld(camera, mouseX, mouseY);
+
+    // Convert world coords to grid coords
+    const roomCoords = worldToGrid(worldPos.x, worldPos.y);
+
+    // Clamp to valid room range
+    const roomX = constrain(roomCoords.x, 0, GRID_WIDTH - 1);
+    const roomY = constrain(roomCoords.y, 0, GRID_HEIGHT - 1);
+
+    // Zoom to that room
+    zoomToRoom(camera, roomX, roomY);
+  }
+
+  return false; // Prevent default behavior
+}
+
+// Helper to calculate what the full grid zoom level is
+function calculateFullGridZoom() {
+  const worldWidth = GRID_WIDTH * CELL_WIDTH;
+  const worldHeight = GRID_HEIGHT * CELL_HEIGHT;
+  const zoomX = width / worldWidth;
+  const zoomY = height / worldHeight;
+  return min(zoomX, zoomY) * 0.9;
 }
 
 function mouseDragged() {
