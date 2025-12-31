@@ -10,13 +10,11 @@ layout: default
   integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<main id="content" class="content-grid" role="main">
-  <h1>{{ page.title }}</h1>
-  <p>{{ page.date | date_to_string }} - {{ page.author }}</p>
-  <p>{% if page.draft %}<b>Draft</b>{% endif %}</p>
+<h1>{{ page.title }}</h1>
+<p>{{ page.date | date_to_string }} - {{ page.author }}</p>
+<p>{% if page.draft %}<b>Draft</b>{% endif %}</p>
 
-  {{ content }}
-</main>
+{{ content }}
 
 <script>
   hljs.highlightAll()
