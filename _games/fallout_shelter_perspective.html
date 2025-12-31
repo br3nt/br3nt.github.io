@@ -328,23 +328,6 @@ function panToAdjacentRoom(camera, dx, dy) {
 // Drawing Functions
 // ============================================================================
 
-// Draw a single room (simple rectangle version for Phase 1)
-function drawRoomSimple(room) {
-  const worldPos = gridToWorld(room.gridX, room.gridY);
-
-  push();
-  translate(worldPos.x, worldPos.y);
-
-  // Draw simple rectangle
-  fill(room.color);
-  stroke(50);
-  strokeWeight(2);
-  rectMode(CENTER);
-  rect(0, 0, CELL_WIDTH - 4, CELL_HEIGHT - 4);
-
-  pop();
-}
-
 // Perspective settings
 const PERSPECTIVE_STRENGTH = 0.3;  // How much perspective distortion (0 = none, 1 = extreme)
 const BACK_WALL_SCALE = 0.7;       // Back wall size relative to front (0.7 = 70% size)
@@ -352,27 +335,29 @@ const BACK_WALL_SCALE = 0.7;       // Back wall size relative to front (0.7 = 70
 // Room grid coordinate system
 const ROOM_GRID_SIZE = 12;  // 12x12x12 grid per room
 
+// For wall geometry, meet at the EXACT inner corner of frame intersections
+// Thick frame strokeWeight is 3, so it extends 1.5px on each side from center
+const frameHalfWidth = 1.5;
+
 // Convert room grid coordinates to world drawing coordinates
 // gridX, gridY, gridZ are integers 0-12
 // Returns {x, y} in drawing coordinates (relative to room center)
 function roomGridToWorld(gridX, gridY, gridZ, perspectiveShiftX, perspectiveShiftY) {
-  const frameHalfWidth = 1.5;
-
   // Normalize grid coords to 0-1
   const nx = gridX / ROOM_GRID_SIZE;
   const ny = gridY / ROOM_GRID_SIZE;
   const nz = gridZ / ROOM_GRID_SIZE;
 
   // Front edges (z=0, at INNER frame boundary)
-  const frontLeft = -CELL_WIDTH/2 + frameHalfWidth;
-  const frontRight = CELL_WIDTH/2 - frameHalfWidth;
-  const frontFloor = CELL_HEIGHT/2 - frameHalfWidth;
-  const frontCeiling = -CELL_HEIGHT/2 + frameHalfWidth;
+  const frontLeft = -CELL_WIDTH/2 + frameHalfWidth; // -80 / 2 + 1.5
+  const frontRight = CELL_WIDTH/2 - frameHalfWidth; // 80 / 2 - 1.5
+  const frontFloor = CELL_HEIGHT/2 - frameHalfWidth; // 60 / 2 - 1.5
+  const frontCeiling = -CELL_HEIGHT/2 + frameHalfWidth; // -60 / 2 + 1.5
 
   // Back edges (z=1, at INNER back wall boundary)
   // The back wall outer edges
-  const backWidth = CELL_WIDTH * BACK_WALL_SCALE;
-  const backHeight = CELL_HEIGHT * BACK_WALL_SCALE;
+  const backWidth = CELL_WIDTH * BACK_WALL_SCALE; // 80 * 0.7
+  const backHeight = CELL_HEIGHT * BACK_WALL_SCALE; // 60 * 0.7
 
   // Frame thickness scales with perspective too
   const backFrameThickness = frameHalfWidth * BACK_WALL_SCALE;
@@ -576,10 +561,6 @@ function drawRoom(room) {
   const frontRight = createVector(CELL_WIDTH / 2, -CELL_HEIGHT / 2);
   const frontBottomLeft = createVector(-CELL_WIDTH / 2, CELL_HEIGHT / 2);
   const frontBottomRight = createVector(CELL_WIDTH / 2, CELL_HEIGHT / 2);
-
-  // For wall geometry, meet at the EXACT inner corner of frame intersections
-  // Thick frame strokeWeight is 3, so it extends 1.5px on each side from center
-  const frameHalfWidth = 1.5;
 
   // Inner corners of the thick frame intersections (for wall quads - exact position)
   // Top-left intersection: inner corner is bottom-right of the intersection square
