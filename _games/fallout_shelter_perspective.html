@@ -19,6 +19,7 @@ const CELL_DEPTH = 30;   // depth for cabinet projection
 let camera;
 let grid = [];
 let showGridLines = false;  // Toggle with 'G' key
+let doorways = [];  // Global array to store doorways between rooms
 
 // ============================================================================
 // Camera Class - Handles smooth zoom/pan with snap-to-finish
@@ -225,6 +226,98 @@ class Room {
           width: width,
           height: height
         });
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Doorway Generation Functions
+// ============================================================================
+
+// Get doorways for a specific room wall
+function getDoorwaysForWall(room, wallSide) {
+  // wallSide: 'left', 'right', 'top', 'bottom'
+  return doorways.filter(d => {
+    if (wallSide === 'left') {
+      // Left wall is shared with room to the left (gridX - 1)
+      return (d.room1.gridX === room.gridX - 1 && d.room1.gridY === room.gridY &&
+              d.room2.gridX === room.gridX && d.room2.gridY === room.gridY) ||
+             (d.room2.gridX === room.gridX - 1 && d.room2.gridY === room.gridY &&
+              d.room1.gridX === room.gridX && d.room1.gridY === room.gridY);
+    } else if (wallSide === 'right') {
+      // Right wall is shared with room to the right (gridX + 1)
+      return (d.room1.gridX === room.gridX && d.room1.gridY === room.gridY &&
+              d.room2.gridX === room.gridX + 1 && d.room2.gridY === room.gridY) ||
+             (d.room2.gridX === room.gridX && d.room2.gridY === room.gridY &&
+              d.room1.gridX === room.gridX + 1 && d.room1.gridY === room.gridY);
+    } else if (wallSide === 'top') {
+      // Top wall is shared with room above (gridY - 1)
+      return (d.room1.gridX === room.gridX && d.room1.gridY === room.gridY - 1 &&
+              d.room2.gridX === room.gridX && d.room2.gridY === room.gridY) ||
+             (d.room2.gridX === room.gridX && d.room2.gridY === room.gridY - 1 &&
+              d.room1.gridX === room.gridX && d.room1.gridY === room.gridY);
+    } else if (wallSide === 'bottom') {
+      // Bottom wall is shared with room below (gridY + 1)
+      return (d.room1.gridX === room.gridX && d.room1.gridY === room.gridY &&
+              d.room2.gridX === room.gridX && d.room2.gridY === room.gridY + 1) ||
+             (d.room2.gridX === room.gridX && d.room2.gridY === room.gridY &&
+              d.room1.gridX === room.gridX && d.room1.gridY === room.gridY + 1);
+    }
+    return false;
+  });
+}
+
+// Create a random doorway with random dimensions
+function createRandomDoorway() {
+  const isArched = Math.random() < 0.4; // 40% arched, 60% rectangular
+  return {
+    type: isArched ? 'arched' : 'rectangular',
+    startZ: Math.floor(Math.random() * 4) + 2,  // 2-5 from front
+    startY: 0,  // Start at floor
+    width: Math.floor(Math.random() * 3) + 2,   // 2-4 units wide
+    height: Math.floor(Math.random() * 3) + 6   // 6-8 units tall
+  };
+}
+
+// Generate doorways between adjacent rooms
+function generateDoorways(doorwayChance = 0.3) {
+  // Clear existing doorways
+  doorways.length = 0;
+
+  // For each room in the grid
+  for (let gy = 0; gy < GRID_HEIGHT; gy++) {
+    for (let gx = 0; gx < GRID_WIDTH; gx++) {
+      const room = grid[gy][gx];
+      if (!room) continue;
+
+      // Check right neighbor (vertical wall between rooms)
+      if (gx < GRID_WIDTH - 1 && Math.random() < doorwayChance) {
+        const rightNeighbor = grid[gy][gx + 1];
+        if (rightNeighbor) {
+          // Create doorway connecting the two rooms
+          const doorway = {
+            ...createRandomDoorway(),
+            room1: { gridX: gx, gridY: gy },
+            room2: { gridX: gx + 1, gridY: gy },
+            orientation: 'vertical'
+          };
+          doorways.push(doorway);
+        }
+      }
+
+      // Check bottom neighbor (horizontal wall between rooms)
+      if (gy < GRID_HEIGHT - 1 && Math.random() < doorwayChance) {
+        const bottomNeighbor = grid[gy + 1][gx];
+        if (bottomNeighbor) {
+          const doorway = {
+            ...createRandomDoorway(),
+            room1: { gridX: gx, gridY: gy },
+            room2: { gridX: gx, gridY: gy + 1 },
+            orientation: 'horizontal'
+          };
+          doorways.push(doorway);
+        }
       }
     }
   }
@@ -537,6 +630,129 @@ function drawRoomGrid(perspectiveShiftX, perspectiveShiftY) {
   }
 }
 
+// ============================================================================
+// Doorway Rendering Functions
+// ============================================================================
+
+// Draw a wall segment (part of a wall around doorway cutouts)
+function drawWallSegment(wallSide, startZ, endZ, startY, endY, wallColor, perspectiveShiftX, perspectiveShiftY) {
+  // wallSide determines if x=0 (left) or x=12 (right)
+  const x = wallSide === 'left' ? 0 : 12;
+
+  const topFront = roomGridToWorld(x, endY, startZ, perspectiveShiftX, perspectiveShiftY);
+  const topBack = roomGridToWorld(x, endY, endZ, perspectiveShiftX, perspectiveShiftY);
+  const bottomBack = roomGridToWorld(x, startY, endZ, perspectiveShiftX, perspectiveShiftY);
+  const bottomFront = roomGridToWorld(x, startY, startZ, perspectiveShiftX, perspectiveShiftY);
+
+  fill(wallColor);
+  noStroke();
+  quad(topFront.x, topFront.y, topBack.x, topBack.y,
+       bottomBack.x, bottomBack.y, bottomFront.x, bottomFront.y);
+}
+
+// Draw doorway frame (decorative outline around opening)
+function drawDoorwayFrame(wallSide, doorway, perspectiveShiftX, perspectiveShiftY) {
+  const x = wallSide === 'left' ? 0 : 12;
+  const { startZ, startY, width, height, type } = doorway;
+
+  // Draw frame outline
+  stroke(0);
+  strokeWeight(2);
+  noFill();
+
+  if (type === 'rectangular') {
+    // Four corners of doorway
+    const topLeft = roomGridToWorld(x, startY + height, startZ, perspectiveShiftX, perspectiveShiftY);
+    const topRight = roomGridToWorld(x, startY + height, startZ + width, perspectiveShiftX, perspectiveShiftY);
+    const bottomRight = roomGridToWorld(x, startY, startZ + width, perspectiveShiftX, perspectiveShiftY);
+    const bottomLeft = roomGridToWorld(x, startY, startZ, perspectiveShiftX, perspectiveShiftY);
+
+    beginShape();
+    vertex(topLeft.x, topLeft.y);
+    vertex(topRight.x, topRight.y);
+    vertex(bottomRight.x, bottomRight.y);
+    vertex(bottomLeft.x, bottomLeft.y);
+    endShape(CLOSE);
+  } else if (type === 'arched') {
+    // Draw rectangular bottom portion sides
+    const archStartY = startY + height;
+    const bottomLeft = roomGridToWorld(x, startY, startZ, perspectiveShiftX, perspectiveShiftY);
+    const bottomRight = roomGridToWorld(x, startY, startZ + width, perspectiveShiftX, perspectiveShiftY);
+    const archLeft = roomGridToWorld(x, archStartY, startZ, perspectiveShiftX, perspectiveShiftY);
+    const archRight = roomGridToWorld(x, archStartY, startZ + width, perspectiveShiftX, perspectiveShiftY);
+
+    // Draw sides
+    line(archLeft.x, archLeft.y, bottomLeft.x, bottomLeft.y);
+    line(archRight.x, archRight.y, bottomRight.x, bottomRight.y);
+
+    // Draw arch using vertex points (semi-circular)
+    const archHeight = width / 2; // Semi-circular arch
+    const numSegments = 16;
+
+    beginShape();
+    for (let i = 0; i <= numSegments; i++) {
+      const angle = PI - (i / numSegments) * PI; // 180 to 0 degrees
+      const offsetZ = startZ + width/2 + (width/2) * cos(angle);
+      const offsetY = archStartY + archHeight * sin(angle);
+      const pt = roomGridToWorld(x, offsetY, offsetZ, perspectiveShiftX, perspectiveShiftY);
+      vertex(pt.x, pt.y);
+    }
+    endShape();
+  }
+}
+
+// Draw wall with doorway cutouts
+function drawWallWithDoorways(wallSide, room, wallColor, perspectiveShiftX, perspectiveShiftY) {
+  const wallDoorways = getDoorwaysForWall(room, wallSide);
+
+  // If no doorways, draw as solid wall
+  if (wallDoorways.length === 0) {
+    // Use original quad drawing logic
+    const x = wallSide === 'left' ? 0 : 12;
+    const topFront = roomGridToWorld(x, ROOM_GRID_SIZE, 0, perspectiveShiftX, perspectiveShiftY);
+    const topBack = roomGridToWorld(x, ROOM_GRID_SIZE, ROOM_GRID_SIZE, perspectiveShiftX, perspectiveShiftY);
+    const bottomBack = roomGridToWorld(x, 0, ROOM_GRID_SIZE, perspectiveShiftX, perspectiveShiftY);
+    const bottomFront = roomGridToWorld(x, 0, 0, perspectiveShiftX, perspectiveShiftY);
+
+    fill(wallColor);
+    noStroke();
+    quad(topFront.x, topFront.y, topBack.x, topBack.y,
+         bottomBack.x, bottomBack.y, bottomFront.x, bottomFront.y);
+    return;
+  }
+
+  // Sort doorways by startZ to process in order
+  const sortedDoorways = [...wallDoorways].sort((a, b) => a.startZ - b.startZ);
+
+  // Draw wall segments between doorways
+  let lastZ = 0;
+  for (const doorway of sortedDoorways) {
+    // Draw segment before doorway (from lastZ to doorway.startZ)
+    if (doorway.startZ > lastZ) {
+      drawWallSegment(wallSide, lastZ, doorway.startZ, 0, ROOM_GRID_SIZE,
+                     wallColor, perspectiveShiftX, perspectiveShiftY);
+    }
+
+    // Draw segment above doorway (if doesn't reach ceiling)
+    if (doorway.startY + doorway.height < ROOM_GRID_SIZE) {
+      drawWallSegment(wallSide, doorway.startZ, doorway.startZ + doorway.width,
+                     doorway.startY + doorway.height, ROOM_GRID_SIZE,
+                     wallColor, perspectiveShiftX, perspectiveShiftY);
+    }
+
+    // Draw doorway frame
+    drawDoorwayFrame(wallSide, doorway, perspectiveShiftX, perspectiveShiftY);
+
+    lastZ = doorway.startZ + doorway.width;
+  }
+
+  // Draw final segment after last doorway
+  if (lastZ < ROOM_GRID_SIZE) {
+    drawWallSegment(wallSide, lastZ, ROOM_GRID_SIZE, 0, ROOM_GRID_SIZE,
+                   wallColor, perspectiveShiftX, perspectiveShiftY);
+  }
+}
+
 // Draw a room with true perspective projection (vanishing point at screen center)
 function drawRoom(room) {
   const worldPos = gridToWorld(room.gridX, room.gridY);
@@ -663,23 +879,11 @@ function drawRoom(room) {
     innerBackBottomLeft.x, innerBackBottomLeft.y
   );
 
-  // 4. Left wall (side) - use INNER corners (both front and back)
-  fill(leftWallColor);
-  quad(
-    innerTopLeft.x, innerTopLeft.y,
-    innerBackTopLeft.x, innerBackTopLeft.y,
-    innerBackBottomLeft.x, innerBackBottomLeft.y,
-    innerBottomLeft.x, innerBottomLeft.y
-  );
+  // 4. Left wall (side) - with doorway cutouts
+  drawWallWithDoorways('left', room, leftWallColor, perspectiveShiftX, perspectiveShiftY);
 
-  // 5. Right wall (side) - use INNER corners (both front and back)
-  fill(rightWallColor);
-  quad(
-    innerTopRight.x, innerTopRight.y,
-    innerBackTopRight.x, innerBackTopRight.y,
-    innerBackBottomRight.x, innerBackBottomRight.y,
-    innerBottomRight.x, innerBottomRight.y
-  );
+  // 5. Right wall (side) - with doorway cutouts
+  drawWallWithDoorways('right', room, rightWallColor, perspectiveShiftX, perspectiveShiftY);
 
   // 5.5. Draw room grid lines (transparent) - toggle with 'G' key
   if (showGridLines) {
@@ -754,10 +958,11 @@ function drawUI() {
   text(`  F = Fit full grid`, 10, 100);
   text(`  1 = Zoom to room (7, 10)`, 10, 120);
   text(`  G = Toggle grid lines`, 10, 140);
-  text(`  Arrow keys = Navigate rooms`, 10, 160);
-  text(`  Double-click = Zoom in/out`, 10, 180);
-  text(`  Mouse wheel = Zoom`, 10, 200);
-  text(`  Mouse drag = Pan`, 10, 220);
+  text(`  D = Regenerate doorways`, 10, 160);
+  text(`  Arrow keys = Navigate rooms`, 10, 180);
+  text(`  Double-click = Zoom in/out`, 10, 200);
+  text(`  Mouse wheel = Zoom`, 10, 220);
+  text(`  Mouse drag = Pan`, 10, 240);
 
   pop();
 }
@@ -785,6 +990,9 @@ function setup() {
       }
     }
   }
+
+  // Generate doorways between rooms (30% chance)
+  generateDoorways(0.3);
 
   // Start with full grid view
   calculateFullGridView(camera);
@@ -975,6 +1183,9 @@ function keyPressed() {
   } else if (key === 'g' || key === 'G') {
     // Toggle grid lines
     showGridLines = !showGridLines;
+  } else if (key === 'd' || key === 'D') {
+    // Regenerate doorways
+    generateDoorways(0.3);
   } else if (keyCode === LEFT_ARROW) {
     panToAdjacentRoom(camera, -1, 0);
   } else if (keyCode === RIGHT_ARROW) {
