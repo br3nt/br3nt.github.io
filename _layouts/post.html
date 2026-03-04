@@ -12,7 +12,7 @@ layout: default
 
 <h1>{{ page.title }}</h1>
 <p>{{ page.date | date_to_string }} - {{ page.author }}</p>
-<p>{% if page.draft %}<b>Draft</b>{% endif %}</p>
+{% if page.draft %}<p><span class="draft">Draft</span></p>{% endif %}
 
 {{ content }}
 
