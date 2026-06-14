@@ -1,5 +1,6 @@
 ---
 title: "Anthropic Fable and Mythos global ban and timeline"
+date: 2026-06-15 00:00:00 +0930
 tags: ai, anthropic, policy, fable, mythos
 ---
 
