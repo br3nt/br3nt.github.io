@@ -83,12 +83,12 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
 .callout { border-left: 4px solid #d97706; background: #fffbeb; padding: .8em 1em; border-radius: 6px; margin: 1.5em 0; }
 .todo { border-left: 4px solid #64748b; background: #f8fafc; padding: .6em 1em; border-radius: 6px; color:#475569; margin: 1em 0; }
 .shots {
-  display: flex; flex-wrap: wrap; gap: .8em;
+  display: flex; flex-wrap: wrap; gap: .8em; justify-content: center;
   width: min(100vw - 2rem, 1100px);
   position: relative; left: 50%; transform: translateX(-50%);
   margin: 1.4em 0;
 }
-.shots img { flex: 1 1 320px; min-width: 0; max-width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; }
+.shots img { flex: 0 1 340px; min-width: 0; max-width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; }
 .post-meta { font-size: .8rem; color: #6b7280; }
 .aside { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: .8em 1em; margin: 1.5em 0; font-size: .95em; }
 .aside table { border-collapse: collapse; width: 100%; margin: .5em 0 0; }
@@ -205,6 +205,7 @@ I'd seen devs posting videos of Fable recreating Fortnite, Minecraft, and GTA. S
 <div class="shots">
 <img src="/assets/img/populous-tribes.png" alt="The Populous clone's Tribal Gods title screen, with tribe selection, difficulty, and Levels and Editor buttons">
 <img src="/assets/img/populous-world.png" alt="The clone's curved-horizon planet, with sculpted terrain, huts, and villagers">
+<img src="/assets/img/populous-spells.png" alt="The clone in play: 3D terrain, villagers, the minimap, and the spell-book HUD">
 </div>
 
 ### It found what was actually slowing my budget app
