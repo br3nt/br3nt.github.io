@@ -24,7 +24,7 @@ tags: ai, anthropic, fable, gamedev, threejs, populous
   .steam-embed iframe { width: 100%; max-width: 646px; border: 0; }
 </style>
 
-In [my write-up of the Fable and Mythos ban]({% post_url 2026-06-15-anthropic-fable-mythos-ban %}) I mentioned, almost in passing, that I'd spent a few nights pointing Fable 5 at a blank folder and asking it to build a game inspired by *Populous: The Beginning*. Enough people asked about it that it deserves its own page — and in the days since, Fable turned it from "every foundation is in place" into something I'm happy to put a link to. It's **playable in your browser right now**, and **every line is on GitHub**.
+In [my write-up of the Fable and Mythos ban]({% post_url 2026-06-15-anthropic-fable-mythos-ban %}) I mentioned, almost in passing, that I'd spent a few nights pointing Fable 5 at a blank folder and asking it to build a game inspired by *Populous: The Beginning*. Enough people asked about it that it deserves its own page — and in the days since, Fable turned it from "every foundation is in place" into something I'm happy to put a link to. It's playable in your browser right now, and every line is on GitHub.
 
 <a class="tg-poster" href="https://br3nt.github.io/tribal-gods/" target="_blank" rel="noopener">
   <img src="/assets/img/populous-hero.png" alt="A small curved planet with green continents and blue coastlines — the signature Populous 'little world' look">
@@ -41,7 +41,7 @@ None of it uses a game engine. The terrain, the character models and animation, 
 
 ## How it was built — the actual experiment
 
-The interesting part isn't the game, it's how it got made. I never opened the code editor to write a line. I described what I wanted in plain English, and Fable did the rest — including the part that surprised me most: **it tested its own work**. It ran the dev server, drove a headless Chrome to play the game, took screenshots, looked at them, noticed when something was wrong, and fixed it. It caught its own bugs that way — a terrain-picking error where clicks near the horizon landed in the wrong spot, and an AI deadlock where a tribe that lost all its workers could get stuck sterile forever. I mostly just said "yes, keep going."
+The interesting part isn't the game, it's how it got made. I never opened the code editor to write a line. I described what I wanted in plain English, and Fable did the rest — including the part that surprised me most: it tested its own work. It ran the dev server, drove a headless Chrome to play the game, took screenshots, looked at them, noticed when something was wrong, and fixed it. It caught its own bugs that way — a terrain-picking error where clicks near the horizon landed in the wrong spot, and an AI deadlock where a tribe that lost all its workers could get stuck sterile forever. I mostly just said "yes, keep going."
 
 It went in phases, each one a single conversation that ended with something I could actually play:
 
