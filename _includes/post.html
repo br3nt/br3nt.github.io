@@ -1,11 +1,19 @@
 <article>
   <h3><a href="{{ include.post.url }}">{{ include.post.title }}</a></h3>
 
+  {% if include.post.collection == 'posts' %}
   <p class="post-date"><small>
     {{ include.post.date | date: "%-d %B %Y" }}
-    {%- if include.post.last_updated %} &middot; updated <time class="ts" datetime="{{ include.post.last_updated | date_to_xmlschema }}" data-tz="Australia/Adelaide" data-tz-label="Adelaide">{{ include.post.last_updated | date: "%-d %b %Y, %-I:%M&nbsp;%p" }} ACST</time>{% endif -%}
+    {%- if include.post.last_updated -%}
+      {%- assign posted_ymd = include.post.date | date: "%Y%m%d" | plus: 0 -%}
+      {%- assign updated_ymd = include.post.last_updated | date: "%Y%m%d" | plus: 0 -%}
+      {%- if updated_ymd > posted_ymd %} &middot; updated <time class="ts" datetime="{{ include.post.last_updated | date_to_xmlschema }}" data-tz="Australia/Adelaide" data-tz-label="Adelaide">{{ include.post.last_updated | date: "%-d %b %Y, %-I:%M&nbsp;%p" }} ACST</time>{% endif -%}
+    {%- endif -%}
     {% if include.post.draft %} <span class="draft">Draft</span>{% endif %}
   </small></p>
+  {% elsif include.post.draft %}
+  <p><span class="draft">Draft</span></p>
+  {% endif %}
 
   {{ include.post.excerpt }}
 </article>
