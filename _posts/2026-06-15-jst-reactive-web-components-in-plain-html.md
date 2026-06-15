@@ -16,7 +16,7 @@ tags: javascript, web-components, jst, htmx, frontend, ai
   .jst-tag { font-family: ui-monospace, Menlo, monospace; }
 </style>
 
-A couple of years ago I built [a todo app with nothing but HTML and JavaScript]({% post_url 2024-01-07-htmx_todo_app_html_and_js_only %}), and a question stuck with me ever since: what would a *front-end* component look like if the server could stream it down — like [htmx](https://htmx.org) — but it still ran on the client, like [Alpine](https://alpinejs.dev) — and there was **no build step** at all?
+A couple of years ago I built a todo app with nothing but HTML and JavaScript, and a question stuck with me ever since: what would a *front-end* component look like if the server could stream it down — like [htmx](https://htmx.org) — but it still ran on the client, like [Alpine](https://alpinejs.dev) — and there was **no build step** at all?
 
 This is my answer. It's called **<span class="jst-tag">&lt;JST/&gt;</span>** — JavaScript Templates — and it's live now:
 
