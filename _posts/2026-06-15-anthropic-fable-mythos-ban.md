@@ -1,7 +1,7 @@
 ---
 title: "Anthropic Fable and Mythos global ban and timeline"
 date: 2026-06-15 00:00:00 +0930
-last_updated: 2026-06-15 20:50:00 +0930
+last_updated: 2026-06-15 23:05:00 +0930
 excerpt: "For a few days in June 2026, Anthropic shipped Fable 5 and Mythos 5, and then the US government switched them off. What happened, what's happened since, and whether the lights come back on."
 tags: ai, anthropic, policy, fable, mythos
 ---
@@ -214,7 +214,7 @@ Then it told me how to dig out: build the thinnest vertical slice through every 
 
 ### A Populous clone, in a few nights
 
-I'd seen devs posting videos of Fable recreating Fortnite, Minecraft, and GTA. So the next night I asked it to build a game inspired by *Populous: The Beginning*<span class="cite"><button class="cite-btn"></button><span class="cite-pop cite-pop-wide"><span class="cite-note"><em>Populous: The Beginning</em> (1998), the Bullfrog god-game where you guide a tribe across the world.</span><span class="steam-embed" data-steam="2616430"></span><span class="ref-links"><a href="https://en.wikipedia.org/wiki/Populous:_The_Beginning" target="_blank" rel="noopener">Wikipedia, Populous: The Beginning</a><a href="https://en.wikipedia.org/wiki/Bullfrog_Productions" target="_blank" rel="noopener">Wikipedia, Bullfrog Productions</a></span></span></span>. I'd always wanted to understand how god-games with deformable terrain and 3D worlds actually work. I was blown away by what it made: sculptable, wrapped terrain in Three.js with a curving horizon. The night after, it fleshed out a full spell book (blast, convert, lightning, swamp, landbridge, flatten, earthquake, volcano), built an in-world level editor, and added saving, star ratings, and share-by-code. Far from a polished game, but every foundation was in place.
+I'd seen devs posting videos of Fable recreating Fortnite, Minecraft, and GTA. So the next night I asked it to build a game inspired by *Populous: The Beginning*<span class="cite"><button class="cite-btn"></button><span class="cite-pop cite-pop-wide"><span class="cite-note"><em>Populous: The Beginning</em> (1998), the Bullfrog god-game where you guide a tribe across the world.</span><span class="steam-embed" data-steam="2616430"></span><span class="ref-links"><a href="https://en.wikipedia.org/wiki/Populous:_The_Beginning" target="_blank" rel="noopener">Wikipedia, Populous: The Beginning</a><a href="https://en.wikipedia.org/wiki/Bullfrog_Productions" target="_blank" rel="noopener">Wikipedia, Bullfrog Productions</a></span></span></span>. I'd always wanted to understand how god-games with deformable terrain and 3D worlds actually work. I was blown away by what it made: sculptable, wrapped terrain in Three.js with a curving horizon. The night after, it fleshed out a full spell book (blast, convert, lightning, swamp, landbridge, flatten, earthquake, volcano), built an in-world level editor, and added saving, star ratings, and share-by-code. Far from a polished game, but every foundation was in place. I've since given it its own write-up: [Tribal Gods, a Populous clone built with Fable 5]({% post_url 2026-06-15-tribal-gods-a-populous-clone-built-with-fable-5 %}).
 
 <div class="shots">
 <img src="/assets/img/populous-tribes.png" alt="The Populous clone's Tribal Gods title screen, with tribe selection, difficulty, and Levels and Editor buttons">
@@ -238,7 +238,7 @@ I gave it to Fable. It immediately understood the HTML and JS constraints I was 
 
 > As-is: no. The XSS, the window-global requirement, and the attribute-poke render API rule it out for anything real. […] Could it be made wantable: plausibly, in a niche […] the missing component layer for htmx apps.
 
-Then it fixed everything and built examples, the most complex being a three-level Kanban board with drag and drop, a modal editor, and a stats panel whose component definition is fetched from the server after load. When I read the source for that Kanban app I couldn't believe how little code it took. JST was as simple as I'd imagined, and responsive enough that my fear of it being laggy or unscalable just evaporated.
+Then it fixed everything and built examples, the most complex being a three-level Kanban board with drag and drop, a modal editor, and a stats panel whose component definition is fetched from the server after load. When I read the source for that Kanban app I couldn't believe how little code it took. JST was as simple as I'd imagined, and responsive enough that my fear of it being laggy or unscalable just evaporated. It has its own post now too: [JST: reactive web components in plain HTML]({% post_url 2026-06-15-jst-reactive-web-components-in-plain-html %}).
 
 <div class="shots">
 <img src="/assets/img/jst-components.png" alt="JST source: a ui-panel component with named slots, and a board-toolbar filter component">
