@@ -1,6 +1,6 @@
 ---
 title: "JST: reactive web components in plain HTML, no build step"
-date: 2026-06-15 22:45:00 +0930
+date: 2026-06-15 22:30:00 +0930
 excerpt: "A couple of years ago I built a todo app with nothing but HTML and JS and a question stuck with me: what would a front-end component look like if the server could stream it down like htmx, but it still ran on the client like Alpine — with no build step? JST is my answer, and it's live."
 tags: javascript, web-components, jst, htmx, frontend, ai
 ---
