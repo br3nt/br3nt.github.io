@@ -158,6 +158,28 @@ h3:has(+ .post-date) {
 time.ts {
   border-bottom: 1px dotted #94a3b8;
   cursor: help;
+  position: relative;
+}
+/* instant custom tooltip (the native title= attribute is too slow to appear) */
+time.ts[data-tooltip]:hover::after,
+time.ts[data-tooltip]:focus::after {
+  content: attr(data-tooltip);
+  white-space: pre-line;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  z-index: 50;
+  background: #1f2937;
+  color: #fff;
+  padding: 0.5em 0.7em;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  width: max-content;
+  max-width: 260px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
 }
 
 img,

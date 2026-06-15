@@ -40,11 +40,13 @@ layout: base
           var local = fmt(d) + ' ' + abbr(d);
           var tz = t.getAttribute('data-tz') || 'America/New_York';
           var label = t.getAttribute('data-tz-label') || 'US Eastern';
-          t.textContent = pfx + local;
-          t.setAttribute('title',
-            'Your time: ' + pfx + local +
+          var tip = 'Your time: ' + pfx + local +
             '\nUTC: ' + pfx + fmt(d, { timeZone: 'UTC' }) + ' UTC' +
-            '\n' + label + ': ' + pfx + fmt(d, { timeZone: tz }) + ' ' + abbr(d, tz));
+            '\n' + label + ': ' + pfx + fmt(d, { timeZone: tz }) + ' ' + abbr(d, tz);
+          t.textContent = pfx + local;
+          t.setAttribute('data-tooltip', tip);
+          t.setAttribute('aria-label', tip.replace(/\n/g, '; '));
+          t.setAttribute('tabindex', '0');
         });
       }
       if (document.readyState !== 'loading') go(); else document.addEventListener('DOMContentLoaded', go);
