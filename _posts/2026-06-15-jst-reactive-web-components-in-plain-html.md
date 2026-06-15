@@ -24,7 +24,7 @@ This is my answer. It's called <span class="jst-tag">&lt;JST/&gt;</span>, short 
 
 ## What it is
 
-A `<script type="jst">` tag gets compiled into a class and registered with `customElements.define()`. That's the whole trick. Your `<jst-*>` tags are genuine custom elements, so you can inspect them in DevTools, script them with plain properties, and drop them into any framework or none at all. You write them in ordinary HTML, with JavaScript itself as the templating language:
+A `<script type="jst">` tag gets compiled into a custom element class and registered with `customElements.define()`. There's a fair bit going on behind that line: a small lexer, parser and compiler turn the template into a render function, and a morphing step patches the DOM on updates. But what you write stays plain HTML, with JavaScript itself as the templating language. Your `<jst-*>` tags come out as genuine custom elements, so you can inspect them in DevTools, script them with plain properties, and drop them into any framework or none at all:
 
 ```html
 <script type="module" src="jst.js"></script>
@@ -55,7 +55,7 @@ The tally came out at 35 exact matches, 35 that needed some kind of workaround, 
 
 It's an experimental preview, still very much under active development and chasing parity with the big players. But it runs, it's tested (the framework, the examples and the editor tooling all have headless test suites), and the whole thing, including the comparison browser you're clicking through, is built with JST itself.
 
-I built it over a handful of sessions with Claude (Fable 5, then Opus), but the design, and the stubbornness about "no build, no signals, just the platform", are mine.
+I started this by hand, back before agentic coding tools were really a thing, and I've been tinkering with it on and off for a while since. Claude, Gemini and Codex all pushed it forward at different points, but it was Fable that consolidated and cleaned up the design, pulling it back toward what I'd had in mind from the start. The stubbornness about "no build, no signals, just the platform" was always mine.
 
 Every line is open source:
 
