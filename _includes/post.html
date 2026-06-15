@@ -1,9 +1,15 @@
 <article>
   <h3><a href="{{ include.post.url }}">{{ include.post.title }}</a></h3>
 
-  {% if include.post.draft %}
-    <span class="draft">Draft</span>
-  {% endif %}
+  <p class="post-date"><small>
+    {{ include.post.date | date: "%-d %B %Y" }}
+    {%- if include.post.last_updated -%}
+      {%- assign posted = include.post.date | date: "%Y-%m-%d" -%}
+      {%- assign updated = include.post.last_updated | date: "%Y-%m-%d" -%}
+      {%- if updated != posted %} &middot; updated {{ include.post.last_updated | date: "%-d %B %Y" }}{% endif -%}
+    {%- endif -%}
+    {% if include.post.draft %} <span class="draft">Draft</span>{% endif %}
+  </small></p>
 
   {{ include.post.excerpt }}
 </article>

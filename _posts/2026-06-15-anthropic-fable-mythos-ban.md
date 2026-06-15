@@ -1,6 +1,7 @@
 ---
 title: "Anthropic Fable and Mythos global ban and timeline"
 date: 2026-06-15 00:00:00 +0930
+last_updated: 2026-06-15
 tags: ai, anthropic, policy, fable, mythos
 ---
 
@@ -79,6 +80,13 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
   text-transform: uppercase; background: #dc2626; color: #fff; border-radius: 4px;
   padding: .12em .5em; margin-left: .5em; vertical-align: middle;
 }
+/* entries added since your last visit (set client-side via localStorage) */
+.timeline > li.tl-new { background: #fff0f7; border-radius: 8px; padding-left: 2.3em; }
+.tl-new .when::after {
+  content: "new since your last visit"; display: inline-block; margin-left: .5em;
+  font-size: .58em; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  background: #ff3399; color: #fff; border-radius: 4px; padding: .12em .5em; vertical-align: middle;
+}
 
 /* ---- callout ---- */
 .callout { border-left: 4px solid #d97706; background: #fffbeb; padding: .8em 1em; border-radius: 6px; margin: 1.5em 0; }
@@ -104,7 +112,7 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
 
 <div class="post-body" markdown="1">
 
-*Last updated 15 June 2026. Sources are linked inline, tap any pink bubble, or any underlined name for a quick profile. The clickable footnote bubbles are borrowed from the wonderful [Wait But Why](https://waitbutwhy.com). If the story moves, this post will too.*
+*Last updated {{ page.last_updated | date: "%-d %B %Y" }}. Sources are linked inline, tap any pink bubble, or any underlined name for a quick profile. The clickable footnote bubbles are borrowed from the wonderful [Wait But Why](https://waitbutwhy.com). If the story moves, this post will too.*
 {:.post-meta}
 
 On 9 June 2026, Anthropic released Fable 5 free to its Pro, Max, Team, and Enterprise users. Fable 5 is a version of Anthropic's Mythos model with guardrails that fence off its most dangerous capabilities, such as finding and exploiting software vulnerabilities, or helping design biological and chemical weapons. The free window was set to run until 22 June, after which Fable would shift to standard paid usage.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">You can read about the Fable launch here:</span><a href="https://www.anthropic.com/news/claude-fable-5-mythos-5" target="_blank" rel="noopener">Anthropic, Fable 5 and Mythos 5 announcement</a><a href="https://www.anthropic.com/claude/fable" target="_blank" rel="noopener">Anthropic, Claude Fable</a><a href="https://www.cnbc.com/2026/06/09/anthropic-mythos-claude-fable-5.html" target="_blank" rel="noopener">CNBC, launch coverage</a><a href="https://techcrunch.com/2026/06/09/anthropic-released-claude-fable-5-its-most-powerful-model-publicly-days-after-warning-ai-is-getting-too-dangerous/" target="_blank" rel="noopener">TechCrunch, launch coverage</a><span class="cite-hr"></span><span class="cite-note">Access to the underlying Mythos model stayed limited to partners in Anthropic's Project Glasswing security programme.</span><a href="https://www.anthropic.com/glasswing" target="_blank" rel="noopener">Anthropic, Project Glasswing</a><a href="https://www.engadget.com/2193656/anthropic-blocks-access-fable-5-mythos-5/" target="_blank" rel="noopener">Engadget, news report</a></span></span>
@@ -144,7 +152,7 @@ The stated reason falls under national security and export control: Mythos is un
 
 <li><span class="when">14 June</span> Reporting (Wall Street Journal) names Amazon CEO <span class="person"><button class="person-btn">Andy Jassy</button><span class="person-pop"><span class="person-pic"><img src="/assets/img/andy-jassy.jpg" alt="Andy Jassy"></span><span class="person-head">Andy Jassy</span><span class="person-bio">CEO of Amazon since 2021, and previously the founder and long-time head of AWS. Amazon is one of Anthropic's largest investors, which is why his flagging of Fable 5 to the government drew conflict-of-interest questions.</span><span class="person-links"><a href="https://en.wikipedia.org/wiki/Andy_Jassy" target="_blank" rel="noopener">Wikipedia, Andy Jassy</a></span></span></span> as the partner who flagged Fable 5, telling Treasury Secretary <span class="person"><button class="person-btn">Scott Bessent</button><span class="person-pop"><span class="person-pic"><img src="/assets/img/scott-bessent.jpg" alt="Scott Bessent"></span><span class="person-head">Scott Bessent</span><span class="person-bio">US Secretary of the Treasury since 2025; previously a hedge-fund investor who founded Key Square Group and was chief investment officer at Soros Fund Management. Jassy reportedly raised the Fable 5 concerns with him.</span><span class="person-links"><a href="https://en.wikipedia.org/wiki/Scott_Bessent" target="_blank" rel="noopener">Wikipedia, Scott Bessent</a></span></span></span> that Amazon researchers had used it to obtain information usable in cyberattacks.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">WSJ-sourced; Amazon is also a major Anthropic investor, which has prompted conflict-of-interest questions.</span><a href="https://thenextweb.com/news/amazon-jassy-triggered-anthropic-fable-mythos-crackdown" target="_blank" rel="noopener">The Next Web (WSJ-sourced)</a><a href="https://www.benzinga.com/markets/tech/26/06/53184953/amazon-ceo-andy-jassy-triggered-ban-on-anthropics-mythos-ai-models" target="_blank" rel="noopener">Benzinga</a></span></span></li>
 
-<li><span class="when">14 June</span> Anthropic flies senior staff to Washington for weekend talks aimed at reversing the controls, arguing the models can be safely contained. Commerce Secretary Howard Lutnick and Cyber Director <span class="person"><button class="person-btn">Sean Cairncross</button><span class="person-pop"><span class="person-pic"><img src="/assets/img/sean-cairncross.jpg" alt="Sean Cairncross"></span><span class="person-head">Sean Cairncross</span><span class="person-bio">US National Cyber Director. A lawyer and former Republican political operative, he took part in the weekend talks with Anthropic over the export controls.</span><span class="person-links"><a href="https://en.wikipedia.org/wiki/Sean_Cairncross" target="_blank" rel="noopener">Wikipedia, Sean Cairncross</a></span></span></span> take part, with Anthropic co-founder Tom Brown and policy chief Sarah Heck. Both sides signal they want it resolved; nothing is announced.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">Axios scoop: senior Anthropic staff negotiating directly with the White House over the weekend. No resolution yet.</span><a href="https://finance.yahoo.com/sectors/technology/articles/anthropic-races-reverse-fable-5-033440732.html" target="_blank" rel="noopener">Yahoo Finance</a><a href="https://www.freepressjournal.in/tech/anthropic-flies-staff-to-washington-to-patch-up-white-house-dispute" target="_blank" rel="noopener">Free Press Journal</a></span></span></li>
+<li><span class="when">14 June</span> Anthropic flies senior staff to Washington for weekend talks aimed at reversing the controls, arguing the models can be safely contained. Commerce Secretary Howard Lutnick and Cyber Director <span class="person"><button class="person-btn">Sean Cairncross</button><span class="person-pop"><span class="person-pic"><img src="/assets/img/sean-cairncross.jpg" alt="Sean Cairncross"></span><span class="person-head">Sean Cairncross</span><span class="person-bio">US National Cyber Director. A lawyer and former Republican political operative, he took part in the weekend talks with Anthropic over the export controls.</span><span class="person-links"><a href="https://en.wikipedia.org/wiki/Sean_Cairncross" target="_blank" rel="noopener">Wikipedia, Sean Cairncross</a></span></span></span> take part, with Anthropic co-founder <span class="person"><button class="person-btn">Tom Brown</button><span class="person-pop"><span class="person-head">Tom Brown</span><span class="person-bio">Co-founder of Anthropic. Before that, at OpenAI, he was first author on the GPT-3 paper, which he led.</span><span class="person-links"><a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener">GPT-3 paper (Brown et al., 2020)</a></span></span></span> and policy chief <span class="person"><button class="person-btn">Sarah Heck</button><span class="person-pop"><span class="person-head">Sarah Heck</span><span class="person-bio">Anthropic's policy chief, who took part in the Washington talks over the export controls.</span></span></span>. Both sides signal they want it resolved; nothing is announced.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">Axios scoop: senior Anthropic staff negotiating directly with the White House over the weekend. No resolution yet.</span><a href="https://finance.yahoo.com/sectors/technology/articles/anthropic-races-reverse-fable-5-033440732.html" target="_blank" rel="noopener">Yahoo Finance</a><a href="https://www.freepressjournal.in/tech/anthropic-flies-staff-to-washington-to-patch-up-white-house-dispute" target="_blank" rel="noopener">Free Press Journal</a></span></span></li>
 
 <li><span class="when">As of 15 June</span> Models still offline; talks continue and no court order touches the export ban. Kalshi traders price a return at ~68% before 1 July.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">Still suspended; market odds for restoration.</span><a href="https://news.bitcoin.com/kalshi-traders-price-fable-5-return-at-68-before-july-1-after-historic-ai-ban/" target="_blank" rel="noopener">Bitcoin.com, Kalshi market odds</a></span></span></li>
 </ol>
@@ -323,5 +331,26 @@ In the meantime, a fun cultural artifact of the ban: [Is Fable 5 back?](https://
   var slot = document.querySelector('.asl-table');
   if (!slot) return;
   slot.innerHTML = `<table><thead><tr><th>Level</th><th>What it means</th></tr></thead><tbody><tr><td>ASL-1</td><td>No meaningful catastrophic risk (e.g. a chess engine).</td></tr><tr><td>ASL-2</td><td>Today's typical models: early hints of dangerous capability, but no real uplift beyond a web search.</td></tr><tr><td>ASL-3</td><td>Substantially raises catastrophic-misuse risk (e.g. helping with CBRN weapons) or shows low-level autonomy; triggers hardened security and deployment safeguards.</td></tr><tr><td>ASL-4+</td><td>Not yet fully defined; reserved for bigger jumps in misuse potential or autonomy.</td></tr></tbody></table>`;
+})();
+
+// highlight timeline entries added since the reader's last visit (localStorage, no cookies)
+(function () {
+  var KEY = 'fable-ban-last-viewed';
+  function entryDate(li) {
+    var t = li.querySelector('time.ts');
+    if (t) { var d = new Date(t.getAttribute('datetime')); return isNaN(d) ? null : d; }
+    var w = li.querySelector('.when');
+    var m = w && w.textContent.match(/(\d{1,2})\s+June/);
+    return m ? new Date(2026, 5, parseInt(m[1], 10), 23, 59, 59) : null;
+  }
+  var last = localStorage.getItem(KEY);
+  var lastT = last ? parseInt(last, 10) : null;
+  if (lastT) {
+    document.querySelectorAll('.timeline > li').forEach(function (li) {
+      var d = entryDate(li);
+      if (d && d.getTime() > lastT) li.classList.add('tl-new');
+    });
+  }
+  localStorage.setItem(KEY, String(new Date().getTime()));
 })();
 </script>
