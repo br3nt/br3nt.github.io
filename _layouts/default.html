@@ -15,6 +15,41 @@ layout: base
       document.documentElement.style.setProperty("--selection-background", `var(--selection-background-${nextColor})`)
     });
   </script>
+
+  <script>
+    // localize any <time class="ts" datetime="<UTC>" [data-tz] [data-tz-label] [data-approx]>:
+    // show the reader's local time + zone letters; tooltip adds UTC and the source zone.
+    (function () {
+      function go() {
+        var base = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+        function fmt(d, extra) { return d.toLocaleString([], Object.assign({}, base, extra)); }
+        function abbr(d, tz) {
+          var opts = { timeZoneName: 'long' };
+          if (tz) opts.timeZone = tz;
+          var long = '';
+          new Intl.DateTimeFormat('en-US', opts).formatToParts(d).forEach(function (p) {
+            if (p.type === 'timeZoneName') long = p.value;
+          });
+          var caps = long.replace(/[^A-Z]/g, '');
+          return caps.length >= 2 ? caps : long;
+        }
+        document.querySelectorAll('time.ts').forEach(function (t) {
+          var d = new Date(t.getAttribute('datetime'));
+          if (isNaN(d.getTime())) return;
+          var pfx = t.hasAttribute('data-approx') ? '~' : '';
+          var local = fmt(d) + ' ' + abbr(d);
+          var tz = t.getAttribute('data-tz') || 'America/New_York';
+          var label = t.getAttribute('data-tz-label') || 'US Eastern';
+          t.textContent = pfx + local;
+          t.setAttribute('title',
+            'Your time: ' + pfx + local +
+            '\nUTC: ' + pfx + fmt(d, { timeZone: 'UTC' }) + ' UTC' +
+            '\n' + label + ': ' + pfx + fmt(d, { timeZone: tz }) + ' ' + abbr(d, tz));
+        });
+      }
+      if (document.readyState !== 'loading') go(); else document.addEventListener('DOMContentLoaded', go);
+    })();
+  </script>
 {% contentblock %}
 
 {% contentblock header %}

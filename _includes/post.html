@@ -3,11 +3,7 @@
 
   <p class="post-date"><small>
     {{ include.post.date | date: "%-d %B %Y" }}
-    {%- if include.post.last_updated -%}
-      {%- assign posted = include.post.date | date: "%Y-%m-%d" -%}
-      {%- assign updated = include.post.last_updated | date: "%Y-%m-%d" -%}
-      {%- if updated != posted %} &middot; updated {{ include.post.last_updated | date: "%-d %B %Y" }}{% endif -%}
-    {%- endif -%}
+    {%- if include.post.last_updated %} &middot; updated <time class="ts" datetime="{{ include.post.last_updated | date_to_xmlschema }}" data-tz="Australia/Adelaide" data-tz-label="Adelaide">{{ include.post.last_updated | date: "%-d %b %Y, %-I:%M&nbsp;%p" }} ACST</time>{% endif -%}
     {% if include.post.draft %} <span class="draft">Draft</span>{% endif %}
   </small></p>
 

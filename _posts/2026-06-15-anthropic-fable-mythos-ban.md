@@ -1,7 +1,7 @@
 ---
 title: "Anthropic Fable and Mythos global ban and timeline"
 date: 2026-06-15 00:00:00 +0930
-last_updated: 2026-06-15
+last_updated: 2026-06-15 20:50:00 +0930
 tags: ai, anthropic, policy, fable, mythos
 ---
 
@@ -112,7 +112,7 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
 
 <div class="post-body" markdown="1">
 
-*Last updated {{ page.last_updated | date: "%-d %B %Y" }}. Sources are linked inline, tap any pink bubble, or any underlined name for a quick profile. The clickable footnote bubbles are borrowed from the wonderful [Wait But Why](https://waitbutwhy.com). If the story moves, this post will too.*
+*Last updated <time class="ts" datetime="{{ page.last_updated | date_to_xmlschema }}" data-tz="Australia/Adelaide" data-tz-label="Adelaide">{{ page.last_updated | date: "%-d %b %Y, %-I:%M&nbsp;%p" }} ACST</time>. Sources are linked inline, tap any pink bubble, or any underlined name for a quick profile. The clickable footnote bubbles are borrowed from the wonderful [Wait But Why](https://waitbutwhy.com). If the story moves, this post will too.*
 {:.post-meta}
 
 On 9 June 2026, Anthropic released Fable 5 free to its Pro, Max, Team, and Enterprise users. Fable 5 is a version of Anthropic's Mythos model with guardrails that fence off its most dangerous capabilities, such as finding and exploiting software vulnerabilities, or helping design biological and chemical weapons. The free window was set to run until 22 June, after which Fable would shift to standard paid usage.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">You can read about the Fable launch here:</span><a href="https://www.anthropic.com/news/claude-fable-5-mythos-5" target="_blank" rel="noopener">Anthropic, Fable 5 and Mythos 5 announcement</a><a href="https://www.anthropic.com/claude/fable" target="_blank" rel="noopener">Anthropic, Claude Fable</a><a href="https://www.cnbc.com/2026/06/09/anthropic-mythos-claude-fable-5.html" target="_blank" rel="noopener">CNBC, launch coverage</a><a href="https://techcrunch.com/2026/06/09/anthropic-released-claude-fable-5-its-most-powerful-model-publicly-days-after-warning-ai-is-getting-too-dangerous/" target="_blank" rel="noopener">TechCrunch, launch coverage</a><span class="cite-hr"></span><span class="cite-note">Access to the underlying Mythos model stayed limited to partners in Anthropic's Project Glasswing security programme.</span><a href="https://www.anthropic.com/glasswing" target="_blank" rel="noopener">Anthropic, Project Glasswing</a><a href="https://www.engadget.com/2193656/anthropic-blocks-access-fable-5-mythos-5/" target="_blank" rel="noopener">Engadget, news report</a></span></span>
@@ -284,34 +284,6 @@ In the meantime, a fun cultural artifact of the ban: [Is Fable 5 back?](https://
   });
   document.addEventListener('click', function () {
     document.querySelectorAll('.cite.open, .person.open').forEach(function (c) { c.classList.remove('open'); });
-  });
-})();
-
-// render timestamps in the reader's local zone; UTC + US Eastern on hover
-(function () {
-  var base = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-  function fmt(d, extra) { return d.toLocaleString([], Object.assign({}, base, extra)); }
-  // derive a zone abbreviation (ACST, EDT, ...) from the long name's capitals,
-  // since timeZoneName:'short' falls back to "GMT+9:30" for many zones
-  function abbr(d, tz) {
-    var opts = { timeZoneName: 'long' };
-    if (tz) opts.timeZone = tz;
-    var long = '';
-    new Intl.DateTimeFormat('en-US', opts).formatToParts(d).forEach(function (p) {
-      if (p.type === 'timeZoneName') long = p.value;
-    });
-    var caps = long.replace(/[^A-Z]/g, '');
-    return caps.length >= 2 ? caps : long;
-  }
-  document.querySelectorAll('time.ts').forEach(function (t) {
-    var d = new Date(t.getAttribute('datetime'));
-    if (isNaN(d.getTime())) return;
-    var pfx = t.hasAttribute('data-approx') ? '~' : '';
-    var local = fmt(d) + ' ' + abbr(d);
-    var utc = fmt(d, { timeZone: 'UTC' }) + ' UTC';
-    var et = fmt(d, { timeZone: 'America/New_York' }) + ' ' + abbr(d, 'America/New_York');
-    t.textContent = pfx + local;
-    t.setAttribute('title', 'Your time: ' + pfx + local + '\nUTC: ' + pfx + utc + '\nUS Eastern: ' + pfx + et);
   });
 })();
 

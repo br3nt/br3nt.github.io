@@ -144,6 +144,22 @@ article {
   margin-bottom: 2rem;
 }
 
+/* post listing meta (date / last updated) */
+h3:has(+ .post-date) {
+  margin-bottom: 0.25rem;
+}
+.post-date {
+  margin-top: 0;
+  margin-bottom: 0.75em;
+}
+.post-date small {
+  color: #6b7280;
+}
+time.ts {
+  border-bottom: 1px dotted #94a3b8;
+  cursor: help;
+}
+
 img,
 svg,
 video {
