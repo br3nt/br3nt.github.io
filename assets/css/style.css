@@ -181,6 +181,19 @@ time.ts[data-tooltip]:focus::after {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
+/* small screens: pin the timestamp tooltip to a fixed on-screen card */
+@media (max-width: 640px) {
+  time.ts[data-tooltip]:hover::after,
+  time.ts[data-tooltip]:focus::after {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    top: auto;
+    bottom: 1rem;
+    width: auto;
+    max-width: none;
+  }
+}
 
 img,
 svg,

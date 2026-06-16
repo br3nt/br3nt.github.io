@@ -59,6 +59,27 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
 .steam-embed { display: block; margin: .6em 0; }
 .steam-embed iframe { width: 100%; border: 0; }
 
+/* modern browsers: anchor the popover to its trigger and auto-flip/shift to stay on screen */
+@supports (anchor-name: --b) {
+  .cite, .person { anchor-name: --bubble; }
+  .cite-pop, .person-pop {
+    position-anchor: --bubble;
+    top: anchor(bottom); bottom: auto; left: anchor(left); right: auto; margin-top: 6px;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position-try-order: most-height;
+  }
+}
+
+/* small screens: pin popovers to a fixed on-screen card so they never run off the edge */
+@media (max-width: 640px) {
+  .cite-pop, .person-pop, .cite-pop-wide {
+    position: fixed; left: 1rem; right: 1rem; top: auto; bottom: 1rem;
+    inset-inline: 1rem;
+    width: auto; max-width: none; max-height: 70vh; overflow-y: auto; z-index: 100;
+    box-shadow: 0 -6px 30px rgba(0,0,0,.28);
+  }
+}
+
 /* ---- vertical timeline ---- */
 .timeline { list-style: none; margin: 1.5em 0; padding: 0; position: relative; }
 .timeline::before {
