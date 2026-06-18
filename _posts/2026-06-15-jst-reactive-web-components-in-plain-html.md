@@ -12,7 +12,7 @@ tags: javascript, web-components, jst, htmx, frontend, ai
     background: deeppink; color: #fff; font-weight: 700;
     text-decoration: none; letter-spacing: 0.3px;
   }
-  .jst-cta:hover { background: #d81b76; }
+  .jst-cta:hover { background: #d81b76; color: #fff; }
   .jst-tag { font-family: ui-monospace, Menlo, monospace; }
 </style>
 
