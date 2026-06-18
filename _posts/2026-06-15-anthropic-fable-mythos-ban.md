@@ -59,17 +59,6 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
 .steam-embed { display: block; margin: .6em 0; }
 .steam-embed iframe { width: 100%; border: 0; }
 
-/* modern browsers: anchor the popover to its trigger and auto-flip/shift to stay on screen */
-@supports (anchor-name: --b) {
-  .cite, .person { anchor-name: --bubble; }
-  .cite-pop, .person-pop {
-    position-anchor: --bubble;
-    top: anchor(bottom); bottom: auto; left: anchor(left); right: auto; margin-top: 6px;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    position-try-order: most-height;
-  }
-}
-
 /* small screens: pin popovers to a fixed on-screen card so they never run off the edge */
 @media (max-width: 640px) {
   .cite-pop, .person-pop, .cite-pop-wide {
