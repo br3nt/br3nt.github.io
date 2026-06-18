@@ -105,6 +105,18 @@ p:has(+ ul) {
 
 ul {
   margin-top: 0;
+  padding-left: 1.2rem;
+}
+
+/* inline code: Slack/Bitbucket-style, clearly distinct from body text */
+:not(pre) > code {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.85em;
+  background: rgba(128, 128, 128, 0.16);
+  color: #c7254e;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  border: 1px solid rgba(128, 128, 128, 0.22);
 }
 
 a {
