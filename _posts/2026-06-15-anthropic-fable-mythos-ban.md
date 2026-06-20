@@ -1,7 +1,7 @@
 ---
 title: "Anthropic Fable and Mythos global ban and timeline"
 date: 2026-06-15 00:00:00 +0930
-last_updated: 2026-06-19 08:42:00 +0930
+last_updated: 2026-06-20 15:44:00 +0930
 excerpt: "For a few days in June 2026, Anthropic shipped Fable 5 and Mythos 5, and then the US government switched them off. What happened, what's happened since, and whether the lights come back on."
 tags: ai, anthropic, policy, fable, mythos
 ---
@@ -292,8 +292,6 @@ So here is my speculation, and these are not mutually exclusive:
 3. If Fable really could rewrite the world's software and bring everyone's ideas to life in short order, that would look a lot like the start of the AI singularity. The government saw it coming and wanted it contained on US soil, to secure technological AI superiority.
 
 Maybe I've been AI-pilled, and I saw Fable for more than it was. Or maybe 2026 will be remembered as the year the singularity began.
-
-In the meantime, a fun cultural artifact of the ban: [Is Fable 5 back?](https://isfable5back.com), a site that exists to answer exactly one question. (At the time of writing: no.)
 
 </div>
 
