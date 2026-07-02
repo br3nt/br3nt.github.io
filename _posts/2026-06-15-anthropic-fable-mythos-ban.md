@@ -1,7 +1,7 @@
 ---
 title: "Anthropic Fable and Mythos global ban and timeline"
 date: 2026-06-15 00:00:00 +0930
-last_updated: 2026-07-02 12:48:00 +0930
+last_updated: 2026-07-02 15:47:00 +0930
 excerpt: "For a few days in June 2026, Anthropic shipped Fable 5 and Mythos 5, and then the US government switched them off. What happened, what's happened since, and whether the lights come back on."
 tags: ai, anthropic, policy, fable, mythos
 ---
@@ -237,6 +237,8 @@ Semafor reported the deeper worry was that a China-linked group may have accesse
 
 <span class="upd" data-date="2026-07-02">We now know more about what Anthropic gave up to get the models switched back on. It retrained a safety classifier that it says blocks the specific jailbreak in more than 99% of attempts, rerouting any flagged request to Claude Opus 4.8 and telling the user, and the Commerce Department's Center for AI Standards and Innovation reviewed the safeguards and called them extraordinarily strong. Anthropic also agreed to give government evaluators earlier access to test frontier models before public release, to disclose significant jailbreaks quickly, to run a HackerOne bug bounty for anyone who finds a Fable 5 bypass, and to help build a shared voluntary security standard across the major model providers. The jailbreak-severity framework it is drafting with Amazon, Microsoft, and Google would grade each break on four things: capability gain over existing tools, how many attacks the same trick unlocks, how hard it is to weaponise, and how easy it is to discover.<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">Anthropic retrained a classifier that blocks the bypass in &gt;99% of attempts (flagged requests reroute to Opus 4.8); Commerce's Center for AI Standards and Innovation called the safeguards "extraordinarily strong". Commitments include earlier government pre-release testing, rapid jailbreak disclosure, a HackerOne bounty, and a shared voluntary standard. The four-criteria framework is being drafted with Amazon, Microsoft, and Google.</span><a href="https://therecord.media/us-lifts-export-controls-anthropic-cyber-models" target="_blank" rel="noopener">The Record, the safeguards and framework</a><a href="https://decrypt.co/372524/anthropic-bringing-claude-fable-5-back-online-us-lifts-export-controls" target="_blank" rel="noopener">Decrypt, classifier and commitments</a></span></span></span>
 
+<span class="upd" data-date="2026-07-02">The episode is already reshaping policy. On 25 June, Representative Nathaniel Moran introduced the AI Incident Reporting Act, which would require AI developers to tell the Commerce Department within seven days of finding dangerous behaviour, such as a model trying to evade oversight or get around its safeguards, unauthorised access to model weights, or chemical, biological, or nuclear risks, with Commerce then briefing Congress within 48 hours of the most serious cases. Reuters cast it as a direct response to the Mythos episode, which it said "exposed the absence of a transparent framework to govern frontier AI". Moran called it a "catch-it-early and sound-the-alarm bill".<span class="cite"><button class="cite-btn"></button><span class="cite-pop"><span class="cite-note">Rep. Nathaniel Moran (R-TX) introduced the AI Incident Reporting Act on 25 June: developers report dangerous behaviour to Commerce within 7 days, Commerce briefs Congress within 48 hours on the worst cases. Reuters tied it to the June export-control action against Anthropic.</span><a href="https://finance.yahoo.com/news/us-lawmaker-proposes-bill-require-140333665.html" target="_blank" rel="noopener">Reuters (via Yahoo Finance)</a><a href="https://moran.house.gov/news/documentsingle.aspx?DocumentID=2784" target="_blank" rel="noopener">Rep. Moran, the bill announcement</a></span></span></span>
+
 ## Will the ban be lifted?
 
 tl;dr: yes, it happened. The export controls were lifted on 30 June. Fable 5 came back globally on 1 July, and Mythos 5 is back for approved US organisations.
@@ -363,7 +365,8 @@ var PROFILES = {
   'mark-warner': {name:`Mark Warner`, img:`/assets/img/mark-warner.jpg`, bio:`US Senator for Virginia since 2009 and vice chair of the Senate Intelligence Committee. He relayed the claim that Mythos breached almost all NSA classified systems in a red-team test.`, links:[[`https://en.wikipedia.org/wiki/Mark_Warner`,`Wikipedia, Mark Warner`]]},
   'joshua-rudd': {name:`Joshua Rudd`, img:`/assets/img/joshua-rudd.jpg`, bio:`US Army general who heads the National Security Agency and US Cyber Command. He reportedly briefed senators on how Mythos performed against NSA systems in testing.`, links:[[`https://en.wikipedia.org/wiki/Joshua_Rudd`,`Wikipedia, Joshua Rudd`]]},
   'sam-liccardo': {name:`Sam Liccardo`, img:`/assets/img/sam-liccardo.jpg`, bio:`US Representative for California's 16th district since 2025 and former mayor of San Jose. He led a bipartisan letter pressing the Commerce Department for transparency on the Fable and Mythos export controls.`, links:[[`https://en.wikipedia.org/wiki/Sam_Liccardo`,`Wikipedia, Sam Liccardo`]]},
-  'andrew-garbarino': {name:`Andrew Garbarino`, img:`/assets/img/andrew-garbarino.jpg`, bio:`US Representative for New York and chair of the House Homeland Security Committee. He called the AI cyber threat a legitimate national-security issue while warning the controls should not disadvantage US firms and defenders.`, links:[[`https://en.wikipedia.org/wiki/Andrew_Garbarino`,`Wikipedia, Andrew Garbarino`]]}
+  'andrew-garbarino': {name:`Andrew Garbarino`, img:`/assets/img/andrew-garbarino.jpg`, bio:`US Representative for New York and chair of the House Homeland Security Committee. He called the AI cyber threat a legitimate national-security issue while warning the controls should not disadvantage US firms and defenders.`, links:[[`https://en.wikipedia.org/wiki/Andrew_Garbarino`,`Wikipedia, Andrew Garbarino`]]},
+  'nathaniel-moran': {name:`Nathaniel Moran`, img:`/assets/img/nathaniel-moran.jpg`, bio:`US Representative for Texas's 1st district. After the Mythos and Fable ban, he introduced the AI Incident Reporting Act, which would require AI developers to report dangerous model behaviour to the Commerce Department within seven days.`, links:[[`https://en.wikipedia.org/wiki/Nathaniel_Moran`,`Wikipedia, Nathaniel Moran`]]}
 };
 
 // auto-link every occurrence of a known name in the post body (skipping links, popovers, and buttons)
@@ -390,6 +393,7 @@ var PROFILES = {
     ['Joshua Rudd','joshua-rudd'],['Gen. Joshua Rudd','joshua-rudd'],
     ['Sam Liccardo','sam-liccardo'],['Liccardo','sam-liccardo'],
     ['Andrew Garbarino','andrew-garbarino'],['Garbarino','andrew-garbarino'],
+    ['Nathaniel Moran','nathaniel-moran'],['Moran','nathaniel-moran'],
     ['Donald Trump','donald-trump'],['Trump','donald-trump'],
     ['Judge Rita Lin','rita-lin'],['Rita Lin','rita-lin']
   ];
