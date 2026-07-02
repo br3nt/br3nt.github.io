@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKF/HTML — knowledge as plain HTML</title>
+<meta name="description" content="OKF/HTML keeps knowledge in the format the web already understands. Each note is one complete HTML document: the body is content, the head carries identity and metadata, and ordinary links are the graph. HTML is the data contract, not an export format.">
+<link rel="canonical" href="https://br3nt.github.io/okf/">
+<!-- This URL is also the OKF/HTML base profile identifier (see the Profile section). -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23fbf7ef'/%3E%3Ctext x='16' y='22' font-family='ui-monospace,monospace' font-size='16' font-weight='700' text-anchor='middle' fill='%23a5402c'%3E%26lt;%2F%26gt;%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    /* Warm ink-on-paper. rem-based scale, no px soup. */
+    --ink:#2a231b; --muted:#6f6355; --accent:#a5402c; --accent2:#c0623f;
+    --paper:#fbf7ef; --bg:#f4ecdd; --line:#e6dbc7;
+    --ink-panel:#26201a; --ink-panel-2:#e9dcc4;
+    --radius:3px;
+    --step-0:1rem; --step-1:1.12rem; --step-2:1.3rem; --step-3:2.5rem;
+    --gap:1rem; --pad:1.25rem;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color:var(--ink); line-height:1.55; background:var(--paper); overflow-x:hidden; }
+  a { color: var(--accent); }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 var(--pad); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  header.hero { background: linear-gradient(160deg,#f6ead4,#f4ecdd); border-bottom:1px solid var(--line); padding: 2.4rem 0 1.9rem; }
+  .hero h1 { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--step-3); margin:0; letter-spacing:0; font-weight:700; color:var(--accent); }
+  .hero h1::before { content:"<"; color:#d0a98a; }
+  .hero h1::after { content:"/>"; color:#d0a98a; }
+  .hero .tag { font-size:var(--step-1); color:var(--ink); margin:.4rem 0 .5rem; font-weight:400; }
+  .hero .sub { font-size:.98rem; color:var(--muted); max-width:64ch; margin:0 0 1rem; }
+  .hero .sub code, .sub code { background:#efe2ca; padding:.05rem .3rem; border-radius:var(--radius); }
+  .hero .cta { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .btn { display:inline-block; padding:.35rem .8rem; border-radius:var(--radius); text-decoration:none; font-weight:600; font-size:.9rem; border:1px solid var(--accent); white-space:normal; }
+  .btn.primary { background:var(--accent); color:#fff; }
+  .btn.ghost { color:var(--accent); background:var(--paper); }
+
+  section { padding: 1.6rem 0; border-bottom:1px solid var(--line); }
+  section h2 { font-size:var(--step-2); margin:0 0 .5rem; }
+  .lede { color:var(--muted); font-size:var(--step-0); max-width:64ch; }
+  p code, li code { background:#efe2ca; padding:.03rem .3rem; border-radius:var(--radius); font-size:.92em; }
+
+  .demo { display:grid; grid-template-columns:1.15fr 1fr; gap:var(--gap); margin-top:1.1rem; align-items:start; }
+  .demo > *, .grid3 > *, .tiers > * { min-width: 0; }
+  .panel { background:var(--bg); border:1px solid var(--line); border-radius:var(--radius); padding:.7rem .9rem; min-width:0; }
+  .panel h3 { margin:.1rem 0 .5rem; font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  pre.code { margin:0; background:var(--ink-panel); color:var(--ink-panel-2); padding:.8rem; border-radius:var(--radius); overflow:auto; font-size:.82rem; line-height:1.55; }
+  pre.code .t { color:#e0916e; } pre.code .k { color:#d6b06a; }
+  pre.code .s { color:#b4c26a; } pre.code .c { color:#9a8a72; } pre.code .v { color:#e8dcc4; }
+  pre.code .r { color:#e0916e; font-weight:600; } pre.code .m { color:#7fb0a6; }
+  .ann { border-bottom:1px dotted currentColor; border-radius:2px; cursor:help; }
+  .ann:hover, .ann:focus { outline:0; background:rgba(255,255,255,.10); }
+  .rendered { background:var(--paper); border:1px dashed var(--line); border-radius:var(--radius); padding:.2rem .9rem .6rem; }
+  .rendered h1 { font-size:1.15rem; margin:.6rem 0 .3rem; }
+  .snippet-detail { margin-top:.45rem; border:1px solid var(--line); background:var(--paper); border-radius:var(--radius); padding:.55rem .65rem; min-height:3.6rem; font-size:.86rem; color:var(--muted); }
+  .snippet-detail strong { display:block; color:var(--accent); margin-bottom:.12rem; }
+  .demo-note { font-size:.84rem; color:var(--muted); margin-top:.6rem; }
+
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-top:1.1rem; }
+  .card { border:1px solid var(--line); border-radius:var(--radius); padding:.75rem .9rem; background:var(--paper); }
+  .card h3 { margin:.1rem 0 .35rem; font-size:1rem; }
+  .card p { margin:0 0 .5rem; color:var(--muted); font-size:.9rem; }
+  .card pre.code { font-size:.74rem; padding:.55rem .6rem; }
+
+  ul.principles { list-style:none; padding:0; margin:1rem 0 0; display:grid; gap:.55rem; }
+  ul.principles li { padding-left:1.5rem; position:relative; font-size:.96rem; }
+  ul.principles li::before { content:"\25B8"; position:absolute; left:0; color:var(--accent); }
+  ul.principles b { color:var(--ink); }
+
+  .tiers { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.1rem 0; align-items:start; }
+  .tier { border: 1px solid var(--line); border-radius: var(--radius); padding: .75rem .9rem; background:var(--paper); }
+  .tier h4 { margin: 0 0 .3rem; font-size: .95rem; }
+  .tier p { margin: 0 0 .5rem; color: var(--muted); font-size: .88rem; }
+
+  .note-box { background:var(--bg); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:var(--radius); padding:.6rem .85rem; margin-top:1rem; font-size:.92rem; }
+  .note-box code { background:#efe2ca; padding:.03rem .3rem; border-radius:var(--radius); }
+
+  .links { display:flex; gap:.9rem; flex-wrap:wrap; margin-top:.8rem; font-size:.92rem; }
+  footer { padding:1.6rem 0; color:var(--muted); font-size:.88rem; }
+
+  @media (max-width:680px){
+    :root { --step-3:1.9rem; }
+    .demo,.grid3,.tiers{grid-template-columns:1fr;}
+    pre.code { white-space: pre; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>OKF/HTML</h1>
+    <p class="tag"><strong>Open Knowledge in plain HTML.</strong> A note is a complete, self-describing HTML document — nothing to export, nothing to convert.</p>
+    <p class="sub">Instead of Markdown&nbsp;+&nbsp;YAML front matter or a JSON sidecar, each note is one HTML file: the <strong>body</strong> is readable content, the <strong>head</strong> carries identity and metadata, and ordinary <strong>links are the graph</strong>. The link graph <em>is</em> the knowledge graph. HTML is the data contract, not an export format.</p>
+    <div class="cta">
+      <a class="btn primary" href="#note">See a real note ↓</a>
+      <a class="btn ghost" href="https://github.com/br3nt/okf-html/blob/main/SPEC.md">Read the spec →</a>
+      <a class="btn ghost" href="https://github.com/br3nt/okf-html">GitHub repo ↗</a>
+    </div>
+  </div>
+</header>
+
+<section id="note">
+  <div class="wrap">
+    <h2>This is an OKF/HTML note</h2>
+    <p class="lede">One file. On the left, the document exactly as it is stored on disk. On the
+      right, that same file opened in a browser — because it <em>is</em> a web page. This document
+      was produced by the reference gem; the snippet that emitted it is in
+      <a href="#start">Getting started</a>.</p>
+
+    <div class="demo">
+      <div class="panel">
+        <h3>/n/sourdough-starter.html — stored on disk</h3>
+<pre class="code"><span class="t">&lt;!DOCTYPE html&gt;</span>
+<span class="t">&lt;html</span> <span class="k">lang</span>=<span class="s">"en"</span><span class="t">&gt;</span>
+<span class="t">&lt;head</span> <span class="k ann" tabindex="0" data-label="head profile" data-detail="Every note declares the vocabularies in force via the profile attribute. This exact URL — the page you are reading — is the format's stable base-profile identifier, embedded verbatim in every rendered document.">profile</span>=<span class="s">"https://br3nt.github.io/okf/"</span><span class="t">&gt;</span>
+<span class="t">&lt;meta</span> <span class="k">charset</span>=<span class="s">"utf-8"</span><span class="t">&gt;</span>
+<span class="t">&lt;title&gt;</span><span class="v">Sourdough Starter</span><span class="t">&lt;/title&gt;</span>
+<span class="t">&lt;link</span> <span class="k">rel</span>=<span class="s ann" tabindex="0" data-label="rel=&quot;canonical&quot;" data-detail="The current address of the note. uuid is the identity that survives renames; canonical is where it lives right now.">"canonical"</span> <span class="k">href</span>=<span class="s">"/n/sourdough-starter"</span><span class="t">&gt;</span>
+<span class="t">&lt;meta</span> <span class="k">name</span>=<span class="s ann" tabindex="0" data-label="uuid (scheme=UUID)" data-detail="A stable global identity that survives renames and moves between apps. The scheme attribute — HTML4, dropped by HTML5, resurrected here — types groups of metadata.">"uuid"</span> <span class="k">scheme</span>=<span class="s">"UUID"</span> <span class="k">content</span>=<span class="s">"d4013d9b-0ecc-4682-bb13-42e0b27746aa"</span><span class="t">&gt;</span>
+<span class="t">&lt;meta</span> <span class="k">name</span>=<span class="s">"created"</span> <span class="k">scheme</span>=<span class="s">"ISO8601"</span> <span class="k">content</span>=<span class="s">"2026-07-02T13:23:18+00:00"</span><span class="t">&gt;</span>
+<span class="t">&lt;meta</span> <span class="k">name</span>=<span class="s">"updated"</span> <span class="k">scheme</span>=<span class="s">"ISO8601"</span> <span class="k">content</span>=<span class="s">"2026-07-02T13:23:18+00:00"</span><span class="t">&gt;</span>
+<span class="t">&lt;meta</span> <span class="k">name</span>=<span class="s ann" tabindex="0" data-label="keywords" data-detail="Tags are stored as the standard keywords meta. The reference index also derives tags from body links to /tags/… — the same idea expressed two ways.">"keywords"</span> <span class="k">content</span>=<span class="s">"baking, bread"</span><span class="t">&gt;</span>
+<span class="t">&lt;/head&gt;</span>
+<span class="t">&lt;body&gt;</span>
+<span class="t">&lt;p&gt;</span><span class="v">Feed daily. See </span><span class="t">&lt;a</span> <span class="r ann" tabindex="0" data-label='rel="related"' data-detail="A typed link. rel names the relationship the target plays — here a peer note. That single attribute turns an ordinary hyperlink into an edge in the knowledge graph.">rel</span>=<span class="s">"related"</span> <span class="k">href</span>=<span class="s">"/n/bread"</span><span class="t">&gt;</span><span class="v">bread</span><span class="t">&lt;/a&gt;</span><span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;/body&gt;</span>
+<span class="t">&lt;/html&gt;</span></pre>
+        <div class="snippet-detail" aria-live="polite"><strong>Hover the underlined parts</strong><span>Each dotted span explains what that piece of the document does.</span></div>
+      </div>
+      <div class="panel">
+        <h3>opened in a browser — it's just a web page</h3>
+        <div class="rendered">
+          <h1>Sourdough Starter</h1>
+          <p>Feed daily. See <a href="https://github.com/br3nt/okf-html/blob/main/SPEC.md#4-the-link-graph">bread</a>.</p>
+        </div>
+        <p class="demo-note">No renderer required to <em>read</em> it — every device already ships one.
+          A conforming tool goes further: it resolves the <code>rel="related"</code> edge, honours
+          the <code>uuid</code>, and can rebuild its whole index from a folder of files like this.
+          The <a href="#">bread</a> link above is stubbed to the spec for this demo; in a real store
+          it resolves to <code>/n/bread</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="wrap">
+    <h2>Why HTML</h2>
+    <p class="lede">The web platform already <em>is</em> a knowledge format. Links are the graph;
+      <code>&lt;meta&gt;</code> and <code>&lt;link&gt;</code> are the metadata; the DOM is the query
+      model; every device ships a renderer. OKF/HTML adds no new file type and no semantic-web
+      toolchain — no RDF, OWL or SPARQL. Readers, human and machine, infer structure from HTML directly.</p>
+    <ul class="principles">
+      <li><b>Everything is a note.</b> A note is a complete, self-describing HTML document — and so are the vocabulary, the templates, the collections, and the spec's own schema. The system is self-hosting: you extend it by authoring documents <em>in</em> it, not config beside it.</li>
+      <li><b>The link graph is the knowledge graph.</b> Knowledge is typed edges between documents, written with <code>&lt;a&gt;</code>, <code>&lt;link&gt;</code> and <code>&lt;meta&gt;</code>. An untyped link is a mere reference; add a <code>rel</code> and it asserts a relationship.</li>
+      <li><b>Files are truth and index.</b> The on-disk document is canonical. Any database is a derived cache that can be rebuilt from the files. Each file carries enough of its own graph — including inbound edges — to be a complete, portable node offline.</li>
+      <li><b>Maximise native HTML.</b> Prefer existing HTML, including link types HTML5 dropped but which remain valid (<code>chapter</code>, <code>contents</code>, <code>glossary</code>, <code>rev</code>). Browsers may ignore them; conforming tools must not.</li>
+      <li><b>Name the relationship, never the position.</b> Relations describe a role (<code>author</code>, <code>chapter</code>, <code>recipe</code>), not a slot in an anonymous container (<code>first</code>, <code>next</code>, <code>up</code>). Order is derived from a collection's list, not stamped on its members.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="sixty">
+  <div class="wrap">
+    <h2>The format in 60 seconds</h2>
+    <p class="lede">Six primitives, all made of ordinary HTML. Each is defined in the
+      <a href="https://github.com/br3nt/okf-html/blob/main/SPEC.md">spec</a> and covered by the
+      language-neutral <a href="#agents">conformance fixtures</a>.</p>
+    <div class="grid3">
+      <div class="card">
+        <h3>Self-describing heads</h3>
+        <p>Identity and metadata live in the <code>&lt;head&gt;</code>: a <code>uuid</code>, a
+          <code>canonical</code> address, timestamps, tags — each typed with a <code>scheme</code>.</p>
+<pre class="code"><span class="t">&lt;meta</span> <span class="k">name</span>=<span class="s">"created"</span>
+      <span class="k">scheme</span>=<span class="s">"ISO8601"</span>
+      <span class="k">content</span>=<span class="s">"2026-06-18T10:00:00Z"</span><span class="t">&gt;</span></pre>
+      </div>
+      <div class="card">
+        <h3>Typed links (<code>rel</code>)</h3>
+        <p>An edge is a link with a <code>rel</code> that names the target's role. Visible edges are
+          <code>&lt;a&gt;</code> in the body; document-level ones are <code>&lt;link&gt;</code> in the head.</p>
+<pre class="code"><span class="t">&lt;a</span> <span class="r">rel</span>=<span class="s">"related"</span>
+   <span class="k">href</span>=<span class="s">"/n/pantry-stock"</span><span class="t">&gt;</span>
+   <span class="v">pantry stock</span><span class="t">&lt;/a&gt;</span></pre>
+      </div>
+      <div class="card">
+        <h3>Backlinks (<code>rev</code>)</h3>
+        <p>The outbound <code>&lt;a&gt;</code> is authoritative; its inverse is mirrored on the target
+          as a <code>rev</code> link, so a file knows who links to it without the database.</p>
+<pre class="code"><span class="c">&lt;!-- mirrored in the target's head --&gt;</span>
+<span class="t">&lt;link</span> <span class="m">rev</span>=<span class="s">"chapter"</span>
+      <span class="k">href</span>=<span class="s">"/n/chapter-one"</span><span class="t">&gt;</span></pre>
+      </div>
+      <div class="card">
+        <h3>Collections</h3>
+        <p>A named note that owns its membership as an <code>&lt;ol&gt;</code> (ordered) or
+          <code>&lt;ul&gt;</code>. Members declare a role; the collection declares order. Tags are the
+          flat, anonymous case.</p>
+<pre class="code"><span class="t">&lt;ol&gt;</span>
+  <span class="t">&lt;li&gt;&lt;a</span> <span class="r">rel</span>=<span class="s">"chapter"</span>
+        <span class="k">href</span>=<span class="s">"/n/tides"</span><span class="t">&gt;</span><span class="v">Tides</span><span class="t">&lt;/a&gt;&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></pre>
+      </div>
+      <div class="card">
+        <h3>Vocabulary &amp; profiles</h3>
+        <p>A profile is itself an HTML document that defines the <code>rel</code> terms it governs
+          (inverse, target-type, cardinality). <code>&lt;head profile&gt;</code> names the ones in force.</p>
+<pre class="code"><span class="t">&lt;head</span> <span class="k">profile</span>=<span class="s">"https://br3nt
+      .github.io/okf/"</span><span class="t">&gt;</span></pre>
+      </div>
+      <div class="card">
+        <h3>Templates &amp; associations</h3>
+        <p>A note used as a prototype. Its head declares relationships to other templates — ported
+          from Rails associations — so the "add related note" UI is generated, not hand-built.</p>
+<pre class="code"><span class="t">&lt;link</span> <span class="k">rel</span>=<span class="s">"okf:has-many"</span>
+      <span class="k">href</span>=<span class="s">"/templates/chapter"</span>
+      <span class="k">data-as</span>=<span class="s">"chapter"</span>
+      <span class="k">data-ordered</span>=<span class="s">"true"</span><span class="t">&gt;</span></pre>
+      </div>
+    </div>
+    <div class="note-box">Only typed links (those with a <code>rel</code>) are mirrored as
+      <code>rev</code>. A relation's human inverse name (<code>chapter</code> ↔ <code>contents</code>)
+      is a vocabulary concern; the raw mirror always reuses the authoritative keyword. The reconciler
+      keeps the mirrors, collection order, and delete-cascades in sync — authority wins on conflict.</div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <h2>Getting started</h2>
+    <p class="lede">There is a working Ruby reference implementation today, and a language-neutral
+      spec plus conformance fixtures for ports in any language that can parse HTML.</p>
+
+    <div class="tiers">
+      <div class="tier">
+        <h4>Ruby, now</h4>
+        <p>One repo, two gems that version together: <code>okf-html</code> (the pure-Ruby format
+          core — serializer, vocabulary, templates; no Rails, no I/O) and <code>okf-html-rails</code>
+          (a mountable engine that wires the core into a host app). Reference gem <strong>v0.1.4</strong>,
+          tracking spec draft <strong>v0.1</strong>.</p>
+<pre class="code"><span class="c"># Gemfile — one repo, two gemspecs</span>
+<span class="k">gem</span> <span class="s">"okf-html"</span>,       <span class="k">git:</span> <span class="s">"https://github.com/br3nt/okf-html.git"</span>,
+                       <span class="k">glob:</span> <span class="s">"okf-html/*.gemspec"</span>
+<span class="k">gem</span> <span class="s">"okf-html-rails"</span>, <span class="k">git:</span> <span class="s">"https://github.com/br3nt/okf-html.git"</span>,
+                       <span class="k">glob:</span> <span class="s">"okf-html-rails/*.gemspec"</span></pre>
+        <p style="margin-top:.6rem">Hosts go through the <code>Repository</code> facade — never
+          hand-write heads, slugs, or <code>rev</code> mirrors. This exact snippet produced the note
+          at the top of the page:</p>
+<pre class="code"><span class="k">require</span> <span class="s">"okf/html"</span>
+
+repo = <span class="m">OKF::Repository</span>.new(store: <span class="m">OKF::Store::Memory</span>.new)
+note = repo.create(
+  title: <span class="s">"Sourdough Starter"</span>,
+  content: <span class="s">%(&lt;p&gt;Feed daily. See &lt;a rel="related" href="/n/bread"&gt;bread&lt;/a&gt;.&lt;/p&gt;)</span>,
+  tag_names: [<span class="s">"baking"</span>, <span class="s">"bread"</span>]
+)
+puts repo.store.read(note.uuid)   <span class="c"># =&gt; the document shown above</span></pre>
+        <p style="margin-top:.6rem">In Rails, include the container concern in whatever owns notes and
+          get a scoped repository for free:</p>
+<pre class="code"><span class="k">class</span> <span class="m">WorkspaceNode</span> &lt; <span class="m">ApplicationRecord</span>
+  <span class="k">include</span> <span class="m">OKF::Container</span>
+<span class="k">end</span>
+
+node.okf.create(title: <span class="s">"Idea"</span>, content: <span class="s">"&lt;p&gt;…&lt;/p&gt;"</span>, tag_names: [<span class="s">"draft"</span>])
+node.okf.find(uuid_or_slug)        <span class="c"># =&gt; OKF::Note</span></pre>
+      </div>
+      <div class="tier">
+        <h4>Any other language</h4>
+        <p>OKF/HTML is a format, not a framework. Anything that can parse HTML can read and write it —
+          Python, JS, Go, Rust, whatever. Two artefacts get you there without reading Ruby:</p>
+        <ul class="principles" style="margin-top:.4rem">
+          <li><b><a href="https://github.com/br3nt/okf-html/blob/main/SPEC.md">SPEC.md</a></b> — the format itself: heads, the link graph, <code>rev</code> mirrors, collections, vocabulary, templates, the reconciler, and a conformance checklist (reader / writer / reconciler).</li>
+          <li><b><a href="https://github.com/br3nt/okf-html/tree/main/fixtures">fixtures/</a></b> — language-neutral test vectors, hand-written from the spec and executed against the Ruby implementation to confirm the expected output. <code>render.yml</code> gives attribute bags and the exact HTML a conforming renderer must emit; <code>parse.yml</code> gives stored documents and the fields a parser must extract. Compare rendered HTML as an exact string, including the final newline.</li>
+        </ul>
+        <p>Bring up a port by making <code>render.yml</code> pass, then <code>parse.yml</code>. A case
+          added to the fixtures adds coverage to the reference suite automatically, so the vectors and
+          the implementation can't drift apart.</p>
+        <div class="links">
+          <a href="https://github.com/br3nt/okf-html/blob/main/doc/implementing.md">Implementer's guide ↗</a> ·
+          <a href="https://github.com/br3nt/okf-html/blob/main/doc/hypermedia.md">Hypermedia guide ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="agents">
+  <div class="wrap">
+    <h2>For agents</h2>
+    <p class="lede">Because a note is plain, self-describing HTML, an agent is a first-class consumer:
+      no bespoke parser, no export step. The format ships machine-readable entry points on purpose.</p>
+    <div class="tiers">
+      <div class="tier">
+        <h4><a href="https://github.com/br3nt/okf-html/blob/main/llms.txt">llms.txt</a></h4>
+        <p>A short manifest pointing at the spec, the implementer and hypermedia guides, the agent
+          skill, and the conformance fixtures — the map an agent reads first.</p>
+      </div>
+      <div class="tier">
+        <h4>Machine-readable spec</h4>
+        <p><a href="https://github.com/br3nt/okf-html/blob/main/SPEC.md">SPEC.md</a> is written to be
+          followed literally; the <a href="https://github.com/br3nt/okf-html/tree/main/fixtures">fixtures</a>
+          are executable ground truth an agent can check its output against.</p>
+      </div>
+      <div class="tier">
+        <h4>Agent skill</h4>
+        <p>An <code>okf-html</code> skill (<code>.claude/skills/okf-html/</code> in the repo) teaches
+          an agent to author and manage notes — typed links, collections, templates, vocabulary — as
+          plain HTML.</p>
+      </div>
+      <div class="tier">
+        <h4>Hypertext as the API</h4>
+        <p>The engine leans on HTML as the wire format end to end: notes are documents, and the editor
+          and graph ship as no-build components. HTML is what crosses every boundary.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="profile">
+  <div class="wrap">
+    <h2>Profile</h2>
+    <p class="lede">This URL — <code>https://br3nt.github.io/okf/</code> — is the OKF/HTML base
+      <strong>profile</strong>: the format's stable identifier. Every conforming document declares it
+      on <code>&lt;head profile="…"&gt;</code> (composed with any user-defined profiles), and it is
+      embedded verbatim in every rendered note — it is not a placeholder and does not change.</p>
+    <p class="lede">A document that references this URL is asserting: <em>"my <code>rel</code> values,
+      <code>rev</code> mirrors, collections and metadata mean what the OKF/HTML spec says they mean."</em>
+      The human-readable profile vocabulary page lives here; the canonical, authoritative definition of
+      the terms is the spec.</p>
+    <div class="note-box">Canonical spec:
+      <a href="https://github.com/br3nt/okf-html/blob/main/SPEC.md"><code>SPEC.md</code> in the okf-html repo</a>.
+      Base relation catalogue and the naming rule: SPEC §6. The <code>&lt;head&gt;</code> profile
+      declaration: SPEC §2.2.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    OKF/HTML — knowledge as plain HTML; the link graph is the knowledge graph.
+    <div class="links">
+      <a href="https://github.com/br3nt/okf-html">GitHub ↗</a> ·
+      <a href="https://github.com/br3nt/okf-html/blob/main/SPEC.md">SPEC.md ↗</a> ·
+      <a href="https://github.com/br3nt/okf-html/tree/main/fixtures">Conformance fixtures ↗</a> ·
+      <a href="https://github.com/br3nt/okf-html/blob/main/llms.txt">llms.txt ↗</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Progressive enhancement only: the page is complete without JS.
+  // Hovering/focusing an annotated code span shows its explanation in the
+  // adjacent detail box (mirrors the JST site's inline-annotation pattern).
+  document.querySelectorAll('.panel, .demo').forEach(scope => {
+    const detail = scope.querySelector('.snippet-detail');
+    if (!detail) return;
+    const title = detail.querySelector('strong');
+    const body = detail.querySelector('span');
+    const defTitle = title.textContent, defBody = body.textContent;
+    const show = n => { title.textContent = n.dataset.label || defTitle; body.textContent = n.dataset.detail || defBody; };
+    const reset = () => { title.textContent = defTitle; body.textContent = defBody; };
+    scope.querySelectorAll('.ann').forEach(n => {
+      n.addEventListener('mouseenter', () => show(n));
+      n.addEventListener('focus', () => show(n));
+      n.addEventListener('blur', reset);
+    });
+    scope.addEventListener('mouseleave', reset);
+  });
+</script>
+</body>
+</html>
