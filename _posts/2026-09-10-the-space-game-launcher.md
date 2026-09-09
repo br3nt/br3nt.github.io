@@ -1,6 +1,6 @@
 ---
 title: "Resurrecting The Space Game, a dead Flash game, by faking its server"
-date: 2026-09-03 21:00:00 +0930
+date: 2026-09-10 20:00:00 +0930
 excerpt: "The Space Game has been unplayable since Flash died, and not because of Flash. The SWF everyone archived is a 16 KB loader that phones a server that no longer exists. I used Claude to read the obfuscated bytecode to work out the server protocol so we could mock the server. The game runs again."
 tags: ai, anthropic, fable, flash, ruffle, preservation, gamedev
 ---
@@ -33,12 +33,12 @@ The game was released in 2009.  Coding and artwork were by <span class="person">
   <img src="/assets/img/tsg-complete.jpg" alt="The Mission Complete screen: 346 ships killed, 5732 minerals mined, with energy and mining graphs for the run">
 </div>
 
-When Flash died, so did the game. Most Flash games, however, can run on Ruffle.  But not The Space Game.  The game starts to load, then displays the error:
+When Flash died, so did the game. Most Flash games can run on Ruffle.  Unfortunately, The Space Game starts to load but then displays the error:
 
 > Unable to load game. Please notify www.casualcollective.com.
 {: .tsg-err}
 
-## The thing everyone archived is not the game
+## The archived SWF is not the game
 
 A copy of the game is made available on [archive.org](https://archive.org/details/thespacegame) and [Kongregate](https://www.kongregate.com/en/games/casualcollective/the-space-game). Both sites load the game using Ruffle. Both then print *"Unable to load game. Please notify www.casualcollective.com."* and stop. A 2021 thread on [r/FlashpointArchive](https://www.reddit.com/r/FlashpointArchive/comments/ng5m51/the_space_game_and_the_space_game_missions_try_to/) says the same thing: the SWFs pull their content from URLs that went dark, and Flashpoint Infinity could not run them either at the time.
 
