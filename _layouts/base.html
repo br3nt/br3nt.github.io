@@ -27,7 +27,7 @@
           e.stopPropagation();
           var parent = btn.closest('.person');
           var wasOpen = parent.classList.contains('open');
-          document.querySelectorAll('.person.open').forEach(function (c) { c.classList.remove('open'); });
+          document.querySelectorAll('.person.open, .cite.open').forEach(function (c) { c.classList.remove('open'); });
           if (!wasOpen) parent.classList.add('open');
         });
       });

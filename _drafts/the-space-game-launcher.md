@@ -22,9 +22,9 @@ tags: ai, anthropic, fable, flash, ruffle, preservation, gamedev
   .tsg-err p { margin: 0; }
 </style>
 
-*The Space Game* is one of my favourite Flash games. You mine asteroids for minerals and build out your base with solar stations, lasers, and misile launchers to protect youself from waves of the pirates that warp in to attack.  The lasers use up your energy reserves, and building and missiles cost minerals.  A wave or two of pirates could easily overwhelm your base.  The game mechanics were simple but addictive, and I loved the vector style art and the soundtrack.
+*The Space Game* is one of my favourite Flash games. You mine asteroids for minerals and build out your base with solar stations, lasers, and missile launchers to protect yourself from waves of pirates that warp in to attack.  The lasers use up your energy reserves, and building and missiles cost minerals.  A wave or two of pirates could easily overwhelm your base.  The game mechanics were simple but addictive, and I loved the vector style art and the soundtrack.
 
-The game was release in 2009.  Coding and artwork was by <span class="person"><button class="person-btn">David Scott</button><span class="person-pop"><span class="person-head">David Scott</span><span class="person-bio">Co-founder of Casual Collective with Paul Preece. Made Flash Element TD in 2007, then The Space Game and its Missions follow-up. Casual Collective became KIXEYE in 2011.</span><span class="person-links"><a href="https://web.archive.org/web/2009/http://www.casualcollective.com/" target="_blank" rel="noopener">Casual Collective in 2009, Wayback Machine</a><a href="https://www.kongregate.com/en/games/casualcollective/the-space-game" target="_blank" rel="noopener">The Space Game on Kongregate</a></span></span></span> from Casual Collective and the music and sound effects by Somatone. Later the same year came *The Space Game: Missions*, expanding the original game with a campaign.
+The game was released in 2009.  Coding and artwork were by <span class="person"><button class="person-btn">David Scott</button><span class="person-pop"><span class="person-pic"><img src="/assets/img/david-scott.jpg" alt="David Scott"></span><span class="person-head">David Scott</span><span class="person-bio">Co-founder of Casual Collective with Paul Preece. Made Flash Element TD in 2007, then The Space Game and its Missions follow-up. Casual Collective became KIXEYE in 2011.</span><span class="person-links"><a href="https://web.archive.org/web/2009/http://www.casualcollective.com/" target="_blank" rel="noopener">Casual Collective in 2009, Wayback Machine</a><a href="https://kixeye.fandom.com/wiki/David_Scott" target="_blank" rel="noopener">KIXEYE wiki, David Scott</a><a href="https://www.kongregate.com/en/games/casualcollective/the-space-game" target="_blank" rel="noopener">The Space Game on Kongregate</a></span></span></span> from Casual Collective and the music and sound effects by Somatone. Later the same year came *The Space Game: Missions*, expanding the original game with a campaign.
 
 <div class="breakout-md tsg-grid">
   <img src="/assets/img/tsg-menu-grid.jpg" alt="The Space Game main menu: glowing yellow title, Training, Missions, Mining Modes, Survival Modes and Bonus Modes tabs">
@@ -33,32 +33,32 @@ The game was release in 2009.  Coding and artwork was by <span class="person"><b
   <img src="/assets/img/tsg-complete.jpg" alt="The Mission Complete screen: 346 ships killed, 5732 minerals mined, with energy and mining graphs for the run">
 </div>
 
-When flash died, so did the game. Most flash games, however, can run on Ruffel.  But not The Space Game.  The game starts to load, then displays the error:
+When Flash died, so did the game. Most Flash games, however, can run on Ruffle.  But not The Space Game.  The game starts to load, then displays the error:
 
 > Unable to load game. Please notify www.casualcollective.com.
 {: .tsg-err}
 
 ## The thing everyone archived is not the game
 
-A copy of the game is made available on [archive.org](https://archive.org/details/thespacegame) and [Kongregate](https://www.kongregate.com/en/games/casualcollective/the-space-game-missions). Both sites load the game using Ruffle. Both then print *"Unable to load game. Please notify www.casualcollective.com."* and stop. A 2021 thread on [r/FlashpointArchive](https://www.reddit.com/r/FlashpointArchive/comments/ng5m51/the_space_game_and_the_space_game_missions_try_to/) says the same thing: the SWFs pull their content from URLs that went dark, and Flashpoint Infinity could not run them either at the time.
+A copy of the game is made available on [archive.org](https://archive.org/details/thespacegame) and [Kongregate](https://www.kongregate.com/en/games/casualcollective/the-space-game). Both sites load the game using Ruffle. Both then print *"Unable to load game. Please notify www.casualcollective.com."* and stop. A 2021 thread on [r/FlashpointArchive](https://www.reddit.com/r/FlashpointArchive/comments/ng5m51/the_space_game_and_the_space_game_missions_try_to/) says the same thing: the SWFs pull their content from URLs that went dark, and Flashpoint Infinity could not run them either at the time.
 
 I've been wanting to replay this game forever.  My own Downloads folder had a copy I grabbed in 2021, sitting next to two Ruffle nightlies from the same year. So I had tried this before and not got far.
 
-I've had a lot of luck getting Claude help me get old games running on my Mac, so I figured it was the perfect AI for the job!
+I've had a lot of luck getting Claude to help me get old games running on my Mac, so I figured it was the perfect AI for the job!
 
-Claude quickly realised the SWF being run on archive.org was just a loader stub.  The SWF was only 16kb.  I asked whether Ghidra could decompile it.  Claude was already many steps ahead of me.  Ghidra doesn't do ActionScript, so Claude had picked JPEXS Free Flash Decompiler and followed up that the wrapper was making a POST to `widget.casualcollective.com/load`, and the reply it expected was two fields, `w1` and `w2`. `w1` is a URL for a "widget" wrapper SWF. `w2` is an API base URL. The stub is a bootstrapper for a server that has been off for a decade.
+Claude quickly realised the SWF being run on archive.org was just a loader stub.  The SWF was only 16 KB.  I asked whether Ghidra could decompile it.  Claude was already many steps ahead of me.  Ghidra doesn't do ActionScript, so Claude had picked JPEXS Free Flash Decompiler and followed up that the stub was making a POST to `widget.casualcollective.com/load`, and the reply it expected was two fields, `w1` and `w2`. `w1` is a URL for a "widget" wrapper SWF. `w2` is an API base URL. The stub is a bootstrapper for a server that has been off for a decade.
 
-So two things become apparent: We need to mock the web server the SWF is expecting to communicate with, and we need to find the actual game!
+So two things became apparent: we need to mock the web server the SWF is expecting to communicate with, and we need to find the actual game!
 
 ## Finding the actual game
 
 Of course, the Wayback Machine had it! `storage.cloud.casualcollective.com/zones/pub/10/thespacegame.v83.swf`, 1.9 MB, captured in 2019. The `widget.swf` wrapper was there too, from 2017.
 
-Running the 1.9 MB game SWF directly in Ruffle, however, gives a blank white screen. Forever.  A Ruffle bug??  "this SWF renders blank in Ruffle" is a common report there, usually a missing ActionScript feature. Another dead end.
+Running the 1.9 MB game SWF directly in Ruffle, however, gives a blank white screen. Forever.  A Ruffle bug??  "This SWF renders blank in Ruffle" is a common report on Ruffle's issue tracker, usually a missing ActionScript feature. Another dead end.
 
 ## Reading the wrapper
 
-The widget fetched by the wrapper is 740 KB of obfuscated ActionScript 2: control-flow flattening, junk constant pools, the works. Claude wrote a small script to resolve constant-pool references in the P-code so the decompiled output read as something close to source. That recovered the entire boot sequence.
+The widget fetched by the loader is 740 KB of obfuscated ActionScript 2: control-flow flattening, junk constant pools, the works. Claude wrote a small script to resolve constant-pool references in the P-code so the decompiled output read as something close to source. That recovered the entire boot sequence.
 
 The widget's protocol starts with a POST to `<api>/pub/session/setup?gid=10` and gets a JSON response containing the following:
 - `result` must be 1, or the widget gives up.
@@ -92,7 +92,7 @@ function CCSetup() {
 }
 ```
 
-And the widget side, from its "Run Game" step is:
+And the widget side, from its "Run Game" step:
 
 ```actionscript
 TraceLocal("Run Game:" + gameswf._name);
@@ -115,19 +115,18 @@ The handshake goes like this:
 2. On startup the game picks a random number up to 9,999,999, and stores it as a variable on itself: `hss = random(9999999)`
 3. In Flash a parent can read its child's variables directly, and both files come from the same domain so the sandbox allows it. The widget reads the game's `hss`.
 4. The widget runs the formula on that number and calls the game back with the result: `game.CCHandshake((hss / 11 - int(hss / 11)) + hss % 11)`
-5. The game runs the same formula on its own number, compares, and returns `true`, or `flase` if the handshake failed.
-6. On a successful handshake, the widget calls `gameswf.CCSetup()`, otherwise, the game remains on the white screen indefinately.
+5. The game runs the same formula on its own number, compares, and returns `true`, or `false` if the handshake failed.
+6. On a successful handshake, the widget calls `gameswf.CCSetup()`, otherwise the game remains on the white screen indefinitely.
 
-I'm not sure whythe widget rather than the game that vlaidates the handshake.  It seems anyone with the actual game could just call `gameswf.CCSetup()`, and the game would run.  I would have thought the handshake should be validated in `gameswf.CCSetup()`.  However, that wrapper also provides the API to corrently fetch data from the server and set game variables required by certain features of the game.
+I'm not sure why the widget, rather than the game, validates the handshake.  It seems anyone with the actual game could just call `gameswf.CCSetup()`, and the game would run.  I would have thought the handshake should be validated in `gameswf.CCSetup()`.  However, the wrapper also provides the API to correctly fetch data from the server and set game variables required by certain features of the game.
 
-The handshake is the widget's way of checking it is talking to one of its own games. What the game gets out of the deal is the `CCAPI` object the widget built while the game was loading. It carries the methods the game uses to reach the outside world: `GetPlayerClass` for the member check, `GetPersistantData` for the save, `LevelStart`, `LevelUpdate` and `SendStat` for reporting progress and scores, and `MoreGames` and `VisitStore` for the buttons that link back to the site. The game never talks to a server itself. It only ever talks to this object.
-
+That API is the `CCAPI` object the widget builds while the game is loading. It carries the methods the game uses to reach the outside world: `GetPlayerClass` for the member check, `GetPersistantData` for the save, `LevelStart`, `LevelUpdate` and `SendStat` for reporting progress and scores, and `MoreGames` and `VisitStore` for the buttons that link back to the site. The game never talks to a server itself. It only ever talks to this object.
 
 ## Mocking the server
 
 We now know the entire protocol required to run the game correctly.
 
-To keep things super simple, I instructed claude to mock the server using a JavaScript Service Worker.  Service Wrokers are able to intercept any web request a webpage makes, which is perfect for mocking!
+To keep things super simple, I instructed Claude to mock the server using a JavaScript Service Worker.  Service Workers are able to intercept any web request a webpage makes, which is perfect for mocking!
 
 So Claude wrote the service worker. About 150 lines: the `load` reply, the `session/setup` JSON, `session/start`, `player/data` for saves, and `result=1` for anything else it did not recognise. The page tells Ruffle, through its `urlRewriteRules`, to send requests for the two dead hostnames to the worker instead. The loader, the widget and the game run unmodified.
 
@@ -153,7 +152,7 @@ if (path.endsWith('session/setup')) {
 
 The next gotcha we ran into was a hang at *"Loading: 89%"*.
 
-It turns out, the widget's preloader waits for `getBytesLoaded() == getBytesTotal()`. Ruffle only ever satisfies that condition for an uncompressed child SWF.  The original CasualCollective server served a compressed version, which is the version the Wayback Machine and Flashpoint hold.  So we need to decompress the file and store as a FWS.  This then allows the preloader finishes.
+It turns out the widget's preloader waits for `getBytesLoaded() == getBytesTotal()`. Ruffle only ever satisfies that condition for an uncompressed child SWF.  The original CasualCollective server served a compressed version, which is the version the Wayback Machine and Flashpoint hold.  So the service worker decompresses the file and stores it as FWS, and the preloader finishes.
 
 Finally, the main menu came up!
 
@@ -192,13 +191,13 @@ if (path.endsWith('player/data')) {
 }
 ```
 
-The game also posts scores to `session/score` after every level. The worker currently =acknowledges them and forgets them. There is no leaderboard to send them to any more.
+The game also posts scores to `session/score` after every level. The worker acknowledges them and forgets them. There is no leaderboard to send them to any more.
 
 ## The launcher
 
 The final form is a static page on GitHub Pages plus the service worker. No server anywhere.  The page is styled as a homage to the game.
 
-The catch is CORS. None of the archive hosts send the headers, so the page cannot fetch the SWFs for you. You download them yourself (links and checksums are on the page) and drop them on the launcher. It unzips the Flashpoint packs in the browser, converts the SWFs to uncompressed, checks them against the expected hashes and keeps them in the browser's cache. I also figure there may be legalities with me hosting the actualy game files, so no SWFs in the repo hopefully keeps this clean.
+The catch is CORS. None of the archive hosts send the headers, so the page cannot fetch the SWFs for you. You download them yourself (links and checksums are on the page) and drop them on the launcher. It unzips the Flashpoint packs in the browser, converts the SWFs to uncompressed, checks them against the expected hashes and keeps them in the browser's cache. I also figure there may be legal issues with me hosting the actual game files, so keeping the SWFs out of the repo hopefully keeps this clean.
 
 A few things the page does beyond serving files:
 

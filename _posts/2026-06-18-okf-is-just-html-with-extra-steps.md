@@ -6,44 +6,9 @@ tags: html, ai, web, okf
 ---
 
 <style>
-/* ---- inline person profiles (borrowed from the Mythos post) ---- */
-.person { position: relative; display: inline; }
-.person-btn {
-  font: inherit; cursor: pointer; background: none; border: none; padding: 0; color: inherit;
-  text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px;
-  text-decoration-color: #ff3399;
-}
-.person-btn:hover { color: #d81b76; }
-.person-pop {
-  display: none; position: absolute; z-index: 30; left: 0; top: 1.7em;
-  width: min(340px, 80vw); padding: .75em .85em;
-  background: #fff; border: 1px solid #cbd5e1; border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.18);
-  font-size: .82rem; line-height: 1.45; text-align: left; white-space: normal; font-weight: 400;
-  max-height: min(70vh, 440px); overflow-y: auto;
-}
-.person.open .person-pop { display: block; }
-.person-head { display: block; font-weight: 700; margin-bottom: .35em; }
-.person-bio { display: block; color: #475569; }
-.person-links { margin-top: .4em; }
-.person-links a { display: block; margin-top: .35em; }
-.person-pic {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; height: 96px; margin-bottom: .55em;
-  background: repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 10px,#e8edf3 10px,#e8edf3 20px);
-  border: 1px dashed #cbd5e1; border-radius: 8px; color: #94a3b8; font-size: .78rem;
-}
-.person-pic img { display: block; width: 100%; max-height: 230px; object-fit: cover; object-position: center 25%; border-radius: 8px; }
-.person-pic:has(img) { border: none; background: none; height: auto; padding: 0; }
-
-@media (max-width: 640px) {
-  .person-pop {
-    position: fixed; left: 1rem; right: 1rem; top: auto; bottom: 1rem;
-    inset-inline: 1rem;
-    width: auto; max-width: none; max-height: 70vh; overflow-y: auto; z-index: 100;
-    box-shadow: 0 -6px 30px rgba(0,0,0,.28);
-  }
-}
+/* person cards are global (assets/css/style.css); this post's two tweaks */
+.person-pop { max-height: min(70vh, 440px); overflow-y: auto; }
+.person-pic img { max-height: 230px; object-fit: cover; object-position: center 25%; }
 
 /* give lists a normal paragraph gap above (theme hugs them to the intro line) */
 .post-body p:has(+ ul) { margin-bottom: 1.1em; }
@@ -138,21 +103,3 @@ Just use HTML!
 If HTML isn't human-writable, get your agent to write it. lol.
 
 </div>
-
-<script>
-(function () {
-  var btns = document.querySelectorAll('.person-btn');
-  btns.forEach(function (btn) {
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var parent = btn.closest('.person');
-      var wasOpen = parent.classList.contains('open');
-      document.querySelectorAll('.person.open').forEach(function (c) { c.classList.remove('open'); });
-      if (!wasOpen) parent.classList.add('open');
-    });
-  });
-  document.addEventListener('click', function () {
-    document.querySelectorAll('.person.open').forEach(function (c) { c.classList.remove('open'); });
-  });
-})();
-</script>

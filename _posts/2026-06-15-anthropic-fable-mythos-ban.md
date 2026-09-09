@@ -19,38 +19,27 @@ tags: ai, anthropic, policy, fable, mythos
 }
 .cite-btn::before { content: counter(cite); }
 .cite-btn:hover, .cite.open .cite-btn { background: #d81b76; }
-.cite-pop, .person-pop {
+.cite-pop {
   display: none; position: absolute; z-index: 30; left: 0; top: 1.7em;
   width: min(340px, 80vw); padding: .75em .85em;
   background: #fff; border: 1px solid #cbd5e1; border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0,0,0,.18);
   font-size: .82rem; line-height: 1.45; text-align: left; white-space: normal; font-weight: 400;
 }
-.cite.open .cite-pop, .person.open .person-pop { display: block; }
-.cite-pop a, .person-links a { display: block; margin-top: .35em; }
-.cite-note, .person-bio { color: #475569; }
+.cite.open .cite-pop { display: block; }
+.cite-pop a { display: block; margin-top: .35em; }
+.cite-note { color: #475569; }
 .cite-note a { display: inline; margin: 0; }
 .cite-hr { display: block; border-top: 1px solid #e2e8f0; margin: .7em 0; }
 
-/* ---- inline person profiles ---- */
-.person { position: relative; display: inline; }
-.person-btn {
-  font: inherit; cursor: pointer; background: none; border: none; padding: 0; color: inherit;
-  text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px;
-  text-decoration-color: #ff3399;
-}
-.person-btn:hover { color: #d81b76; }
-.person-head { display: block; font-weight: 700; margin-bottom: .45em; }
-.person-bio { display: block; }
-.person-pic, .ref-pic {
+/* person cards are global (assets/css/style.css); .ref-* reuse the same look for citation cards */
+.ref-pic {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 96px; margin-bottom: .55em;
   background: repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 10px,#e8edf3 10px,#e8edf3 20px);
   border: 1px dashed #cbd5e1; border-radius: 8px; color: #94a3b8; font-size: .78rem;
 }
-.person-links, .ref-links { display: block; margin-top: .55em; }
-.person-pic img { display: block; width: 100%; height: auto; border-radius: 8px; }
-.person-pic:has(img) { border: none; background: none; height: auto; padding: 0; }
+.ref-links { display: block; margin-top: .55em; }
 
 /* reader-local timestamps */
 time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
@@ -62,7 +51,7 @@ time.ts { border-bottom: 1px dotted #94a3b8; cursor: help; }
 
 /* small screens: pin popovers to a fixed on-screen card so they never run off the edge */
 @media (max-width: 640px) {
-  .cite-pop, .person-pop, .cite-pop-wide {
+  .cite-pop, .cite-pop-wide {
     position: fixed; left: 1rem; right: 1rem; top: auto; bottom: 1rem;
     inset-inline: 1rem;
     width: auto; max-width: none; max-height: 70vh; overflow-y: auto; z-index: 100;
@@ -455,10 +444,10 @@ var PROFILES = {
 
 // open/close popovers (event delegation, so it covers auto-linked buttons too)
 document.addEventListener('click', function (e) {
-  var btn = e.target.closest ? e.target.closest('.cite-btn, .person-btn') : null;
+  var btn = e.target.closest ? e.target.closest('.cite-btn') : null;
   if (btn) {
     e.stopPropagation();
-    var parent = btn.closest('.cite, .person');
+    var parent = btn.closest('.cite');
     var wasOpen = parent.classList.contains('open');
     document.querySelectorAll('.cite.open, .person.open').forEach(function (c) { c.classList.remove('open'); });
     if (!wasOpen) parent.classList.add('open');
