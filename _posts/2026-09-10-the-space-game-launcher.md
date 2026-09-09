@@ -1,6 +1,6 @@
 ---
 title: "Resurrecting The Space Game, a dead Flash game, by faking its server"
-date: 2026-09-10 20:00:00 +0930
+date: 2026-09-10 08:00:00 +0930
 excerpt: "The Space Game has been unplayable since Flash died, and not because of Flash. The SWF everyone archived is a 16 KB loader that phones a server that no longer exists. I used Claude to read the obfuscated bytecode to work out the server protocol so we could mock the server. The game runs again."
 tags: ai, anthropic, fable, flash, ruffle, preservation, gamedev
 ---
