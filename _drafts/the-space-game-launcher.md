@@ -154,7 +154,7 @@ The next gotcha we ran into was a hang at *"Loading: 89%"*.
 
 It turns out the widget's preloader waits for `getBytesLoaded() == getBytesTotal()`. Ruffle only ever satisfies that condition for an uncompressed child SWF.  The original CasualCollective server served a compressed version, which is the version the Wayback Machine and Flashpoint hold.  So the service worker decompresses the file and stores it as FWS, and the preloader finishes.
 
-Finally, the main menu came up!
+Finally, the main menu came up and the game was fully playable!
 
 ## Getting the Missions expansion working
 
@@ -195,20 +195,22 @@ The game also posts scores to `session/score` after every level. The worker ackn
 
 ## The launcher
 
-The final form is a static page on GitHub Pages plus the service worker. No server anywhere.  The page is styled as a homage to the game.
+The game launcher runs as a static page on GitHub Pages and hosts the service worker.  The page is styled as a homage to the game.
 
 The catch is CORS. None of the archive hosts send the headers, so the page cannot fetch the SWFs for you. You download them yourself (links and checksums are on the page) and drop them on the launcher. It unzips the Flashpoint packs in the browser, converts the SWFs to uncompressed, checks them against the expected hashes and keeps them in the browser's cache. I also figure there may be legal issues with me hosting the actual game files, so keeping the SWFs out of the repo hopefully keeps this clean.
 
-A few things the page does beyond serving files:
+A few niceties added along the way:
 
-- It pauses the game while its tab is in the background and resumes it when you come back, the way Steam does. Ruffle has a setting for exactly this, so it is one line.
+- It pauses the game while its tab is in the background and resumes it when you come back, the way Steam does.
 - The banner buttons inside *Missions* still point at casualcollective.com. The one that offers the original game opens it in the launcher. The one that invites you to join the Collective opens the Wayback Machine's 2009 copy of the site.
-- The saved progress for each game is listed on the Get the files tab, and can be cleared on its own.
-- The How it works tab tells the story above in a few paragraphs, with the four-step boot sequence, for anyone who lands on the page wondering why the archived SWF does not work.
+- The game state is saved for each game, so you can return and continue where you left off. You can clear your state on the *Get the files* tab.
+- The *How it works* tab tells the story above in a few paragraphs, with the four-step boot sequence, for anyone who lands on the page wondering why the archived SWF does not work.
 
-You can also clone the repo, put the files in `storage/`, and serve it with any static server. Service workers do not run on `file://`.
+You can also clone the repo, put the files in `storage/`, and serve it with any static server. Service workers do not run on `file://`, unfortunately.
 
 The same widget served every Casual Collective game: Desktop Tower Defense Pro, Buggle Stars, Desktop Armada, Flash Element TD 2 and the rest. The launcher does not care which game id it is answering for. Given the files, it can in principle bring the others back too.
+
+Anyways, I hope you enjoy this game as much as I do :)
 
 <img class="tsg-shot" src="/assets/img/tsg-launcher.jpg" alt="The launcher page: The Space Game running inside a black frame styled like the game's menu, with coloured tabs above and a volume bar below">
 
