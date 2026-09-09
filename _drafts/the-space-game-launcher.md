@@ -203,6 +203,7 @@ A few niceties added along the way:
 
 - It pauses the game while its tab is in the background and resumes it when you come back, the way Steam does.
 - The banner buttons inside *Missions* still point at casualcollective.com. The one that offers the original game opens it in the launcher. The one that invites you to join the Collective opens the Wayback Machine's 2009 copy of the site.
+- The game's own stage is 700x700, with the live graphs and the Sandbox wave designer in the bottom 200px, but its loader says 700x525, so the service worker corrects the loader's header on the way through and the whole game shows.
 - The game state is saved for each game, so you can return and continue where you left off. You can clear your state on the *Get the files* tab.
 - The *How it works* tab tells the story above in a few paragraphs, with the four-step boot sequence, for anyone who lands on the page wondering why the archived SWF does not work.
 
