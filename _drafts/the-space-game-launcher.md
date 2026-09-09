@@ -165,9 +165,9 @@ if (path.endsWith('session/setup')) {
 }
 ```
 
-The next gotcha we ran into was a hung at *"Loading: 89%"*.
+The next gotcha we ran into was a hang at *"Loading: 89%"*.
 
-It turns out, the widget's preloader waits for `getBytesLoaded() == getBytesTotal()`. Ruffle only ever satisfies that for an uncompressed child SWF.  The original CasualCollective servers servehd a compressed version, and this compressed version is what the Wayback Machine and Flashpoint hold.  So we need to decompress the file and store as a FWS.  This then allows the preloader finishes.
+It turns out, the widget's preloader waits for `getBytesLoaded() == getBytesTotal()`. Ruffle only ever satisfies that for an uncompressed child SWF.  The original CasualCollective servers served a compressed version, and this compressed version is what the Wayback Machine and Flashpoint hold.  So we need to decompress the file and store as a FWS.  This then allows the preloader finishes.
 
 The main menu came up.
 
