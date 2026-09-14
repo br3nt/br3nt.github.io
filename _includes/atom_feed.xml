@@ -1,16 +1,24 @@
 {%- comment -%}
-  Shared Atom feed body. Pass `items` (an array of documents) and `feed_title`.
+  Shared Atom feed body. Pass `items` (an array of documents), `feed_title`,
+  and optionally `alternate` (the HTML index page for this feed, default "/").
   Every non-draft item is emitted, newest first, with no entry limit.
-  Items need an explicit date (from the filename or a `date:` front matter key);
-  Jekyll gives undated collection documents the build time, so they would float
-  to the top on every deploy. `description:` overrides the excerpt as the summary.
+
+  Items need an explicit date (from the filename or a `date:` front matter key).
+  Jekyll gives an undated collection document the build time as its date, which
+  would make it float to the top on every deploy, so such items are excluded
+  here by checking for exactly that value.
+
+  `description:` overrides the excerpt as the summary. `last_updated:` drives
+  <updated>. Content is XML-escaped rather than CDATA-wrapped so a literal
+  "]]>" inside a post cannot break the feed.
 {%- endcomment -%}
-{%- assign items = include.items | where_exp: "item", "item.draft != true" | where_exp: "item", "item.date" | sort: "date" | reverse -%}
+{%- assign items = include.items | where_exp: "item", "item.draft != true" | where_exp: "item", "item.date != site.time" | sort: "date" | reverse -%}
+{%- assign alternate = include.alternate | default: "/" -%}
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"{% if site.lang %} xml:lang="{{ site.lang }}"{% endif %}>
   <generator uri="https://jekyllrb.com/" version="{{ jekyll.version }}">Jekyll</generator>
-  <link href="{{ page.url | absolute_url }}" rel="self" type="application/atom+xml" />
-  <link href="{{ '/' | absolute_url }}" rel="alternate" type="text/html" />
+  <link href="{{ page.url | absolute_url | xml_escape }}" rel="self" type="application/atom+xml" />
+  <link href="{{ alternate | absolute_url | xml_escape }}" rel="alternate" type="text/html" />
   <updated>{{ site.time | date_to_xmlschema }}</updated>
   <id>{{ page.url | absolute_url | xml_escape }}</id>
   <title type="html">{{ include.feed_title | smartify | xml_escape }}</title>
@@ -20,13 +28,14 @@
   <author><name>{{ site.author | xml_escape }}</name></author>
   {%- for item in items %}
   {%- assign item_title = item.title | smartify | strip_html | normalize_whitespace | xml_escape %}
+  {%- assign item_url = item.url | absolute_url | xml_escape %}
   <entry>
     <title type="html">{{ item_title }}</title>
-    <link href="{{ item.url | absolute_url }}" rel="alternate" type="text/html" title="{{ item_title }}" />
+    <link href="{{ item_url }}" rel="alternate" type="text/html" title="{{ item_title }}" />
     <published>{{ item.date | date_to_xmlschema }}</published>
-    <updated>{{ item.last_updated | default: item.last_modified_at | default: item.date | date_to_xmlschema }}</updated>
+    <updated>{{ item.last_updated | default: item.date | date_to_xmlschema }}</updated>
     <id>{{ item.id | absolute_url | xml_escape }}</id>
-    <content type="html" xml:base="{{ item.url | absolute_url | xml_escape }}"><![CDATA[{{ item.content | strip }}]]></content>
+    <content type="html" xml:base="{{ item_url }}">{{ item.content | strip | xml_escape }}</content>
     <author><name>{{ item.author | default: site.author | xml_escape }}</name></author>
     {%- if item.collection != "posts" %}
     <category term="{{ item.collection | xml_escape }}" />
@@ -39,7 +48,7 @@
     {%- endfor %}
     {%- assign item_summary = item.description | default: item.excerpt | strip_html | normalize_whitespace | strip %}
     {%- if item_summary != "" %}
-    <summary type="html"><![CDATA[{{ item_summary }}]]></summary>
+    <summary type="text">{{ item_summary | xml_escape }}</summary>
     {%- endif %}
   </entry>
   {%- endfor %}

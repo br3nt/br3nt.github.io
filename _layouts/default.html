@@ -64,12 +64,12 @@ layout: base
 </main>
 
 <footer class="content-grid site-footer">
-  <p><small>
+  <nav aria-label="Subscribe to feeds"><small>
     Subscribe:
     {% for feed in site.data.feeds -%}
-    <a href="{{ feed.path }}" type="application/atom+xml">{{ feed.name }}</a>{% unless forloop.last %} &middot; {% endunless %}
+    <a href="{{ feed.path | relative_url }}" type="application/atom+xml">{{ feed.name }}</a>{% unless forloop.last %} &middot; {% endunless %}
     {%- endfor %}
-  </small></p>
+  </small></nav>
 </footer>
 
 {% contentblock footer %}

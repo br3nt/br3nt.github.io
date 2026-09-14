@@ -2,4 +2,4 @@
 sitemap: false
 ---
 {%- assign feed_title = site.title | append: " | Reviews" -%}
-{%- include atom_feed.xml items=site.reviews feed_title=feed_title -%}
+{%- include atom_feed.xml items=site.reviews feed_title=feed_title alternate="/reviews.html" -%}
