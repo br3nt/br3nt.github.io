@@ -32,8 +32,18 @@
   <entry>
     <title type="html">{{ item_title }}</title>
     <link href="{{ item_url }}" rel="alternate" type="text/html" title="{{ item_title }}" />
+    {%- comment -%}
+      A date-only last_updated (e.g. 2020-04-18) is midnight UTC, which can land
+      before a same-day published time, so never let updated precede published.
+    {%- endcomment %}
+    {%- assign published_ts = item.date | date: "%s" | plus: 0 %}
+    {%- assign updated_ts = item.last_updated | default: item.date | date: "%s" | plus: 0 %}
     <published>{{ item.date | date_to_xmlschema }}</published>
-    <updated>{{ item.last_updated | default: item.date | date_to_xmlschema }}</updated>
+    {%- if updated_ts > published_ts %}
+    <updated>{{ item.last_updated | date_to_xmlschema }}</updated>
+    {%- else %}
+    <updated>{{ item.date | date_to_xmlschema }}</updated>
+    {%- endif %}
     <id>{{ item.id | absolute_url | xml_escape }}</id>
     <content type="html" xml:base="{{ item_url }}">{{ item.content | strip | xml_escape }}</content>
     <author><name>{{ item.author | default: site.author | xml_escape }}</name></author>
