@@ -3,7 +3,7 @@ title: "Anthropic Fable and Mythos global ban and timeline"
 date: 2026-06-15 00:00:00 +0930
 last_updated: 2026-07-04 09:45:00 +0930
 excerpt: "For a few days in June 2026, Anthropic shipped Fable 5 and Mythos 5, and then the US government switched them off. What happened, what's happened since, and whether the lights come back on."
-tags: ai, anthropic, policy, fable, mythos
+tags: [ai, anthropic, policy, fable, mythos]
 ---
 
 <style>

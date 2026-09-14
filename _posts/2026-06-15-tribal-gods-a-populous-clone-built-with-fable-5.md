@@ -2,7 +2,7 @@
 title: "Tribal Gods: a Populous clone built from a blank folder with Fable 5"
 date: 2026-06-15 21:00:00 +0930
 excerpt: "In my Fable & Mythos ban write-up I mentioned, almost in passing, that I'd spent a few nights getting Fable 5 to build a Populous clone. It deserves its own page, and now it's live, open-source, and playable in your browser."
-tags: ai, anthropic, fable, gamedev, threejs, populous
+tags: [ai, anthropic, fable, gamedev, threejs, populous]
 ---
 
 <style>

@@ -1,6 +1,6 @@
 ---
 title: Anxiety Exercises and Info
-tags: health, anxiety, mindfulness
+tags: [health, anxiety, mindfulness]
 draft: true
 ---
 

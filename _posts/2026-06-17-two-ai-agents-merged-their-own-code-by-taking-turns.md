@@ -2,7 +2,7 @@
 title: "Two AI agents merged their own code by taking turns through a git repo"
 date: 2026-06-17 00:00:00 +0930
 excerpt: "I had Claude and Codex each build the same change to JST, then review each other, then needed one result. So I gave them a way to merge their own work: one shared branch, a turn file as a baton, one commit each, take turns. Seventeen turns later it was done, and they had caught each other's bugs on the way."
-tags: ai, claude, codex, jst, agents, git
+tags: [ai, claude, codex, jst, agents, git]
 ---
 
 I needed to improve [JST]({% post_url 2026-06-15-jst-reactive-web-components-in-plain-html %}). I had Claude and Codex open, and I wanted them feeding off and reviewing each other's ideas as I worked. So I played courier: my request into both, each reply pasted into the other, back and forth. Tiring, but it worked. They pushed on each other and converged on specs both accepted.
