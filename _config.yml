@@ -5,8 +5,8 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-url: 'https://br3nt.github.io/'
-baseurl: 'br3nt.github.io'
+url: 'https://br3nt.github.io'
+# baseurl: 'br3nt.github.io'
 
 title: br3nt's Stuff
 
@@ -88,3 +88,8 @@ exclude:
   - node_modules
   - '*.config.js'
   - bin
+
+# Feeds are hand-written Atom templates (feed.xml and feed/*.xml, sharing
+# _includes/atom_feed.xml) so the root feed can merge collections and every
+# feed carries all its entries. jekyll-feed sees feed.xml exists and stays out
+# of the way; it is kept only for its `jekyll-feed` autodiscovery conventions.
