@@ -63,4 +63,13 @@ layout: base
 {{ content }}
 </main>
 
+<footer class="content-grid site-footer">
+  <p><small>
+    Subscribe:
+    {% for feed in site.data.feeds -%}
+    <a href="{{ feed.path }}" type="application/atom+xml">{{ feed.name }}</a>{% unless forloop.last %} &middot; {% endunless %}
+    {%- endfor %}
+  </small></p>
+</footer>
+
 {% contentblock footer %}
