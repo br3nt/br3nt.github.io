@@ -1,0 +1,5 @@
+---
+sitemap: false
+---
+{%- assign feed_title = site.title | append: " | Posts" -%}
+{%- include atom_feed.xml items=site.posts feed_title=feed_title -%}

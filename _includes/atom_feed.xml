@@ -1,0 +1,46 @@
+{%- comment -%}
+  Shared Atom feed body. Pass `items` (an array of documents) and `feed_title`.
+  Every non-draft item is emitted, newest first, with no entry limit.
+  Items need an explicit date (from the filename or a `date:` front matter key);
+  Jekyll gives undated collection documents the build time, so they would float
+  to the top on every deploy. `description:` overrides the excerpt as the summary.
+{%- endcomment -%}
+{%- assign items = include.items | where_exp: "item", "item.draft != true" | where_exp: "item", "item.date" | sort: "date" | reverse -%}
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"{% if site.lang %} xml:lang="{{ site.lang }}"{% endif %}>
+  <generator uri="https://jekyllrb.com/" version="{{ jekyll.version }}">Jekyll</generator>
+  <link href="{{ page.url | absolute_url }}" rel="self" type="application/atom+xml" />
+  <link href="{{ '/' | absolute_url }}" rel="alternate" type="text/html" />
+  <updated>{{ site.time | date_to_xmlschema }}</updated>
+  <id>{{ page.url | absolute_url | xml_escape }}</id>
+  <title type="html">{{ include.feed_title | smartify | xml_escape }}</title>
+  {%- if site.description %}
+  <subtitle>{{ site.description | strip | xml_escape }}</subtitle>
+  {%- endif %}
+  <author><name>{{ site.author | xml_escape }}</name></author>
+  {%- for item in items %}
+  {%- assign item_title = item.title | smartify | strip_html | normalize_whitespace | xml_escape %}
+  <entry>
+    <title type="html">{{ item_title }}</title>
+    <link href="{{ item.url | absolute_url }}" rel="alternate" type="text/html" title="{{ item_title }}" />
+    <published>{{ item.date | date_to_xmlschema }}</published>
+    <updated>{{ item.last_updated | default: item.last_modified_at | default: item.date | date_to_xmlschema }}</updated>
+    <id>{{ item.id | absolute_url | xml_escape }}</id>
+    <content type="html" xml:base="{{ item.url | absolute_url | xml_escape }}"><![CDATA[{{ item.content | strip }}]]></content>
+    <author><name>{{ item.author | default: site.author | xml_escape }}</name></author>
+    {%- if item.collection != "posts" %}
+    <category term="{{ item.collection | xml_escape }}" />
+    {%- endif %}
+    {%- for category in item.categories %}
+    <category term="{{ category | xml_escape }}" />
+    {%- endfor %}
+    {%- for tag in item.tags %}
+    <category term="{{ tag | xml_escape }}" />
+    {%- endfor %}
+    {%- assign item_summary = item.description | default: item.excerpt | strip_html | normalize_whitespace | strip %}
+    {%- if item_summary != "" %}
+    <summary type="html"><![CDATA[{{ item_summary }}]]></summary>
+    {%- endif %}
+  </entry>
+  {%- endfor %}
+</feed>

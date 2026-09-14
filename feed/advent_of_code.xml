@@ -1,0 +1,5 @@
+---
+sitemap: false
+---
+{%- assign feed_title = site.title | append: " | Advent of Code" -%}
+{%- include atom_feed.xml items=site.advent_of_code feed_title=feed_title -%}

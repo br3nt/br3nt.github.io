@@ -1,0 +1,5 @@
+---
+sitemap: false
+---
+{%- assign items = site.posts | concat: site.reviews | concat: site.advent_of_code -%}
+{%- include atom_feed.xml items=items feed_title=site.title -%}
