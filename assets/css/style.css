@@ -361,3 +361,9 @@ video {
     box-shadow: 0 -6px 30px rgba(0,0,0,.28);
   }
 }
+
+.site-footer {
+  margin-top: 3rem;
+  padding-block: 1.5rem;
+  border-top: 1px solid #ddd;
+}

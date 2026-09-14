@@ -2,7 +2,7 @@
 title: "OKF is just HTML with extra steps"
 date: 2026-06-18 00:00:00 +0930
 excerpt: "Google's Open Knowledge Format and Andrej Karpathy's LLM wiki are good in theory, but also a reinvention of something the web has had for thirty years. A tongue-in-cheek case for just using HTML."
-tags: html, ai, web, okf
+tags: [html, ai, web, okf]
 ---
 
 <style>

@@ -1,0 +1,8 @@
+- name: Everything
+  path: /feed.xml
+- name: Posts
+  path: /feed/posts.xml
+- name: Reviews
+  path: /feed/reviews.xml
+- name: Advent of Code
+  path: /feed/advent_of_code.xml

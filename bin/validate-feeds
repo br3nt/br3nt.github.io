@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+# Parse every built Atom feed and fail if one is not well-formed XML or has no
+# entries. Run after `jekyll build`; the deploy workflow runs it too.
+
+require 'rexml/document'
+
+site = File.expand_path('../_site', __dir__)
+feeds = [File.join(site, 'feed.xml')] + Dir[File.join(site, 'feed', '*.xml')]
+abort 'No feeds found under _site; build first' if feeds.empty?
+
+failed = false
+feeds.each do |path|
+  name = path.delete_prefix("#{site}/")
+  doc = REXML::Document.new(File.read(path))
+  entries = doc.root ? doc.root.elements.to_a('entry').size : 0
+  raise 'no <entry> elements' if entries.zero?
+  puts "ok  #{name} (#{entries} entries)"
+rescue REXML::ParseException, RuntimeError => e
+  puts "BAD #{name}: #{e.message.lines.first.strip}"
+  failed = true
+end
+
+exit 1 if failed
