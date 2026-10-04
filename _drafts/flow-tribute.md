@@ -20,7 +20,7 @@ tags: [flash, ruffle, preservation, gamedev, ai, anthropic]
 
 <img class="flow-shot" src="/assets/img/flow-title.jpg" alt="The flOw title screen: the word flOw in white serif letters with ribbons trailing off each side, small creatures drifting across a bright blue sea">
 
-I went to play it again. The copy on [archive.org](https://archive.org/details/flash_flow) runs in Ruffle, and I could steer my creature, but the sea was black and there was nothing to eat. Jenova Chen's own [flOw page](https://www.jenovachen.com/flowingames/flowing.htm) is still up, but its "Play flOw online" link redirects to nowhere. Its offline download still works, but it's a 2006 Flash projector for Windows and classic Mac OS, so no help on a current Mac.
+I went to play it again. The copy on [archive.org](https://archive.org/details/flash_flow) runs in Ruffle, and I could steer my creature, but the sea was black and there was nothing to eat. Jenova Chen's own [flOw page](https://www.jenovachen.com/flowingames/flowing.htm) is still up, but its "Play flOw online" link leads to a site that can't be reached. Its offline download still works, but it's a 2006 Flash projector for Windows and classic Mac OS, so no help on a current Mac.
 
 ## One missing file
 
