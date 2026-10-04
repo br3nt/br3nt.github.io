@@ -50,7 +50,7 @@ The page is styled like the game. The background colour comes straight from `lev
 
 <img class="flow-shot" src="/assets/img/flow-deep.jpg" alt="The Manta Boss level: a dark teal sea with the huge kite-shaped manta, curved sides and glowing nodes, beside the player's small creature">
 
-For The Space Game I kept the game files out of the repo and had people download them themselves. That would be miserable here with 43 files, so this time the page hosts them, unmodified, and lists where each one came from, with Jenova Chen's server first. If he'd rather it didn't, I'll take them down.
+For The Space Game I kept the game files out of the repo and had people download them themselves. That would be miserable here with 43 files, so this time the page hosts them, unmodified, with links back to Jenova Chen's site, and says up front that it's a fan-made launcher, not his. If he'd rather it didn't, I'll take them down.
 
 I hope you love this one as much as I do :)
 
