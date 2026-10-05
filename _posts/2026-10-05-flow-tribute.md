@@ -1,4 +1,5 @@
 ---
+date: 2026-10-05 09:00:00 +1030
 title: "flOw, the Flash game that lost its levels"
 excerpt: "Jenova Chen's 2006 Flash game flOw plays on archive.org as an empty black sea. The fix was one missing XML file and some MP3s. So I made it a tribute page where you can play it properly."
 tags: [flash, ruffle, preservation, gamedev, ai, anthropic]
@@ -60,8 +61,6 @@ The good news is that every file is still on Jenova Chen's server. The Wayback M
 <img class="flow-shot" src="/assets/img/flow-eating.jpg" alt="flOw in play: the creature with its fins out in the middle of the blue, a ring of blurred creatures circling on the level below">
 
 Compared with bringing back The Space Game, where we had to fake a whole server, this was a five-minute fix.
-
-I should have kept searching, as I later discovered the game did work on at least one other site: [9o3o](https://ooooooooo.ooo/?47ad0667-9626-4f19-868f-1a3971e9a045), a web player that runs games straight from the [Flashpoint Archive](https://flashpointarchive.org/), with the levels and music included.
 
 ## A tribute page
 
