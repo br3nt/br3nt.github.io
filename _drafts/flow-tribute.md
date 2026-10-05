@@ -37,9 +37,9 @@ Like I experienced with [The Space Game]({% post_url 2026-09-10-the-space-game-l
 
 And so began my journey of getting the game to work!
 
-Jenova Chen's own [flOw page](https://www.jenovachen.com/flowingames/flowing.htm) is still up, but its "Play flOw online" link leads to a site that can't be reached.
+## Restoring the game
 
-## One missing file
+Jenova Chen's own [flOw page](https://www.jenovachen.com/flowingames/flowing.htm) is still up, but its "Play flOw online" link leads to a site that can't be reached.
 
 Claude helpfully read the SWF and found the answer in a couple of minutes. On startup, the game loads `levels.xml` along with its other assets. If those files aren't sitting next to the SWF, the game doesn't know what to draw.
 
@@ -55,15 +55,13 @@ Claude helpfully read the SWF and found the answer in a couple of minutes. On st
 
 The game also streams its music, one MP3 per level and one per sound effect.
 
-The good news is that every file is still on Jenova Chen's server. Claude downloaded `core.swf`, `levels.xml` and the 41 MP3s into one folder, served it locally, pointed Ruffle at it, et voilà! The game sprang to life!!!
+The good news is that every file is still on Jenova Chen's server. The Wayback Machine even has [the original ActionScript source](https://web.archive.org/web/20170512055653/http://www.jenovachen.com/flowingames/implementations/flowing/flOw_source.zip) from April 2006. Claude downloaded `core.swf`, `levels.xml` and the 41 MP3s into one folder, served it locally, pointed Ruffle at it, et voilà! The game sprang to life!!!
 
 <img class="flow-shot" src="/assets/img/flow-eating.jpg" alt="flOw in play: the creature with its fins out in the middle of the blue, a ring of blurred creatures circling on the level below">
 
-The Wayback Machine even has the original ActionScript source, [`flOw_source.zip`](https://web.archive.org/web/2016/http://www.jenovachen.com/flowingames/implementations/flowing/flOw_source.zip), from April 2006.
-
 Compared with bringing back The Space Game, where we had to fake a whole server, this was a five-minute fix.
 
-I should have kept searching, as I later discovered the game did work on at least one other site: [TODO: link](TODO).
+I should have kept searching, as I later discovered the game did work on at least one other site: [9o3o](https://ooooooooo.ooo/?47ad0667-9626-4f19-868f-1a3971e9a045), a web player that runs games straight from the [Flashpoint Archive](https://flashpointarchive.org/), with the levels and music included.
 
 ## A tribute page
 
