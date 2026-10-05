@@ -14,17 +14,36 @@ tags: [flash, ruffle, preservation, gamedev, ai, anthropic]
   }
   .flow-play:hover { background: #005c8f; color: #fff; }
   .flow-cap { font-size: 0.82rem; color: #475569; margin: 0.2em 0 1.6em; }
+  .flow-video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 10px; margin: 1.2em 0; }
 </style>
 
-*flOw* is a tiny Flash game by Jenova Chen from 2006, made for his master's thesis at USC with Nicholas Clark, with music by Austin Wintory. You're a small creature in a blue sea. You eat, you grow longer, and when you eat the red food you sink a level deeper, where the water gets darker and the creatures get bigger. Eat the blue food and you float back up. There's no difficulty setting; you choose how deep to go. That was the point of the thesis, *Flow in Games*: let the player steer the difficulty so they stay in the zone. A year later it became thatgamecompany's first PlayStation 3 game, and the studio went on to make *Flower* and *Journey*.
+I was watching YouTube and came across [this /noclip documentary](https://youtu.be/6uYOnnz8o0g) on thatgamecompany, *Flower, Flow & the Origins of thatgamecompany*. It interviews Jenova Chen, who founded thatgamecompany, the studio behind *flOw*, *Flower*, *Journey* and *Sky*.
+
+<iframe class="flow-video" src="https://www.youtube-nocookie.com/embed/6uYOnnz8o0g" title="Flower, Flow & the Origins of thatgamecompany - /noclip Documentary" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+He talks about moving from Shanghai to the US to study at USC's Interactive Media program, because there was no game industry in China doing the kind of games he wanted to make. There he worked with Nicholas Clark, a fellow USC student who co-created *flOw* with him, and Austin Wintory, who wrote the music. His lecturers pushed him to get creative, and in that time he made small experimental games like *Cloud* and *flOw*.
+
+*flOw* was part of his master's thesis, [*Flow in Games*](https://www.jenovachen.com/flowingames/thesis.htm). You're a small creature starting out in the shallows. As you eat, your creature grows longer, with more segments. As you go deeper you meet other creatures that try to attack and eat you. The point of the game was to let the player choose their own difficulty, by choosing when to sink down or swim back up. That was the point of the thesis: let the player steer the difficulty so they stay in the zone. A year later *flOw* became thatgamecompany's first PlayStation 3 game, and the studio went on to make *Flower*, *Journey* and *Sky*.
 
 <img class="flow-shot" src="/assets/img/flow-title.jpg" alt="The flOw title screen: the word flOw in white serif letters with ribbons trailing off each side, small creatures drifting across a bright blue sea">
 
-I went to play it again. The copy on [archive.org](https://archive.org/details/flash_flow) runs in Ruffle, and I could steer my creature, but the sea was black and there was nothing to eat. Jenova Chen's own [flOw page](https://www.jenovachen.com/flowingames/flowing.htm) is still up, but its "Play flOw online" link leads to a site that can't be reached. Its offline download still works, but it's a 2006 Flash projector for Windows and classic Mac OS, so no help on a current Mac.
+I wanted to explore his work, and *flOw* seemed an easy enough entry point. It was a Flash game, so it should be on archive.org or somewhere similar.
+
+## A black void
+
+Like I experienced with [The Space Game]({% post_url 2026-09-10-the-space-game-launcher %}), when I played the game from [archive.org](https://archive.org/details/flash_flow), it didn't work. I was greeted by a black void with some glowing dots in the background. At first I didn't realise anything was wrong. I could steer the creature with my mouse, but I couldn't work out how to play. There wasn't anything to do. I tried swimming towards the glowing dots, but nothing reacted.
+
+<img class="flow-shot" src="/assets/img/flow-black.jpg" alt="flOw on archive.org: the small white creature alone in a black void, with a few faint glowing dots and nothing to eat">
+
+And so began my journey of getting the game to work!
+
+Jenova Chen's own [flOw page](https://www.jenovachen.com/flowingames/flowing.htm) is still up, but its "Play flOw online" link leads to a site that can't be reached.
 
 ## One missing file
 
-I asked Claude what was wrong. It pulled the SWF apart and found the answer in a couple of minutes: the game isn't only its SWF. On startup `core.swf` loads `levels.xml` from the folder it's in, and that file *is* the game:
+Claude helpfully read the SWF and found the answer in a couple of minutes. On startup, the game loads `levels.xml` along with its other assets. If those files aren't sitting next to the SWF, the game doesn't know what to draw.
+
+`levels.xml` describes each level in the game, including its background colour, its food, its creatures and its bosses:
 
 ```xml
 <Level bgColor="0x008DD8" levelSize="400">
@@ -34,23 +53,27 @@ I asked Claude what was wrong. It pulled the SWF apart and found the answer in a
 </Level>
 ```
 
-Every level's background colour, its food, its creatures and its bosses live in there. Then the game streams its music, one MP3 per level and one per sound effect. The archive.org item is the three SWFs from that 2006 offline zip, uploaded without the `levels.xml` and MP3s that sit next to them in the zip. No level data, so no blue and nothing to eat.
+The game also streams its music, one MP3 per level and one per sound effect.
 
-The good news is that every file is still on Jenova Chen's server. Only the page that embedded them is gone. Claude downloaded `core.swf`, `levels.xml` and the 41 MP3s into one folder, served it locally, pointed Ruffle at it, and the blue sea came back with food in it. The Wayback Machine even has the original ActionScript source, `flOw_source.zip`, from April 2006.
-
-Compared with [bringing back The Space Game]({% post_url 2026-09-10-the-space-game-launcher %}), where we had to fake a whole server, this was a five-minute fix.
+The good news is that every file is still on Jenova Chen's server. Claude downloaded `core.swf`, `levels.xml` and the 41 MP3s into one folder, served it locally, pointed Ruffle at it, et voilà! The game sprang to life!!!
 
 <img class="flow-shot" src="/assets/img/flow-eating.jpg" alt="flOw in play: the creature with its fins out in the middle of the blue, a ring of blurred creatures circling on the level below">
+
+The Wayback Machine even has the original ActionScript source, [`flOw_source.zip`](https://web.archive.org/web/2016/http://www.jenovachen.com/flowingames/implementations/flowing/flOw_source.zip), from April 2006.
+
+Compared with bringing back The Space Game, where we had to fake a whole server, this was a five-minute fix.
+
+I should have kept searching, as I later discovered the game did work on at least one other site: [TODO: link](TODO).
 
 ## A tribute page
 
 It deserved more than a fix, so I made it a [tribute page](https://br3nt.github.io/flow-tribute/) where you can play it.
 
-The page is styled like the game. The background colour comes straight from `levels.xml`: it starts at the title screen's bright `#00BFFF` and sinks through every level's colour as you scroll, down to the final boss's near-black. Glowing particles pop in and out, and blurred creatures drift on a layer behind the page, the way the next level down shows through in the game: snakefish, jelly rings, and once you're deep enough, a manta. If you're on a computer, a little creature follows your mouse and eats the food floating around the page.
+The page is styled like the game. It starts with the iconic colours from when the game first loads, then as you scroll, the background gets dark and eerie in the dangerous depths. Glowing particles pop in and out, and blurred creatures drift on a layer behind the page, the way the next level down shows through in the game. Just like the game, you see hints of snakefish, jelly rings, and once you're deep enough, a manta. The page is somewhat interactive too. If you're on a computer, a little creature follows your mouse and eats the food floating around the page.
 
 <img class="flow-shot" src="/assets/img/flow-deep.jpg" alt="The Manta Boss level: a dark teal sea with the huge kite-shaped manta, curved sides and glowing nodes, beside the player's small creature">
 
-For The Space Game I kept the game files out of the repo and had people download them themselves. That would be miserable here with 43 files, so this time the page hosts them, unmodified, with links back to Jenova Chen's site, and says up front that it's a fan-made launcher, not his. If he'd rather it didn't, I'll take them down.
+I really appreciate the design aesthetic of this game. The blurred layers below hint at what you'll discover next, and encourage curiosity and exploration. You feel anxiety and excitement as you see large, potentially dangerous creatures lurking below, and wonder if you can take them on head first. The way the creatures move, and the way you grow as you eat, give a lovely sense of naturalness and connectedness to the environment. You feel part of an ecosystem.
 
 I hope you love this one as much as I do :)
 
