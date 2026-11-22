@@ -100,7 +100,7 @@ p {
 }
 
 p:has(+ ul), p:has(+ ol) {
-  margin-bottom: 0;
+  margin-bottom: 0.5em; /* a little air before a list: less than between paragraphs, but visible */
 }
 
 ul, ol {
