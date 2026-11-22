@@ -173,6 +173,17 @@ Sometimes I don't know how something should be done, only the effect I want. So 
 
 Behind the scenes, Claude splits the work across a team of subagents, each building its own piece in its own copy of the code. Every job in the game gets played through automatically, using only key presses the way you would, so a new change that breaks an old job gets caught before it goes live. Mostly.
 
+### Under the hood
+
+There's no game engine, no framework and no build step. It's a web page and some JavaScript:
+
+- **Plain JavaScript**, about 10,000 lines of it, drawing onto a browser canvas.
+- **Pixel art drawn by code.** There are no image files for the characters, cars or props: every sprite is generated when the game loads.
+- **Sound and music made in the browser**, with the browser's built-in Web Audio. No audio files either: every engine, siren and doorbell is synthesised on the fly.
+- **The map comes from OpenStreetMap.** A small script turns about 20 MB of raw map data into a compact file the game loads, and works out every spot where something is allowed to appear, so nothing starts inside a building or in the sea.
+- **Test players** built with Playwright drive a real browser using only key presses and finger taps. They play each job and check the layout on emulated phones.
+- **Hosted on GitHub Pages**, with a little publish script that stamps a version number, so the game can tell you when there's a new one.
+
 ## Come and play
 
 It's a work in progress, and it changes often. If a new version comes out while you're playing, the game tells you and offers a reload.
